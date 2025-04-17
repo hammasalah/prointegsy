@@ -1,0 +1,226 @@
+:root {
+    /* Dark Modern Palette */
+    --primary-bg: #0A0F1C; /* Very dark navy */
+    --secondary-bg: #1B2232; /* Slightly lighter dark background */
+    --accent: #F96358;       /* Vibrant orange-red for calls to action */
+    --text-white: #FFFFFF;
+    --text-muted: #A0AEC0;   /* Soft gray for muted text */
+    --heading-font: 'Poppins', sans-serif; /* or your preferred heading font */
+    --body-font: 'Poppins', sans-serif;    /* or your preferred body font */
+    
+    --container-max-width: 1200px;
+  }
+  
+  /* Reset & Base */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: var(--primary-bg);
+    color: var(--text-white);
+    font-family: var(--body-font);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  
+  /* Header */
+  .header {
+    background-color: var(--secondary-bg);
+    padding: 1rem 2rem;
+  }
+  
+  .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+  }
+  
+  .logo-img {
+    height: 40px;
+    width: auto;
+    transition: transform 0.3s ease;
+  }
+  
+  .logo-img:hover {
+    transform: scale(1.05);
+  }
+  
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .nav-link {
+    color: var(--text-white);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: var(--accent);
+  }
+  
+  .contact-btn {
+    background: var(--accent);
+    color: var(--text-white);
+    padding: 0.7rem 1.2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .contact-btn:hover {
+    background: #e74f49; /* slightly darker shade for hover */
+    transform: translateY(-2px);
+  }
+  
+  /* Hero Section
+     -----------------------------------------
+     Suggested HTML structure for your hero:
+     <section class="hero">
+       <div class="hero-content">
+         <div class="hero-text">
+           <h1>...</h1>
+           <p>...</p>
+           <a href="#" class="cta-btn">Get Started</a>
+         </div>
+         <div class="hero-illustration">
+           <img src="path-to-hero-image.png" alt="Hero Illustration">
+         </div>
+       </div>
+     </section>
+  */
+  .hero {
+    padding: 4rem 2rem;
+    position: relative;
+    background-color: var(--primary-bg);
+  }
+  
+  .hero-content {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* text on left, image on right */
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  .hero-text h1 {
+    font-family: var(--heading-font);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  
+  .hero-text p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .cta-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--text-white);
+    padding: 0.8rem 1.6rem;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .cta-btn:hover {
+    background: #e74f49;
+    transform: translateY(-2px);
+  }
+  
+  .hero-illustration img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* Example sub-section
+     -----------------------------------------
+     This could be for “How It Works” or “What Happens Next” 
+     with large headings, big icons/illustrations, etc.
+  */
+  .section {
+    padding: 4rem 2rem;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .section-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 3rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Example content layout (cards, steps, etc.) */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  
+  .card {
+    background-color: var(--secondary-bg);
+    border-radius: 8px;
+    padding: 2rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .card p {
+    color: var(--text-muted);
+  }
+  
+  /* Footer */
+  .footer {
+    background-color: var(--secondary-bg);
+    padding: 2rem;
+    text-align: center;
+    margin-top: 4rem;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .hero-content {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    
+    .hero-illustration {
+      margin-top: 2rem;
+    }
+  
+    .nav-links {
+      display: none; /* For a hamburger menu, you'd handle it separately */
+    }
+  }
+  

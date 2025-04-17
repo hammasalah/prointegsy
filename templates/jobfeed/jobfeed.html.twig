@@ -1,0 +1,153 @@
+ {% extends 'base.html.twig' %}
+
+{% block title %}All Job Opportunities{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .job-card {
+            transition: transform 0.2s;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .salary-badge {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .deadline-alert {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <h1 class="text-center mb-5 display-4">All Available Jobs</h1>
+    
+    <div class="row">
+        {% if jobs|length > 0 %}
+            {% for job in jobs %}
+            <div class="col-12 mb-4">
+                <div class="card job-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="h4 mb-0">{{ job.jobTitle }}</h2>
+                                {% if job.eventTitle %}
+                                <p class="mb-0 text-muted mt-1">
+                                    <i class="bi bi-calendar-event"></i> {{ job.eventTitle }}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <span class="salary-badge">
+                                {{ job.currency }} {{ job.minSalary }} - {{ job.currency }} {{ job.maxSalary }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="mb-3">Job Details</h5>
+                                <div class="row mb-4">
+                                    <div class="col-6">
+                                        <p class="mb-2">
+                                            <i class="bi bi-geo-alt"></i> <strong>Location:</strong><br>
+                                            {{ job.jobLocation }}
+                                        </p>
+                                        <p class="mb-2">
+                                            <i class="bi bi-clock-history"></i> <strong>Type:</strong><br>
+                                            {{ job.employmentType }}
+                                        </p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="mb-2">
+                                            <i class="bi bi-person"></i> <strong>Recruiter:</strong><br>
+                                            {{ job.recruiterName }}
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="bi bi-envelope"></i> <strong>Contact:</strong><br>
+                                            {{ job.recruiterEmail }}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <h5 class="mb-3">Description</h5>
+                                <p class="card-text">{{ job.jobDescreption }}</p>
+                            </div>
+                            
+                            <div class="col-md-4 border-start">
+                                <div class="ps-md-3">
+                                    <h5 class="mb-3">Key Information</h5>
+                                    {% if job.applicationDeadLine %}
+                                    <div class="deadline-alert mb-3">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        Application Deadline:<br>
+                                        <strong>{{ job.applicationDeadLine }}</strong>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="mb-3">
+                                        <p class="mb-1">
+                                            <i class="bi bi-calendar-plus"></i> Posted: 
+                                            {% if job.createdAt %}
+                                                {{ job.createdAt }}
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-primary btn-lg">
+                                            <i class="bi bi-send"></i> Apply Now
+                                        </button>
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="bi bi-share"></i> Share Job
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning text-center py-4">
+                    <h2 class="h4 mb-3"><i class="bi bi-exclamation-circle"></i> No Jobs Available</h2>
+                    <p class="mb-0">Check back later for new opportunities!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
+
+<h1>🔥 Job Feed Works!</h1>
+
+<ul>
+    {% for job in jobs %}
+        <li>{{ job.jobTitle }}</li>
+    {% else %}
+        <li>No jobs found.</li>
+    {% endfor %}
+</ul>
