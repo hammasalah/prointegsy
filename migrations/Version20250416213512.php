@@ -7,29 +7,36 @@ namespace DoctrineMigrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 final class Version20250416213512 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Convertir created_at de VARCHAR en DATETIME en nettoyant d’abord les valeurs invalides';
     }
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        // 1) Nettoyer les valeurs invalides ('today', 'null', chaîne vide, ou NULL)
         $this->addSql(<<<'SQL'
-            ALTER TABLE jobs CHANGE created_at created_at DATETIME DEFAULT NULL
+            UPDATE jobs
+            SET created_at = NOW()
+            WHERE LOWER(created_at) IN ('today', 'null', '')
+               OR created_at IS NULL
+        SQL);
+
+        // 2) Modifier le type de la colonne en DATETIME, autoriser NULL
+        $this->addSql(<<<'SQL'
+            ALTER TABLE jobs
+            CHANGE created_at created_at DATETIME DEFAULT NULL
         SQL);
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        // Revenir à VARCHAR(255) si nécessaire
         $this->addSql(<<<'SQL'
-            ALTER TABLE jobs CHANGE created_at created_at VARCHAR(255) DEFAULT NULL
+            ALTER TABLE jobs
+            CHANGE created_at created_at VARCHAR(255) DEFAULT NULL
         SQL);
     }
 }

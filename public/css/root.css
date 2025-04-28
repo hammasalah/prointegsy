@@ -27,7 +27,7 @@
   }
   
   /* Header */
-  .header {
+  header {
     background-color: var(--secondary-bg);
     padding: 1rem 2rem;
   }

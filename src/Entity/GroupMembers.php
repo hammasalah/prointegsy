@@ -6,6 +6,7 @@ use App\Repository\GroupMembersRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GroupMembersRepository::class)]
+#[ORM\Table(name: "GroupMembers")]
 class GroupMembers
 {
     #[ORM\Id]

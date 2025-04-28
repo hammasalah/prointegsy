@@ -1,20 +1,53 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello SocialController!{% endblock %}
+{% block title %}Feed{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/user/PiSymfony/src/Controller/SocialController.php'|file_link(0) }}">src/Controller/SocialController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/user/PiSymfony/templates/social/index.html.twig'|file_link(0) }}">templates/social/index.html.twig</a></code></li>
-    </ul>
+<div class="container">
+    <div class="feed-header">
+        <h1>Feed</h1>
+        <a href="{{ path('app_social_add_post') }}" class="btn btn-primary">Add Post</a>
+    </div>
+    <div class="feed">
+        {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <img src="{{ post.user.profilePicture }}" alt="Profile Picture" class="profile-picture">
+                    <div>
+                        <h3>{{ post.user.username }}</h3>
+                        <p>{{ post.post.timeStamp|date('M d, Y H:i') }}</p>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>{{ post.post.content }}</p>
+                    {% if post.post.imagePath %}
+                        <img src="{{ post.post.imagePath }}" alt="Post Image" class="post-image">
+                    {% endif %}
+                </div>
+                <div class="post-actions">
+                    <form action="{{ path('app_social_like_post', {id: post.post.id}) }}" method="post">
+                        <button type="submit" class="btn btn-like">
+                            {{ post.userLiked ? 'Unlike' : 'Like' }}
+                        </button>
+                    </form>
+                    <span>{{ post.likeCount }} J'aime</span>
+                    <a href="#comments-{{ post.post.id }}" class="btn btn-comment">Commentaires</a>
+                </div>
+                <div class="post-comments" id="comments-{{ post.post.id }}">
+                    {% for comment in post.comments %}
+                        <div class="comment">
+                            <p><strong>{{ comment.user.username }}</strong>: {{ comment.content }}</p>
+                        </div>
+                    {% endfor %}
+                    <form action="{{ path('app_social_add_comment', {id: post.post.id}) }}" method="post">
+                        <textarea name="content" placeholder="Ajouter un commentaire..." required></textarea>
+                        <button type="submit" class="btn btn-primary">Commenter</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <p>Aucun post à afficher.</p>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
