@@ -6,7 +6,6 @@
 /config/secrets/dev/
 /config/secrets/test/
 
-# Mercure specific
 /mercure.yaml
 /mercure.yaml.local
 /dev.Caddyfile
