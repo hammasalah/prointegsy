@@ -12,7 +12,6 @@
 /dev.Caddyfile
 /dev_chatapp.Caddyfile
 
-# Other common ignores
 /node_modules/
 public/bundles/
 /var/
