@@ -1,0 +1,48 @@
+{# templates/messagerie/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Chat{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/disscussion.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="chat-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <button class="back-button" onclick="goBack()">⬅</button>
+            <h2>Discussion</h2>
+        </div>
+        <label class="header-label">Search Users</label>
+        <input type="text" id="searchField" placeholder="Search..." />
+
+        <label class="header-label">Contacts</label>
+        <ul id="userListView">
+            <!-- Remplir dynamiquement avec les utilisateurs -->
+        </ul>
+
+        <div class="status-bar">
+            <span>Status:</span>
+            <span id="connectionStatusLabel">Disconnected</span>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+        <div class="chat-header">
+            <h3 id="selectedUserLabel">Select a user to start chatting</h3>
+        </div>
+
+        <div class="messages-container" id="chatBox">
+            <!-- Messages seront injectés ici -->
+        </div>
+
+        <div class="message-input-container">
+            <input type="text" id="messageField" placeholder="Type a message..." />
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

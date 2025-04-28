@@ -1,0 +1,33 @@
+{
+    # Global options
+    auto_https off
+    admin off
+}
+
+:3000 {
+    encode gzip
+
+    log {
+        output stdout
+        format console
+    }
+
+    mercure {
+        # JWT configuration
+        publisher_jwt "souprojectsym25"
+        subscriber_jwt "souprojectsym25"
+        
+        # CORS configuration
+        cors_origins http://localhost:8000
+        publish_origins http://localhost:8000
+        
+        # Additional settings
+        anonymous
+        subscriptions
+    }
+
+    # UI and health check routes
+    redir / /.well-known/mercure/ui/
+    respond /healthz 200
+    respond "Not Found" 404
+}
