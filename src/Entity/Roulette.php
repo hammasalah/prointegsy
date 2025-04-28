@@ -2,65 +2,95 @@
 
 namespace App\Entity;
 
-use App\Repository\RouletteRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: RouletteRepository::class)]
-class Roulette
+#[ORM\Entity]
+#[ORM\Table(name: 'UserRewards')]
+class UserRewards
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $userRewardId = null;
 
-    #[ORM\ManyToOne]
-    private ?Users $user_id = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'user_id', onDelete: 'CASCADE')]
+    private ?User $user = null;
 
-    #[ORM\Column]
-    private ?int $points_gagnes = null;
+    #[ORM\ManyToOne(targetEntity: Reward::class)]
+    #[ORM\JoinColumn(name: 'reward_id', referencedColumnName: 'reward_id', onDelete: 'CASCADE')]
+    private ?Reward $reward = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date = null;
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'event_id', onDelete: 'SET NULL')]
+    private ?Event $event = null;
 
-    public function getId(): ?int
+    #[ORM\Column(type: 'integer')]
+    private int $pointsEarned;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $earnedAt = null;
+
+    // Getters et Setters
+    public function getUserRewardId(): ?int
     {
-        return $this->id;
+        return $this->userRewardId;
     }
 
-    public function getUserId(): ?Users
+    public function getUser(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(?Users $user_id): static
+    public function setUser(?User $user): self
     {
-        $this->user_id = $user_id;
-
+        $this->user = $user;
         return $this;
     }
 
-    public function getPointsGagnes(): ?int
+    public function getReward(): ?Reward
     {
-        return $this->points_gagnes;
+        return $this->reward;
     }
 
-    public function setPointsGagnes(int $points_gagnes): static
+    public function setReward(?Reward $reward): self
     {
-        $this->points_gagnes = $points_gagnes;
-
+        $this->reward = $reward;
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getEvent(): ?Event
     {
-        return $this->date;
+        return $this->event;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setEvent(?Event $event): self
     {
-        $this->date = $date;
+        $this->event = $event;
+        return $this;
+    }
 
+    public function getPointsEarned(): int
+    {
+        return $this->pointsEarned;
+    }
+
+    public function setPointsEarned(int $pointsEarned): self
+    {
+        $this->pointsEarned = $pointsEarned;
+        return $this;
+    }
+
+    public function getEarnedAt(): ?string
+    {
+        return $this->earnedAt;
+    }
+
+    public function setEarnedAt(?string $earnedAt): self
+    {
+        $this->earnedAt = $earnedAt;
         return $this;
     }
 }
+
+// Compare this snippet from prointegsy/src/Entity/Users.php:

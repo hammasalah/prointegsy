@@ -1,0 +1,1029 @@
+{% extends 'base.html.twig' %}
+
+    {% block stylesheets %}
+        <!-- Inclure FontAwesome pour les icônes -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <style>
+            /* Base Styles */
+            body, html {
+                margin: 0;
+                padding: 0;
+                font-family: 'Poppins', sans-serif;
+                background: #1A0033;
+                color: #FFFFFF;
+                overflow-x: hidden;
+            }
+    
+            .dashboard-container {
+                display: flex;
+                min-height: 100vh;
+            }
+    
+            /* Sidebar */
+            .sidebar {
+                width: 220px;
+                background: linear-gradient(180deg, #220054 0%, #5B21B6 100%);
+                color: #FFFFFF;
+                padding: 20px 8px;
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+                border-top-right-radius: 12px;
+                border-bottom-right-radius: 12px;
+            }
+    
+            .sidebar .logo {
+                margin-bottom: 40px;
+            }
+    
+            .sidebar .logo h1 {
+                font-size: 24px;
+                font-weight: 700;
+                text-align: center;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+    
+            .sidebar ul {
+                list-style: none;
+                flex-grow: 1;
+                padding: 0;
+            }
+    
+            .sidebar ul li {
+                margin: 10px 0;
+                position: relative;
+            }
+    
+            .sidebar ul li a {
+                display: flex;
+                align-items: center;
+                color: #FFFFFF;
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: 500;
+                padding: 12px 15px;
+                border-radius: 8px;
+                transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            }
+    
+            .sidebar ul li a i {
+                margin-right: 10px;
+                font-size: 18px;
+            }
+    
+            .sidebar ul li a:hover,
+            .sidebar ul li a.active {
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1.03);
+                box-shadow: 0 0 15px rgba(91, 33, 182, 0.5);
+            }
+    
+            /* Main Content */
+            .main-content {
+                margin-left: 220px;
+                width: calc(100% - 220px);
+                padding: 10px;
+                background: #1A0033;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+    
+            /* Welcome Card */
+            .welcome-card {
+                background: linear-gradient(180deg, #220054 0%, #5B21B6 100%);
+                border-radius: 12px;
+                padding: 15px 20px;
+                display: flex;
+                align-items: center;
+                gap: 30px;
+                box-shadow: 0 0 20px rgba(91, 33, 182, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                margin-bottom: 10px;
+                width: 100%;
+                max-width: 1200px;
+            }
+    
+            .welcome-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 0 30px rgba(91, 33, 182, 0.5);
+            }
+    
+            .welcome-avatar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 60px;
+                height: 60px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            }
+    
+            .welcome-avatar i {
+                font-size: 30px;
+                color: #A78BFA;
+                animation: neon-glow 1.5s infinite ease-in-out;
+            }
+    
+            @keyframes neon-glow {
+                0% { text-shadow: 0 0 5px #A78BFA, 0 0 10px #A78BFA; }
+                50% { text-shadow: 0 0 10px #A78BFA, 0 0 20px #A78BFA; }
+                100% { text-shadow: 0 0 5px #A78BFA, 0 0 10px #A78BFA; }
+            }
+    
+            .welcome-text h2 {
+                font-size: 24px;
+                font-weight: 700;
+                color: #FFFFFF;
+                margin-bottom: 5px;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+    
+            .welcome-text p {
+                font-size: 14px;
+                color: #D1D5DB;
+            }
+    
+            /* Content Grid */
+            .content-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 10px;
+                width: 90%;
+                max-width: 1200px;
+                grid-template-areas: 
+                    "wheel wheel reward"
+                    "wheel wheel history"
+                    "stats stats next-spin"
+                    "challenges challenges leaderboard";
+            }
+    
+            .wheel-section { grid-area: wheel; }
+            .reward-card { grid-area: reward; }
+            .history-card { grid-area: history; }
+            .next-spin-card { grid-area: next-spin; }
+            .stats-card { grid-area: stats; }
+            .challenges-card { grid-area: challenges; }
+            .leaderboard-card { grid-area: leaderboard; }
+    
+            /* Card Styles (Glassmorphism) */
+            .wheel-section,
+            .reward-card,
+            .history-card,
+            .next-spin-card,
+            .stats-card,
+            .challenges-card,
+            .leaderboard-card {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+    
+            .wheel-section:hover,
+            .reward-card:hover,
+            .history-card:hover,
+            .next-spin-card:hover,
+            .stats-card:hover,
+            .challenges-card:hover,
+            .leaderboard-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+            }
+    
+            /* Neon Borders for Cards */
+            .wheel-section { border-left: 3px solid #A78BFA; }
+            .reward-card { border-left: 3px solid #FBBF24; }
+            .history-card { border-left: 3px solid #38BDF8; }
+            .next-spin-card { border-left: 3px solid #C084FC; }
+            .stats-card { border-left: 3px solid #F87171; }
+            .challenges-card { border-left: 3px solid #34D399; }
+            .leaderboard-card { border-left: 3px solid #FFD700; }
+    
+            /* Wheel Section */
+            .wheel-section {
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+    
+            .wheel-title {
+                font-size: 24px;
+                font-weight: 700;
+                color: #FFFFFF;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+    
+            .wheel-avatar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                box-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+            }
+    
+            .wheel-avatar i {
+                font-size: 20px;
+                color: #A78BFA;
+                animation: neon-glow 1.5s infinite ease-in-out;
+            }
+    
+            .wheel-container {
+                position: relative;
+                width: 600px;
+                height: 640px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+    
+            .triangle-pointer {
+                position: absolute;
+                top: -15px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                border-left: 20px solid transparent;
+                border-right: 20px solid transparent;
+                border-bottom: 25px solid #A78BFA;
+                z-index: 10;
+            }
+    
+            canvas {
+                border-radius: 50%;
+                background-color: #ffffff;
+                box-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+            }
+    
+            .spin-btn {
+                margin-top: 20px;
+                padding: 10px 25px;
+                background: linear-gradient(135deg, #7C3AED, #A855F7);
+                color: #FFFFFF;
+                border: none;
+                border-radius: 8px;
+                font-size: 18px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+                transition: transform 0.2s ease, box-shadow 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+    
+            .spin-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 25px rgba(124, 58, 237, 0.7);
+            }
+    
+            .spin-btn:disabled {
+                background: #6B7280;
+                cursor: not-allowed;
+                box-shadow: none;
+            }
+    
+            /* Reward Card */
+            .reward-card {
+                text-align: center;
+            }
+    
+            .reward-card h3 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #FBBF24;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+            }
+    
+            .reward-card ul {
+                list-style: none;
+                padding: 0;
+            }
+    
+            .reward-card li {
+                font-size: 14px;
+                color: #D1D5DB;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 5px;
+                background: rgba(251, 191, 36, 0.1);
+                border-radius: 5px;
+                transition: transform 0.2s ease;
+            }
+    
+            .reward-card li:hover {
+                transform: scale(1.02);
+            }
+    
+            .reward-card i {
+                font-size: 16px;
+                color: #FBBF24;
+                animation: sparkle 1.5s infinite ease-in-out;
+            }
+    
+            @keyframes sparkle {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+    
+            /* History Card */
+            .history-card {
+                position: relative;
+            }
+    
+            .history-card h3 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #38BDF8;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            }
+    
+            .history-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+    
+            .history-table th, .history-table td {
+                padding: 8px;
+                text-align: center;
+                font-size: 14px;
+                color: #D1D5DB;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+    
+            .history-table th {
+                font-weight: 600;
+                color: #38BDF8;
+            }
+    
+            .history-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+    
+            .history-table tbody tr:hover {
+                background: rgba(56, 189, 248, 0.1);
+            }
+    
+            /* Next Spin Card */
+            .next-spin-card {
+                text-align: center;
+            }
+    
+            .next-spin-card h3 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #C084FC;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+            }
+    
+            .next-spin-card p {
+                font-size: 16px;
+                color: #D1D5DB;
+                margin: 0;
+                padding: 10px;
+                background: rgba(192, 132, 252, 0.1);
+                border-radius: 5px;
+            }
+    
+            /* Stats Card */
+            .stats-card {
+                text-align: center;
+            }
+    
+            .stats-card h3 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #F87171;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                text-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+            }
+    
+            .stats-card .stats-item {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                margin: 10px 0;
+                padding: 10px;
+                background: rgba(248, 113, 113, 0.1);
+                border-radius: 5px;
+                transition: transform 0.2s ease;
+            }
+    
+            .stats-card .stats-item:hover {
+                transform: scale(1.02);
+            }
+    
+            .stats-card .stats-item i {
+                font-size: 18px;
+                color: #F87171;
+            }
+    
+            .stats-card .stats-item span {
+                font-size: 16px;
+                color: #D1D5DB;
+            }
+    
+            /* Challenges Card */
+            .challenges-card {
+                text-align: center;
+            }
+    
+            .challenges-card h3 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #34D399;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                text-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+            }
+    
+            .challenges-card ul {
+                list-style: none;
+                padding: 0;
+            }
+    
+            .challenges-card li {
+                font-size: 14px;
+                color: #D1D5DB;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 5px;
+                background: rgba(52, 211, 153, 0.1);
+                border-radius: 5px;
+                transition: transform 0.2s ease;
+            }
+    
+            .challenges-card li:hover {
+                transform: scale(1.02);
+            }
+    
+            .challenges-card i {
+                font-size: 16px;
+                color: #34D399;
+                animation: sparkle 1.5s infinite ease-in-out;
+            }
+    
+            /* Leaderboard Card */
+            .leaderboard-card {
+                text-align: center;
+            }
+    
+            .leaderboard-card h3 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #FFD700;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            }
+    
+            .leaderboard-card ul {
+                list-style: none;
+                padding: 0;
+            }
+    
+            .leaderboard-card li {
+                font-size: 14px;
+                color: #D1D5DB;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 5px;
+                background: rgba(255, 215, 0, 0.1);
+                border-radius: 5px;
+                transition: transform 0.2s ease;
+            }
+    
+            .leaderboard-card li:hover {
+                transform: scale(1.02);
+            }
+    
+            .leaderboard-card i {
+                font-size: 16px;
+                color: #FFD700;
+            }
+    
+            /* Responsive Adjustments */
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 200px;
+                }
+    
+                .main-content {
+                    margin-left: 200px;
+                    width: calc(100% - 200px);
+                    padding: 8px;
+                }
+    
+                .welcome-card {
+                    padding: 10px 15px;
+                }
+    
+                .welcome-text h2 {
+                    font-size: 20px;
+                }
+    
+                .welcome-text p {
+                    font-size: 12px;
+                }
+    
+                .welcome-avatar {
+                    width: 50px;
+                    height: 50px;
+                }
+    
+                .welcome-avatar i {
+                    font-size: 25px;
+                }
+    
+                .content-grid {
+                    grid-template-areas: 
+                        "wheel wheel wheel"
+                        "reward reward reward"
+                        "history history history"
+                        "next-spin next-spin next-spin"
+                        "stats stats stats"
+                        "challenges challenges challenges"
+                        "leaderboard leaderboard leaderboard";
+                }
+    
+                .wheel-container {
+                    width: 400px;
+                    height: 440px;
+                }
+    
+                canvas {
+                    width: 300px !important;
+                    height: 300px !important;
+                }
+    
+                .wheel-title,
+                .reward-card h3,
+                .history-card h3,
+                .next-spin-card h3,
+                .stats-card h3,
+                .challenges-card h3,
+                .leaderboard-card h3 {
+                    font-size: 18px;
+                }
+    
+                .spin-btn {
+                    font-size: 14px;
+                    padding: 6px 16px;
+                }
+            }
+        </style>
+    {% endblock %}
+    
+    {% block body %}
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="logo">
+                    <h1>Connect Sphere</h1>
+                </div>
+                <ul>
+                    <li><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#"><i class="fas fa-box"></i> Events</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
+                    <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
+                    <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
+                    <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="#"><i class="fas fa-share-alt"></i> Social</a></li>
+                    <li><a href="#"><i class="fas fa-robot"></i> AI Assistant</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-star"></i> Points</a></li>
+                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+                </ul>
+            </div>
+    
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <div class="welcome-avatar">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="welcome-text">
+                        <h2>Spin the Wheel!</h2>
+                        <p>Win points, bonuses, and more!</p>
+                    </div>
+                </div>
+    
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Wheel Section -->
+                    <div class="wheel-section">
+                        <h2 class="wheel-title">
+                            <div class="wheel-avatar">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            Wheel of Fortune
+                        </h2>
+    
+                        <div class="wheel-container">
+                            <div class="triangle-pointer"></div>
+                            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                            <button id="spinButton" class="spin-btn"><i class="fas fa-sync-alt"></i> Spin</button>
+                        </div>
+                    </div>
+    
+                    <!-- Reward Card -->
+                    <div class="reward-card">
+                        <h3>
+                            <i class="fas fa-award"></i>
+                            Rewards
+                        </h3>
+                        <ul>
+                            <li><i class="fas fa-coins"></i> 0 points</li>
+                            <li><i class="fas fa-trophy"></i> 100 points</li>
+                            <li><i class="fas fa-gift"></i> 50 points</li>
+                            <li><i class="fas fa-star"></i> 40 points</li>
+                            <li><i class="fas fa-crown"></i> Bonus: 200 points</li>
+                        </ul>
+                    </div>
+    
+                    <!-- History Card -->
+                    <div class="history-card">
+                        <h3>
+                            <i class="fas fa-history"></i>
+                            Reward History
+                        </h3>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Reward</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- Data will be added dynamically via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+    
+                    <!-- Next Spin Card -->
+                    <div class="next-spin-card">
+                        <h3>
+                            <i class="fas fa-clock"></i>
+                            Next Spin
+                        </h3>
+                        <p id="nextSpinMessage"></p>
+                    </div>
+    
+                    <!-- Stats Card -->
+                    <div class="stats-card">
+                        <h3>
+                            <i class="fas fa-chart-line"></i>
+                            Points Stats
+                        </h3>
+                        <div class="stats-item">
+                            <i class="fas fa-coins"></i>
+                            <span>Total Points Earned: 350</span>
+                        </div>
+                        <div class="stats-item">
+                            <i class="fas fa-trophy"></i>
+                            <span>Rank: 12th</span>
+                        </div>
+                        <div class="stats-item">
+                            <i class="fas fa-star"></i>
+                            <span>Streak: 5 Days</span>
+                        </div>
+                    </div>
+    
+                    <!-- Challenges Card -->
+                    <div class="challenges-card">
+                        <h3>
+                            <i class="fas fa-tasks"></i>
+                            Challenges
+                        </h3>
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> Join an Event: +50 Points</li>
+                            <li><i class="fas fa-check-circle"></i> Invite a Friend: +30 Points</li>
+                            <li><i class="fas fa-check-circle"></i> Post a Update: +20 Points</li>
+                            <li><i class="fas fa-check-circle"></i> Win 3 Spins: +100 Points</li>
+                        </ul>
+                    </div>
+    
+                    <!-- Leaderboard Card -->
+                    <div class="leaderboard-card">
+                        <h3>
+                            <i class="fas fa-crown"></i>
+                            Leaderboard
+                        </h3>
+                        <ul>
+                            <li><i class="fas fa-medal"></i> 1. Alex - 1200 Points</li>
+                            <li><i class="fas fa-medal"></i> 2. Sarah - 1100 Points</li>
+                            <li><i class="fas fa-medal"></i> 3. Tom - 1000 Points</li>
+                            <li><i class="fas fa-user"></i> 12. You - 350 Points</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+    
+    {% block javascripts %}
+        <script>
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const spinButton = document.getElementById('spinButton');
+            const historyTableBody = document.getElementById('historyTableBody');
+            const nextSpinMessage = document.getElementById('nextSpinMessage');
+    
+            const segments = [
+                { label: '0 pts', color: '#FBBF24', icon: 'fas fa-coins', iconColor: '#FFD700', textColor: '#8B4513', boxColor: '#FFD700' },
+                { label: '100 pts', color: '#38BDF8', icon: 'fas fa-trophy', iconColor: '#87CEEB', textColor: '#003087', boxColor: '#87CEEB' },
+                { label: '50 pts', color: '#C084FC', icon: 'fas fa-gift', iconColor: '#E0B0FF', textColor: '#4B0082', boxColor: '#E0B0FF' },
+                { label: '40 pts', color: '#F59E0B', icon: 'fas fa-star', iconColor: '#FFCA28', textColor: '#8B4513', boxColor: '#FFCA28' },
+                { label: 'Bonus: 200 pts', color: '#0EA5E9', icon: 'fas fa-crown', iconColor: '#40C4FF', textColor: '#003087', boxColor: '#40C4FF' }
+            ];
+    
+            let currentAngle = 0;
+            let spinning = false;
+    
+            // Récupérer la date actuelle
+            const now = new Date();
+            const currentDay = now.getDate();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+    
+            // Code pour restreindre au 1er jour de chaque mois (commenté pour permettre plusieurs tours)
+            /*
+            // Vérifier si l'utilisateur a déjà tourné ce mois-ci
+            let hasSpunThisMonth = localStorage.getItem('hasSpunThisMonth') === 'true';
+            const lastSpinMonth = localStorage.getItem('lastSpinMonth');
+    
+            // Réinitialiser si on est dans un nouveau mois
+            if (lastSpinMonth !== `${currentMonth}-${currentYear}`) {
+                hasSpunThisMonth = false;
+                localStorage.setItem('hasSpunThisMonth', 'false');
+                localStorage.setItem('lastSpinMonth', `${currentMonth}-${currentYear}`);
+            }
+    
+            // Vérifier si on peut tourner (uniquement le 1er jour du mois et si pas déjà tourné ce mois-ci)
+            if (currentDay !== 1 || hasSpunThisMonth) {
+                spinButton.disabled = true;
+                const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+                const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                nextSpinMessage.textContent = `Next spin available on the 1st of ${monthNames[nextMonth - 1]} ${nextYear}`;
+            } else {
+                nextSpinMessage.textContent = 'Spin the wheel now!';
+            }
+            */
+    
+            // Activer le bouton par défaut et permettre plusieurs tours
+            spinButton.disabled = false;
+            nextSpinMessage.textContent = 'Spin the wheel now!';
+    
+            // Charger l'historique des gains depuis localStorage
+            let spinHistory = JSON.parse(localStorage.getItem('spinHistory')) || [];
+            spinHistory.forEach(entry => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${entry.date}</td><td>${entry.reward}</td>`;
+                historyTableBody.appendChild(row);
+            });
+    
+            function drawWheel(showText = true) {
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const segmentAngle = (2 * Math.PI) / segments.length;
+                const radius = canvas.width / 2 - 10;
+    
+                // Dessiner les segments de la roue
+                segments.forEach((segment, i) => {
+                    const startAngle = i * segmentAngle;
+                    const endAngle = startAngle + segmentAngle;
+    
+                    // Dégradé radial pour le segment
+                    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                    gradient.addColorStop(0, segment.color);
+                    gradient.addColorStop(1, adjustColor(segment.color, -30));
+    
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+    
+                    // Dessiner l'icône FontAwesome à l'intérieur du segment
+                    const angle = startAngle + segmentAngle / 2;
+                    const iconX = centerX + Math.cos(angle) * (radius / 1.5);
+                    const iconY = centerY + Math.sin(angle) * (radius / 1.5);
+    
+                    ctx.save();
+                    ctx.translate(iconX, iconY);
+                    ctx.rotate(angle + Math.PI / 2);
+                    ctx.font = '900 40px "Font Awesome 5 Free"';
+                    ctx.fillStyle = segment.iconColor;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 5;
+                    ctx.fillText(getIconUnicode(segment.icon), 0, 0);
+                    ctx.restore();
+                });
+    
+                // Dessiner les labels à l'extérieur dans des boîtes
+                if (showText) {
+                    segments.forEach((segment, i) => {
+                        const angle = i * segmentAngle + segmentAngle / 2;
+                        const labelRadius = radius + 50;
+                        const labelX = centerX + Math.cos(angle) * labelRadius;
+                        const labelY = centerY + Math.sin(angle) * labelRadius;
+    
+                        // Dessiner la boîte autour du label
+                        ctx.save();
+                        ctx.translate(labelX, labelY);
+                        ctx.rotate(angle + Math.PI / 2);
+                        const boxWidth = 70;
+                        const boxHeight = 30;
+                        ctx.fillStyle = segment.boxColor;
+                        ctx.beginPath();
+                        ctx.roundRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight, 5);
+                        ctx.fill();
+                        ctx.strokeStyle = '#FFFFFF';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+    
+                        // Dessiner le texte du label
+                        ctx.fillStyle = segment.textColor;
+                        ctx.font = 'bold 16px Poppins';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(segment.label, 0, 0);
+                        ctx.restore();
+                    });
+                }
+            }
+    
+            // Fonction pour obtenir le caractère Unicode de l'icône FontAwesome
+            function getIconUnicode(iconClass) {
+                const iconMap = {
+                    'fas fa-coins': '\uf51e',
+                    'fas fa-trophy': '\uf091',
+                    'fas fa-gift': '\uf06b',
+                    'fas fa-star': '\uf005',
+                    'fas fa-crown': '\uf521'
+                };
+                return iconMap[iconClass] || '';
+            }
+    
+            // Fonction pour ajuster la luminosité d'une couleur (plus clair ou plus foncé)
+            function adjustColor(color, amount) {
+                const hex = color.replace('#', '');
+                const r = parseInt(hex.substr(0, 2), 16);
+                const g = parseInt(hex.substr(2, 2), 16);
+                const b = parseInt(hex.substr(4, 2), 16);
+                const newR = Math.min(255, Math.max(0, r + amount));
+                const newG = Math.min(255, Math.max(0, g + amount));
+                const newB = Math.min(255, Math.max(0, b + amount));
+                return `#${Math.round(newR).toString(16).padStart(2, '0')}${Math.round(newG).toString(16).padStart(2, '0')}${Math.round(newB).toString(16).padStart(2, '0')}`;
+            }
+    
+            function spinWheel() {
+                // Code pour restreindre au 1er jour de chaque mois (commenté pour permettre plusieurs tours)
+                /*
+                if (spinning || currentDay !== 1 || hasSpunThisMonth) return;
+                hasSpunThisMonth = true;
+                localStorage.setItem('hasSpunThisMonth', 'true');
+                localStorage.setItem('lastSpinMonth', `${currentMonth}-${currentYear}`);
+                */
+    
+                // Vérifier uniquement si la roue est déjà en train de tourner
+                if (spinning) return;
+    
+                spinning = true;
+                spinButton.disabled = true;
+    
+                // Amélioration : Rotation sur 5 secondes, minimum 4 tours (1440 degrés), avec effet de rebond
+                const spinDuration = 5000; // 5 secondes
+                const minSpinAngle = 1440; // 4 tours minimum
+                const randomExtraAngle = Math.random() * 360; // Angle supplémentaire aléatoire
+                const spinAngle = minSpinAngle + randomExtraAngle; // Total de l'angle de rotation
+                let startTime = null;
+    
+                function animate(time) {
+                    if (!startTime) startTime = time;
+                    const progress = (time - startTime) / spinDuration;
+    
+                    // Effet de ralentissement avec rebond
+                    let easedProgress;
+                    if (progress < 0.7) {
+                        // Accélération initiale
+                        easedProgress = 1 - Math.pow(1 - progress / 0.7, 2);
+                    } else {
+                        // Ralentissement avec léger rebond
+                        const p = (progress - 0.7) / 0.3;
+                        easedProgress = 0.7 + (0.3 * (1 - Math.pow(1 - p, 3))) - (0.05 * Math.sin(p * Math.PI));
+                    }
+    
+                    currentAngle = (spinAngle * easedProgress) % 360;
+    
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.save();
+                    ctx.translate(canvas.width / 2, canvas.width / 2);
+                    ctx.rotate((currentAngle * Math.PI) / 180);
+                    ctx.translate(-canvas.width / 2, -canvas.width / 2);
+                    drawWheel();
+                    ctx.restore();
+    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        spinning = false;
+                        spinButton.disabled = false; // Réactiver le bouton pour permettre plusieurs tours
+                        const index = Math.floor(((360 - currentAngle) % 360) / (360 / segments.length));
+                        const reward = segments[index].label;
+    
+                        // Afficher une alerte pour informer l'utilisateur de ce qu'il a gagné
+                        alert(`🎉 Congratulations! You have won: ${reward}`);
+    
+                        // Ajouter à l'historique
+                        const date = `${currentYear}-${currentMonth < 10 ? '0' : ''}${currentMonth}-${currentDay < 10 ? '0' : ''}${currentDay}`;
+                        const entry = { date, reward };
+                        spinHistory.push(entry);
+                        if (spinHistory.length > 5) spinHistory.shift();
+                        localStorage.setItem('spinHistory', JSON.stringify(spinHistory));
+    
+                        // Mettre à jour l'historique affiché
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${date}</td><td>${reward}</td>`;
+                        historyTableBody.insertBefore(row, historyTableBody.firstChild);
+                        if (historyTableBody.children.length > 5) historyTableBody.removeChild(historyTableBody.lastChild);
+    
+                        // Code pour mettre à jour le message "Next Spin" (commenté pour permettre plusieurs tours)
+                        /*
+                        const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+                        const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+                        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                        nextSpinMessage.textContent = `Next spin available on the 1st of ${monthNames[nextMonth - 1]} ${nextYear}`;
+                        */
+                    }
+                }
+    
+                requestAnimationFrame(animate);
+            }
+    
+            drawWheel();
+            spinButton.addEventListener('click', spinWheel);
+        </script>
+    {% endblock %}

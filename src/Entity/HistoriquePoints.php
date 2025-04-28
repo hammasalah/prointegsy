@@ -1,97 +1,63 @@
 <?php
 
-namespace App\Entity;
+namespace App\Command;
 
-use App\Repository\HistoriquePointsRepository;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
+use App\Entity\HistoriquePoints;
+use App\Entity\Users;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-#[ORM\Entity(repositoryClass: HistoriquePointsRepository::class)]
-class HistoriquePoints
+#[AsCommand(name: 'app:test-historique-points')]
+class TestHistoriquePointsCommand extends Command
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    private $entityManager;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Users $user_id = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $type = null;
-
-    #[ORM\Column]
-    private ?int $points = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $raison = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date = null;
-
-    public function getId(): ?int
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        return $this->id;
+        parent::__construct();
+        $this->entityManager = $entityManager;
     }
 
-    public function getUserId(): ?Users
+    protected function configure(): void
     {
-        return $this->user_id;
+        $this->setDescription('Test the creation of a HistoriquePoints entity.');
     }
 
-    public function setUserId(?Users $user_id): static
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->user_id = $user_id;
+        // Créer un utilisateur de test si nécessaire
+        $user = $this->entityManager->getRepository(Users::class)->find(1);
+        if (!$user) {
+            $user = new Users();
+            $user->setUsername('testuser');
+            $user->setEmail('test@example.com');
+            $user->setPassword('testpassword');
+            $user->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $user->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $user->setPoints(1000);
+            $user->setAge(30);
+            $user->setGender('male');
+            $user->setArgent('0.00');
+            $this->entityManager->persist($user);
+        }
 
-        return $this;
-    }
+        // Créer une entrée dans historique_points
+        $historiquePoints = new HistoriquePoints();
+        $historiquePoints->setUserId($user);
+        $historiquePoints->setType('gain');
+        $historiquePoints->setPoints(100);
+        $historiquePoints->setRaison('Test gain');
+        $historiquePoints->setDate(new \DateTime());
 
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
+        $this->entityManager->persist($historiquePoints);
+        $this->entityManager->flush();
 
-    public function setType(string $type): static
-    {
-        $this->type = $type;
+        $output->writeln('HistoriquePoints created successfully! ID: ' . $historiquePoints->getId());
 
-        return $this;
-    }
-
-    public function getPoints(): ?int
-    {
-        return $this->points;
-    }
-
-    public function setPoints(int $points): static
-    {
-        $this->points = $points;
-
-        return $this;
-    }
-
-    public function getRaison(): ?string
-    {
-        return $this->raison;
-    }
-
-    public function setRaison(string $raison): static
-    {
-        $this->raison = $raison;
-
-        return $this;
-    }
-
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): static
-    {
-        $this->date = $date;
-
-        return $this;
+        return Command::SUCCESS;
     }
 }
+    

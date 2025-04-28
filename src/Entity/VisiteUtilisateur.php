@@ -1,66 +1,33 @@
 <?php
+namespace App\Controller;
 
-namespace App\Entity;
+use App\Entity\UserRewards;
+use App\Entity\User;
+use App\Entity\Reward;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
-use App\Repository\VisiteUtilisateurRepository;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
-
-#[ORM\Entity(repositoryClass: VisiteUtilisateurRepository::class)]
-class VisiteUtilisateur
+class TestController extends AbstractController
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $dernier_visite = null;
-
-    #[ORM\Column]
-    private ?int $serie = null;
-
-    #[ORM\Column]
-    private ?int $user_id = null;
-
-    public function getId(): ?int
+    #[Route('/test/user-reward', name: 'test_user_reward')]
+    public function test(EntityManagerInterface $em): Response
     {
-        return $this->id;
-    }
+        $user = $em->getRepository(User::class)->find(1); // Exemple
+        $reward = $em->getRepository(Reward::class)->find(1); // Exemple
 
-    public function getDernierVisite(): ?\DateTimeInterface
-    {
-        return $this->dernier_visite;
-    }
+        $userReward = new UserRewards();
+        $userReward->setUser($user);
+        $userReward->setReward($reward);
+        $userReward->setPointsEarned(100);
+        $userReward->setEarnedAt((new \DateTime())->format('Y-m-d H:i:s'));
 
-    public function setDernierVisite(\DateTimeInterface $dernier_visite): static
-    {
-        $this->dernier_visite = $dernier_visite;
+        $em->persist($userReward);
+        $em->flush();
 
-        return $this;
-    }
-
-    public function getSerie(): ?int
-    {
-        return $this->serie;
-    }
-
-    public function setSerie(int $serie): static
-    {
-        $this->serie = $serie;
-
-        return $this;
-    }
-
-    public function getUserId(): ?int
-    {
-        return $this->user_id;
-    }
-
-    public function setUserId(int $user_id): static
-    {
-        $this->user_id = $user_id;
-
-        return $this;
+        return new Response('UserReward créé !');
     }
 }
+
+// Compare this snippet from prointegsy/src/Entity/Users.php:

@@ -1,82 +1,71 @@
 <?php
 
-namespace App\Entity;
+namespace App\Command;
 
-use App\Repository\ParticipationRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Participation;
+use App\Entity\Users;
+use App\Entity\Events;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-#[ORM\Entity(repositoryClass: ParticipationRepository::class)]
-class Participation
+#[AsCommand(name: 'app:test-participation')]
+class TestParticipationCommand extends Command
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    private $entityManager;
 
-    #[ORM\ManyToMany(targetEntity: Events::class)]
-    private Collection $event_id;
-
-    #[ORM\ManyToMany(targetEntity: Users::class)]
-    private Collection $participant_id;
-
-    public function __construct()
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->event_id = new ArrayCollection();
-        $this->participant_id = new ArrayCollection();
+        parent::__construct();
+        $this->entityManager = $entityManager;
     }
 
-    public function getId(): ?int
+    protected function configure(): void
     {
-        return $this->id;
+        $this->setDescription('Test the creation of a Participation entity.');
     }
 
-    /**
-     * @return Collection<int, Events>
-     */
-    public function getEventId(): Collection
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        return $this->event_id;
-    }
-
-    public function addEventId(Events $eventId): static
-    {
-        if (!$this->event_id->contains($eventId)) {
-            $this->event_id->add($eventId);
+        // Créer un utilisateur de test si nécessaire
+        $user = $this->entityManager->getRepository(Users::class)->find(1);
+        if (!$user) {
+            $user = new Users();
+            $user->setUsername('testuser');
+            $user->setEmail('test@example.com');
+            $user->setPassword('testpassword');
+            $user->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $user->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $user->setPoints(1000);
+            $user->setAge(30);
+            $user->setGender('male');
+            $user->setArgent('0.00');
+            $this->entityManager->persist($user);
         }
 
-        return $this;
-    }
-
-    public function removeEventId(Events $eventId): static
-    {
-        $this->event_id->removeElement($eventId);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Users>
-     */
-    public function getParticipantId(): Collection
-    {
-        return $this->participant_id;
-    }
-
-    public function addParticipantId(Users $participantId): static
-    {
-        if (!$this->participant_id->contains($participantId)) {
-            $this->participant_id->add($participantId);
+        // Créer un événement de test si nécessaire
+        $event = $this->entityManager->getRepository(Events::class)->find(1);
+        if (!$event) {
+            $event = new Events();
+            $event->setTitle('Test Event');
+            $event->setOrganizerId($user);
+            $this->entityManager->persist($event);
         }
 
-        return $this;
-    }
+        // Créer une participation
+        $participation = new Participation();
+        $participation->setEvent($event);
+        $participation->setParticipant($user);
 
-    public function removeParticipantId(Users $participantId): static
-    {
-        $this->participant_id->removeElement($participantId);
+        $this->entityManager->persist($participation);
+        $this->entityManager->flush();
 
-        return $this;
+        $output->writeln('Participation created successfully! ID: ' . $participation->getId());
+
+        return Command::SUCCESS;
     }
 }
+
+// Compare this snippet from prointegsy/src/Entity/Users.php:
