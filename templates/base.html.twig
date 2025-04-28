@@ -1,11 +1,28 @@
 {# templates/pages/landing.html.twig #}
 {% block stylesheets %}
-    <!-- Google Fonts & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- Your compiled CSS (from Symfony Encore) -->
     <link rel="stylesheet" href="{{ asset('css/root.css') }}">
+    <style>
+        .search-bar {
+            padding: 10px;
+            width: 300px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        #search-result {
+            margin-top: 30px;
+        }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history-table th, .history-table td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -27,33 +44,19 @@
 </header>
 
 <main>
-    {# HERO SECTION #}
     <section class="hero">
         <div class="hero-content">
-            <!-- Left Column: Text -->
             <div class="hero-text">
-                <!-- You can incorporate date/limited seats info here if desired -->
-                <p class="event-date" style="color: #F96358; font-weight: 600;">
-                    9 June 2023 | Limited Seats
-                </p>
-                <h1 class="hero-title">
-                    The Ultimate Platform for Planning and Promoting Successful Events
-                </h1>
-                <p class="hero-subtitle">
-                    Connect Sphere helps you create unforgettable experiences with our comprehensive event management tools.
-                </p>
-                <!-- Primary Call-to-Action -->
+                <p class="event-date" style="color: #F96358; font-weight: 600;">9 June 2023 | Limited Seats</p>
+                <h1 class="hero-title">The Ultimate Platform for Planning and Promoting Successful Events</h1>
+                <p class="hero-subtitle">Connect Sphere helps you create unforgettable experiences with our comprehensive event management tools.</p>
                 <a href="#" class="cta-btn">Buy Tickets</a>
             </div>
-
-            <!-- Right Column: Illustration/Image -->
             <div class="hero-illustration">
-                <!-- Replace with your actual hero image -->
                 <img src="{{ asset('images/hero-illustration.png') }}" alt="Hero Illustration">
             </div>
         </div>
 
-        {# Optional: Social Icons, absolutely positioned in hero #}
         <div class="social-icons">
             <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
             <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
@@ -62,7 +65,37 @@
         </div>
     </section>
 
-    {# WHO WE ARE SECTION #}
+    {# 🔍 BARRE DE RECHERCHE #}
+    <div style="text-align: center; margin-top: 30px;">
+        <input type="text" id="search-input" placeholder="Tapez : historique convert" class="search-bar">
+    </div>
+
+    {# 📊 ZONE RÉSULTAT #}
+    <div id="search-result"></div>
+
+    {# 📁 TEMPLATE CACHÉ DU TABLEAU #}
+    <div id="conversion-history-template" style="display: none;">
+        <h2 style="text-align:center; margin-top: 30px;">Historique de Conversion</h2>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Devise</th>
+                    <th>Points Convertis</th>
+                    <th>Montant Reçu</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2025-03-17</td>
+                    <td>TND</td>
+                    <td>100</td>
+                    <td>32.50</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
     <section class="section">
         <h2 class="section-title">WHO WE ARE</h2>
         <p class="section-subtitle">
@@ -96,4 +129,23 @@
 <footer class="footer">
     <button class="contact-btn">Contact Us</button>
 </footer>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('search-input');
+        const resultDiv = document.getElementById('search-result');
+        const template = document.getElementById('conversion-history-template');
+
+        input.addEventListener('input', () => {
+            const value = input.value.toLowerCase();
+            if (value.includes("historique convert")) {
+                resultDiv.innerHTML = template.innerHTML;
+            } else {
+                resultDiv.innerHTML = "";
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,156 @@
+/* public/css/points.css */
+
+body, html {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    margin: 0;
+    padding: 0;
+    color: #2c3e50;
+}
+
+/* TITRE PRINCIPAL */
+.section-title {
+    text-align: center;
+    font-size: 3em;
+    margin: 40px 0 30px;
+    color: #2c3e50;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* SECTIONS FLEXIBLES */
+.points-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 50px;
+    padding: 0 20px;
+}
+
+/* CARTES STYLE GLASS */
+.points-card, .money-card, .convert-section {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    min-width: 220px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.points-card:hover, .money-card:hover, .convert-section:hover {
+    transform: translateY(-5px);
+}
+
+/* VALEURS ET LABELS */
+.points-value, .money-value {
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+.points-value {
+    color: #27ae60;
+}
+
+.money-value {
+    color: #2980b9;
+}
+
+.points-label, .money-label {
+    font-size: 1.1em;
+    margin-top: 8px;
+    color: #555;
+}
+
+/* SELECTEUR DE DEVISES + INPUT */
+.convert-spinner, .devise-select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1em;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* BOUTON DE CONVERSION */
+.convert-button {
+    margin-top: 20px;
+    padding: 12px 25px;
+    background-color: #3498db;
+    border: none;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.convert-button:hover {
+    background-color: #217dbb;
+    transform: scale(1.05);
+}
+
+/* ZONE D'HISTORIQUE */
+.history-tabs {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 1000px;
+    margin: auto;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ONGLET LISTE */
+.tabs {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+.tab {
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: 0.3s;
+}
+
+.tab.active {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+/* TABLEAU HISTORIQUE */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.history-table th, .history-table td {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+.history-table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}

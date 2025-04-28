@@ -1,0 +1,737 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <!-- Inclure FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Base Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #F5F5FF; /* Fond clair */
+            color: #1F2937;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 207px;
+            background: linear-gradient(180deg, #220054 0%, #5B21B6 100%); /* Dégradé violet */
+            color: #FFFFFF;
+            padding: 20px 8px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            border-top-right-radius: 12px; /* Border-radius côté droit */
+            border-bottom-right-radius: 12px; /* Border-radius côté droit */
+        }
+
+        .sidebar .logo {
+            margin-bottom: 40px;
+        }
+
+        .sidebar .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            flex-grow: 1;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .sidebar ul li a:hover,
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.03); /* Léger agrandissement au survol */
+        }
+
+        /* Sous-menu pour Dashboard */
+        .submenu {
+            display: none;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .submenu li a {
+            padding: 10px 30px;
+            font-size: 14px;
+        }
+
+        .submenu li a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .submenu.active {
+            display: block;
+            max-height: 200px; /* Ajuste selon le contenu */
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 220px;
+            width: calc(100% - 220px);
+            padding: 15px; /* Réduit pour minimiser les espaces */
+            background: #F5F5FF;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: linear-gradient(135deg,rgb(29, 0, 98), #9F7AEA); /* Dégradé violet doux */
+            border-radius: 12px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 15px; /* Réduit pour minimiser les espaces */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .welcome-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .welcome-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: #FFFFFF;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-avatar i {
+            font-size: 30px;
+            color: #6B46C1;
+        }
+
+        .welcome-text h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            color: #EDE9FE;
+            font-weight: 400;
+        }
+
+        /* Stats Grid (Points, Money, Conversion Score) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px; /* Réduit pour minimiser les espaces */
+        }
+
+        .stat-card, .conversion-score-card {
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-card:hover, .conversion-score-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Nouvelles couleurs élégantes pour chaque carte */
+        .stat-card.points-card {
+            background: linear-gradient(135deg,rgb(249, 198, 69),rgb(250, 213, 149)); /* Dégradé doré/orange */
+        }
+
+        .stat-card.money-card {
+            background: linear-gradient(135deg,rgb(115, 209, 249), #0EA5E9); /* Dégradé bleu saphir */
+        }
+
+        .conversion-score-card {
+            background: linear-gradient(135deg,rgb(205, 165, 244),rgb(183, 112, 249)); /* Dégradé violet améthyste */
+        }
+
+        .stat-card h3, .conversion-score-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-value.points {
+            color: #B45309; /* Orange foncé pour les points */
+        }
+
+        .stat-value.money {
+            color: #075985; /* Bleu profond pour l'argent */
+        }
+
+        /* Conversion Score Specific Styles */
+        .conversion-score-card .score-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #6B21A8; /* Violet sombre pour le score */
+            margin-bottom: 5px;
+        }
+
+        /* Avatars animés */
+        .stat-avatar, .score-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+        }
+
+        .stat-avatar i, .score-avatar i {
+            font-size: 20px;
+            color: #FFFFFF;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        /* Animation de pulsation */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Convert Section (Card) */
+        .convert-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 15px; /* Réduit pour minimiser les espaces */
+        }
+
+        .convert-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .convert-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #6B7280;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .convert-form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .convert-field {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 200px;
+        }
+
+        .convert-label {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .convert-spinner, .devise-select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #F9FAFB;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s ease;
+        }
+
+        .convert-spinner:focus, .devise-select:focus {
+            outline: none;
+            border: 1px solid #7C3AED;
+        }
+
+        .convert-button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7C3AED, #A855F7); /* Dégradé violet */
+            border: none;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .convert-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Content Grid (History Sections) */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        /* History Cards */
+        .history-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .history-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .history-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #6B7280;
+            margin-bottom: 15px;
+        }
+
+        /* Tabs inside History Cards */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            gap: 20px;
+            margin-bottom: 15px;
+            padding: 0;
+            position: relative;
+        }
+
+        .tab {
+            padding: 8px 15px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #6B7280;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #7C3AED;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background: #7C3AED;
+            border-radius: 2px;
+        }
+
+        /* History Table */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .history-table th, .history-table td {
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .history-table th {
+            background-color: #F9FAFB;
+            color: #6B7280;
+            font-weight: 600;
+        }
+
+        .history-table td {
+            color: #1F2937;
+            border-bottom: 1px solid #F1F3F5;
+        }
+
+        /* Effet zébré pour les lignes */
+        .history-table tbody tr:nth-child(even) {
+            background-color: #F9FAFB;
+        }
+
+        .history-table tbody tr:hover {
+            background-color: #F1F3F5;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+                padding: 10px;
+            }
+
+            .welcome-card {
+                padding: 10px 15px;
+            }
+
+            .welcome-text h2 {
+                font-size: 20px;
+            }
+
+            .welcome-text p {
+                font-size: 12px;
+            }
+
+            .welcome-avatar {
+                width: 50px;
+                height: 50px;
+            }
+
+            .welcome-avatar i {
+                font-size: 25px;
+            }
+
+            .stats-grid, .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .convert-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .convert-field {
+                min-width: 100%;
+            }
+
+            .history-table th, .history-table td {
+                font-size: 12px;
+                padding: 8px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>Connect Sphere</h1>
+            </div>
+            <ul>
+                <li>
+                    <a href="#" id="dashboard-toggle" class="active"><i class="fas fa-home"></i> Dashboard</a>
+                    <ul class="submenu" id="dashboard-submenu">
+                        <li><a href="#">Convert points</a></li>
+                        <li><a href="#">Fortune wheel</a></li>
+                    </ul>
+                </li>
+                <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
+                <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
+                <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
+                <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a href="#"><i class="fas fa-share-alt"></i> Social</a></li>
+                <li><a href="#"><i class="fas fa-robot"></i> AI Assistant</a></li>
+                <li><a href="#"><i class="fas fa-star"></i> Points</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <div class="welcome-avatar">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="welcome-text">
+                    <h2>Welcome to Your Dashboard!</h2>
+                    <p>Manage your points and conversions here!</p>
+                </div>
+            </div>
+
+            <!-- Stats Grid (Points, Money, Conversion Score) -->
+            <div class="stats-grid">
+                <div class="stat-card points-card">
+                    <h3>Total Points</h3>
+                    <div class="stat-avatar">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="stat-value points">480</p>
+                </div>
+                <div class="stat-card money-card">
+                    <h3>Total Money</h3>
+                    <div class="stat-avatar">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <p class="stat-value money">705.24</p>
+                </div>
+                <div class="conversion-score-card">
+                    <h3>Conversion Rate</h3>
+                    <div class="score-avatar">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <p class="score-value">1 Point = 0.325 TND</p>
+                </div>
+            </div>
+
+            <!-- Convert Card -->
+            <div class="convert-card">
+                <h3>Convert Points to Money</h3>
+                <div class="convert-form">
+                    <div class="convert-field">
+                        <p class="convert-label">Points to Convert</p>
+                        <input type="number" class="convert-spinner" id="numPoints" value="100">
+                    </div>
+                    <div class="convert-field">
+                        <p class="convert-label">Currency</p>
+                        <select class="devise-select" id="devise">
+                            <option value="TND">TND</option>
+                            <option value="EUR">EUR</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <div class="convert-field">
+                        <button class="convert-button" onclick="convertPoints()">Convert</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid (History Sections) -->
+            <div class="content-grid">
+                <!-- Points History -->
+                <div class="history-card">
+                    <h3>Points History</h3>
+                    <div id="points-history" class="tab-pane active">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Action Time</th>
+                                    <th>Points</th>
+                                    <th>Type</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025-03-12</td>
+                                    <td>5</td>
+                                    <td>Gain</td>
+                                    <td>5 Days Visit</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-15</td>
+                                    <td>10</td>
+                                    <td>Gain</td>
+                                    <td>Roulette</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-16</td>
+                                    <td>100</td>
+                                    <td>Gain</td>
+                                    <td>Roulette</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-16</td>
+                                    <td>100</td>
+                                    <td>Gain</td>
+                                    <td>7 Days Visit</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-16</td>
+                                    <td>100</td>
+                                    <td>Gain</td>
+                                    <td>Roulette</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-17</td>
+                                    <td>100</td>
+                                    <td>Gain</td>
+                                    <td>7 Days Visit</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-17</td>
+                                    <td>100</td>
+                                    <td>Gain</td>
+                                    <td>Roulette</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-17</td>
+                                    <td>100</td>
+                                    <td>Gain</td>
+                                    <td>7 Days Visit</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-17</td>
+                                    <td>50</td>
+                                    <td>Loss</td>
+                                    <td>14 Days Absence</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Conversion History -->
+                <div class="history-card">
+                    <h3>Conversion History</h3>
+                    <div id="conversion-history" class="tab-pane active">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Currency</th>
+                                    <th>Points Converted</th>
+                                    <th>Amount Received</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025-03-17</td>
+                                    <td>TND</td>
+                                    <td>100</td>
+                                    <td>32.50 TND</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-03-03</td>
+                                    <td>EUR</td>
+                                    <td>200</td>
+                                    <td>9.80 €</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-02-25</td>
+                                    <td>USD</td>
+                                    <td>300</td>
+                                    <td>15.00 $</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-01-10</td>
+                                    <td>TND</td>
+                                    <td>150</td>
+                                    <td>48.75 TND</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-12-05</td>
+                                    <td>EUR</td>
+                                    <td>50</td>
+                                    <td>2.45 €</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('JS chargé ✔');
+
+            // Gestion du sous-menu dans la sidebar
+            const dashboardToggle = document.getElementById('dashboard-toggle');
+            const dashboardSubmenu = document.getElementById('dashboard-submenu');
+
+            dashboardToggle.addEventListener('click', (e) => {
+                e.preventDefault(); // Empêche le lien de naviguer
+                dashboardSubmenu.classList.toggle('active');
+            });
+
+            // Placeholder pour la fonction de conversion
+            window.convertPoints = function() {
+                const points = document.getElementById('numPoints').value;
+                const devise = document.getElementById('devise').value;
+                console.log(`Convertir ${points} points en ${devise}`);
+                // Ajoute ici la logique de conversion
+            };
+        });
+    </script>
+{% endblock %}
