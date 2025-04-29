@@ -9,63 +9,47 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
+#[ORM\Table(name: 'Users')]
+#[ORM\UniqueConstraint(name: 'username', columns: ['username'])]
+#[ORM\UniqueConstraint(name: 'email', columns: ['email'])]
 class Users
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = 1;
+    #[ORM\Column(type: 'integer')]
+    private ?int $userId = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 50, unique: true)]
     private ?string $username = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255 , nullable: true)]
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $createdAt = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $updatedAt = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $points = null;
+    #[ORM\Column(type: 'integer', nullable: true, options: ['default' => 0])]
+    private ?int $points = 0;
 
-    #[ORM\Column]
-    private ?int $age = null;
+    #[ORM\Column(type: 'integer', nullable: true, options: ['default' => 0])]
+    private ?int $age = 0;
 
-    #[ORM\Column(length: 255)]
-    private ?string $gender = null;
+    #[ORM\Column(type: 'string', length: 10, nullable: true, options: ['default' => 'Unknown'])]
+    private ?string $gender = 'Unknown';
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    private ?string $argent = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $argent = '0.00';
 
-    #[ORM\OneToMany(targetEntity: Conversion::class, mappedBy: 'userId')]
-    private Collection $conversions;
-
-    #[ORM\OneToMany(targetEntity: Events::class, mappedBy: 'organizerId')]
-    private Collection $events;
-
-    #[ORM\OneToMany(targetEntity: Jobs::class, mappedBy: 'userId', orphanRemoval: true)]
-    private Collection $jobs;
-
-    public function __construct()
+    // Getters et Setters
+    public function getUserId(): ?int
     {
-        $this->conversions = new ArrayCollection();
-        $this->events = new ArrayCollection();
-        $this->jobs = new ArrayCollection();
-    }
-
-    
-
-   
-
-    public function getId(): ?int
-    {
-        return $this->id;
+        return $this->userId;
     }
 
     public function getUsername(): ?string
@@ -73,10 +57,9 @@ class Users
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(string $username): self
     {
         $this->username = $username;
-
         return $this;
     }
 
@@ -85,10 +68,9 @@ class Users
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(string $password): self
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -97,10 +79,9 @@ class Users
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -109,10 +90,9 @@ class Users
         return $this->createdAt;
     }
 
-    public function setCreatedAt(string $createdAt): static
+    public function setCreatedAt(?string $createdAt): self
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -121,10 +101,9 @@ class Users
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?string $updatedAt): static
+    public function setUpdatedAt(?string $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
-
         return $this;
     }
 
@@ -133,10 +112,9 @@ class Users
         return $this->points;
     }
 
-    public function setPoints(?int $points): static
+    public function setPoints(?int $points): self
     {
         $this->points = $points;
-
         return $this;
     }
 
@@ -145,10 +123,9 @@ class Users
         return $this->age;
     }
 
-    public function setAge(int $age): static
+    public function setAge(?int $age): self
     {
         $this->age = $age;
-
         return $this;
     }
 
@@ -157,117 +134,20 @@ class Users
         return $this->gender;
     }
 
-    public function setGender(string $gender): static
+    public function setGender(?string $gender): self
     {
         $this->gender = $gender;
-
         return $this;
     }
 
-    public function getArgent(): ?int
+    public function getArgent(): string
     {
         return $this->argent;
     }
 
-    public function setArgent(?int $argent): static
+    public function setArgent(string $argent): self
     {
         $this->argent = $argent;
-
         return $this;
     }
-
-    /**
-     * @return Collection<int, Conversion>
-     */
-    public function getConversions(): Collection
-    {
-        return $this->conversions;
-    }
-
-    public function addConversion(Conversion $conversion): static
-    {
-        if (!$this->conversions->contains($conversion)) {
-            $this->conversions->add($conversion);
-            $conversion->setUserId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeConversion(Conversion $conversion): static
-    {
-        if ($this->conversions->removeElement($conversion)) {
-            // set the owning side to null (unless already changed)
-            if ($conversion->getUserId() === $this) {
-                $conversion->setUserId(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Events>
-     */
-    public function getEvents(): Collection
-    {
-        return $this->events;
-    }
-
-    public function addEvent(Events $event): static
-    {
-        if (!$this->events->contains($event)) {
-            $this->events->add($event);
-            $event->setOrganizerId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEvent(Events $event): static
-    {
-        if ($this->events->removeElement($event)) {
-            // set the owning side to null (unless already changed)
-            if ($event->getOrganizerId() === $this) {
-                $event->setOrganizerId(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Jobs>
-     */
-    public function getJobs(): Collection
-    {
-        return $this->jobs;
-    }
-
-    public function addJob(Jobs $job): static
-    {
-        if (!$this->jobs->contains($job)) {
-            $this->jobs->add($job);
-            $job->setUserId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeJob(Jobs $job): static
-    {
-        if ($this->jobs->removeElement($job)) {
-            // set the owning side to null (unless already changed)
-            if ($job->getUserId() === $this) {
-                $job->setUserId(null);
-            }
-        }
-
-        return $this;
-    }
-
-    
-
-   
-
 }
