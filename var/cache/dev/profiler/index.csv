@@ -52,3 +52,5 @@ d9dcc2,127.0.0.1,GET,http://127.0.0.1:8000/images/hero-illustration.png,17458726
 792c4f,127.0.0.1,GET,http://127.0.0.1:8000/images/hero-illustration.png,1745872655,,404
 09e88b,127.0.0.1,GET,http://127.0.0.1:8000/favicon.ico,1745872656,378705,404
 378705,127.0.0.1,GET,http://127.0.0.1:8000/favicon.ico,1745872656,,404
+8bb41b,127.0.0.1,GET,http://127.0.0.1:8000/points,1745921942,2ad7fc,404
+2ad7fc,127.0.0.1,GET,http://127.0.0.1:8000/points,1745921942,,404
