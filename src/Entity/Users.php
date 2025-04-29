@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Command;
+namespace App\Entity;
 
 use App\Repository\UsersRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -9,78 +9,47 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
+#[ORM\Table(name: 'Users')]
+#[ORM\UniqueConstraint(name: 'username', columns: ['username'])]
+#[ORM\UniqueConstraint(name: 'email', columns: ['email'])]
 class Users
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = 1;
+    #[ORM\Column(type: 'integer')]
+    private ?int $userId = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 50, unique: true)]
     private ?string $username = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $createdAt = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $updatedAt = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $points = null;
+    #[ORM\Column(type: 'integer', nullable: true, options: ['default' => 0])]
+    private ?int $points = 0;
 
-    #[ORM\Column]
-    private ?int $age = null;
+    #[ORM\Column(type: 'integer', nullable: true, options: ['default' => 0])]
+    private ?int $age = 0;
 
-    #[ORM\Column(length: 255)]
-    private ?string $gender = null;
+    #[ORM\Column(type: 'string', length: 10, nullable: true, options: ['default' => 'Unknown'])]
+    private ?string $gender = 'Unknown';
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
-    private ?string $argent = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $argent = '0.00';
 
-    #[ORM\OneToMany(targetEntity: Conversion::class, mappedBy: 'userId')]
-    private Collection $conversions;
-
-    #[ORM\OneToMany(targetEntity: Events::class, mappedBy: 'organizerId')]
-    private Collection $events;
-
-    #[ORM\OneToMany(targetEntity: Jobs::class, mappedBy: 'userId', orphanRemoval: true)]
-    private Collection $jobs;
-
-    #[ORM\OneToMany(targetEntity: HistoriquePoints::class, mappedBy: 'user_id')]
-    private Collection $historiquePoints;
-
-    #[ORM\OneToMany(targetEntity: Roulette::class, mappedBy: 'user_id')]
-    private Collection $rouletteSpins;
-use App\Entity\Users;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-
-#[AsCommand(name: 'app:test-users')]
-class TestUsersCommand extends Command
-{
-    private $entityManager;
-
-    public function __construct()
+    // Getters et Setters
+    public function getUserId(): ?int
     {
-        $this->conversions = new ArrayCollection();
-        $this->events = new ArrayCollection();
-        $this->jobs = new ArrayCollection();
-        $this->historiquePoints = new ArrayCollection();
-        $this->rouletteSpins = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
+        return $this->userId;
     }
 
     public function getUsername(): ?string
@@ -88,14 +57,10 @@ class TestUsersCommand extends Command
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(string $username): self
     {
         $this->username = $username;
         return $this;
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        parent::__construct();
-        $this->entityManager = $entityManager;
     }
 
     public function getPassword(): ?string
@@ -103,7 +68,7 @@ class TestUsersCommand extends Command
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(string $password): self
     {
         $this->password = $password;
         return $this;
@@ -114,7 +79,7 @@ class TestUsersCommand extends Command
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(string $email): self
     {
         $this->email = $email;
         return $this;
@@ -125,13 +90,10 @@ class TestUsersCommand extends Command
         return $this->createdAt;
     }
 
-    public function setCreatedAt(string $createdAt): static
+    public function setCreatedAt(?string $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;
-    protected function configure(): void
-    {
-        $this->setDescription('Test the creation of a Users entity.');
     }
 
     public function getUpdatedAt(): ?string
@@ -139,7 +101,7 @@ class TestUsersCommand extends Command
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?string $updatedAt): static
+    public function setUpdatedAt(?string $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
         return $this;
@@ -150,25 +112,18 @@ class TestUsersCommand extends Command
         return $this->points;
     }
 
-    public function setPoints(?int $points): static
+    public function setPoints(?int $points): self
     {
         $this->points = $points;
         return $this;
     }
 
-    public function addPoints(int $points): static
-    {
-        $this->points = ($this->points ?? 0) + $points;
-        return $this;
-    }
-
     public function getAge(): ?int
-    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->age;
     }
 
-    public function setAge(int $age): static
+    public function setAge(?int $age): self
     {
         $this->age = $age;
         return $this;
@@ -179,136 +134,20 @@ class TestUsersCommand extends Command
         return $this->gender;
     }
 
-    public function setGender(string $gender): static
+    public function setGender(?string $gender): self
     {
         $this->gender = $gender;
         return $this;
     }
 
-    public function getArgent(): ?string
+    public function getArgent(): string
     {
         return $this->argent;
     }
 
-    public function setArgent(?string $argent): static
+    public function setArgent(string $argent): self
     {
         $this->argent = $argent;
         return $this;
     }
-
-    /**
-     * @return Collection<int, Conversion>
-     */
-    public function getConversions(): Collection
-    {
-        return $this->conversions;
-    }
-
-    public function addConversion(Conversion $conversion): static
-    {
-        if (!$this->conversions->contains($conversion)) {
-            $this->conversions->add($conversion);
-            $conversion->setUserId($this);
-        }
-        return $this;
-    }
-
-    public function removeConversion(Conversion $conversion): static
-    {
-        if ($this->conversions->removeElement($conversion)) {
-            if ($conversion->getUserId() === $this) {
-                $conversion->setUserId(null);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Events>
-     */
-    public function getEvents(): Collection
-    {
-        return $this->events;
-    }
-
-    public function addEvent(Events $event): static
-    {
-        if (!$this->events->contains($event)) {
-            $this->events->add($event);
-            $event->setOrganizerId($this);
-        }
-        return $this;
-    }
-
-    public function removeEvent(Events $event): static
-    {
-        if ($this->events->removeElement($event)) {
-            if ($event->getOrganizerId() === $this) {
-                $event->setOrganizerId(null);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Jobs>
-     */
-    public function getJobs(): Collection
-    {
-        return $this->jobs;
-    }
-
-    public function addJob(Jobs $job): static
-    {
-        if (!$this->jobs->contains($job)) {
-            $this->jobs->add($job);
-            $job->setUserId($this);
-        }
-        return $this;
-    }
-
-    public function removeJob(Jobs $job): static
-    {
-        if ($this->jobs->removeElement($job)) {
-            if ($job->getUserId() === $this) {
-                $job->setUserId(null);
-            }
-        }
-        return $this;
-        // Créer un utilisateur de test
-        $user = new Users();
-        $user->setUsername('testuser');
-        $user->setEmail('test@example.com');
-        $user->setPassword('testpassword');
-        $user->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-        $user->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-        $user->setPoints(1000);
-        $user->setAge(30);
-        $user->setGender('male');
-        $user->setArgent('50.00');
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        $output->writeln('User created successfully! ID: ' . $user->getId());
-
-        return Command::SUCCESS;
-    }
-
-    /**
-     * @return Collection<int, HistoriquePoints>
-     */
-    public function getHistoriquePoints(): Collection
-    {
-        return $this->historiquePoints;
-    }
-
-    /**
-     * @return Collection<int, Roulette>
-     */
-    public function getRouletteSpins(): Collection
-    {
-        return $this->rouletteSpins;
-    }
-}
 }
