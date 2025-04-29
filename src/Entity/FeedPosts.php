@@ -52,8 +52,10 @@ class FeedPosts
     }
     
     /**
-     * Méthode d'alias pour compatibilité avec les composants Symfony qui cherchent 'id'
+     * Alias pour la clé primaire 'post_id'.
+     * Utilisé pour éviter les erreurs lorsque Doctrine ou Symfony cherche 'id'.
      */
+    #[ORM\Column(name: "post_id", type: "integer", unique: true)]
     public function getId(): ?int
     {
         return $this->postId;

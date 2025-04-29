@@ -14,9 +14,9 @@ class GroupMembers
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?UserGroups $group_it = null;
+    #[ORM\ManyToOne(targetEntity: UserGroups::class)]
+    #[ORM\JoinColumn(name: "group_id_id", referencedColumnName: "group_id", nullable: false)]
+    private ?UserGroups $group = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -32,12 +32,12 @@ class GroupMembers
 
     public function getGroupIt(): ?UserGroups
     {
-        return $this->group_it;
+        return $this->group;
     }
 
     public function setGroupIt(?UserGroups $group_it): static
     {
-        $this->group_it = $group_it;
+        $this->group = $group_it;
 
         return $this;
     }

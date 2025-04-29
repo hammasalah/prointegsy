@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Entity;
-
+use App\Entity\UserProfile;
 use App\Repository\UsersRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
-#[ORM\Table(name: "Users")]
+#[ORM\Table(name: "users")]
 class Users
 {
     #[ORM\Id]
@@ -267,7 +267,19 @@ class Users
         return $this;
     }
 
-    
+ #[ORM\OneToOne(mappedBy: 'user', targetEntity: UserProfile::class, cascade: ['persist', 'remove'])]
+private ?UserProfile $profile = null;
+
+public function getProfile(): ?UserProfile
+{
+    return $this->profile;
+}
+
+public function setProfile(?UserProfile $profile): static
+{
+    $this->profile = $profile;
+    return $this;
+}
 
    
 

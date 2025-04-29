@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Entity;
-
+use App\Entity\Users;
 use App\Repository\UserProfileRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,9 +13,6 @@ class UserProfile
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $user_id = null;
-
     #[ORM\Column(length: 255)]
     private ?string $bio = null;
 
@@ -25,20 +22,23 @@ class UserProfile
     #[ORM\Column(length: 255)]
     private ?string $intrests = null;
 
+    #[ORM\OneToOne(inversedBy: 'profile', targetEntity: Users::class)]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: false)]
+    private ?Users $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUserId(): ?int
+    public function getUser(): ?Users
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(int $user_id): static
+    public function setUser(?Users $user): static
     {
-        $this->user_id = $user_id;
-
+        $this->user = $user;
         return $this;
     }
 

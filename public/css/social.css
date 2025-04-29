@@ -1,90 +1,368 @@
+/* Variables pour les couleurs */
+:root {
+    --primary-color: #c13584;
+    --primary-gradient: linear-gradient(to right, #c13584, #e1306c);
+    --secondary-color: #6c757d;
+    --light-color: #f8f9fa;
+    --dark-color: #0f1626;
+    --sidebar-color: #0f1626;
+    --card-color: #fff;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --border-color: #e9ecef;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --hover-color: #f1f3f5;
+}
+
+/* Styles généraux */
+body {
+    background-color: #e9e9e9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--dark-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background-color: var(--sidebar-color);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-header {
+    padding: 0 20px 20px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h2 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.sidebar-profile {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.sidebar-profile img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.sidebar-menu li {
+    padding: 10px 20px;
+    margin: 5px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.sidebar-menu li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu li.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-left: 3px solid var(--primary-color);
+}
+
+.sidebar-menu li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    margin-left: 220px;
+    padding: 20px;
+}
+
 .container {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
 }
 
+/* En-tête du feed */
 .feed-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    padding-bottom: 10px;
 }
 
+.feed-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin: 0;
+}
+
+/* Conteneur du feed */
 .feed {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
 }
 
+/* Carte de post */
 .post-card {
-    background: #fff;
+    background: var(--card-color);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.2s ease;
 }
 
+.post-card:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* En-tête du post */
 .post-header {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 12px;
 }
 
 .profile-picture {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
 
+.post-header h3 {
+    margin: 0 0 5px 0;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.post-header p {
+    margin: 0;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+/* Contenu du post */
 .post-content {
-    margin-top: 10px;
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.post-content p {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
 }
 
 .post-image {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-top: 10px;
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-top: 15px;
+    box-shadow: 0 3px 10px var(--shadow-color);
+    transition: transform 0.3s ease;
 }
 
+.post-image:hover {
+    transform: scale(1.01);
+}
+
+/* Actions du post */
 .post-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 15px;
+    margin: 15px 0 10px 0;
+    padding: 8px 0;
+    border-top: 1px solid #eee;
 }
 
+/* Section commentaires */
 .post-comments {
-    margin-top: 20px;
-    border-top: 1px solid #ddd;
+    margin-top: 10px;
     padding-top: 10px;
 }
 
 .comment {
-    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s ease;
 }
 
+.comment:hover {
+    background-color: #f1f3f5;
+}
+
+.comment p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.comment strong {
+    color: var(--primary-color);
+}
+
+/* Formulaire de commentaire */
 textarea {
     width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    margin-top: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 15px 0 10px 0;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.2);
+}
+
+/* Boutons */
 .btn {
-    padding: 10px 15px;
+    padding: 8px 15px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-primary {
-    background: #007bff;
-    color: #fff;
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #a52e70;
 }
 
 .btn-like {
-    background: #f0f0f0;
-    color: #333;
+    background-color: transparent;
+    color: var(--dark-color);
+    padding: 5px 10px;
+}
+
+.btn-like:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-like.liked {
+    color: var(--danger-color);
+}
+
+.btn-like.liked:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.btn-like i {
+    margin-right: 5px;
+}
+
+.btn-comment {
+    background-color: transparent;
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.btn-comment:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.btn-comment i {
+    margin-right: 5px;
+}
+
+/* Styles supplémentaires pour les commentaires */
+.comments-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.comment-header small {
+    color: var(--secondary-color);
+}
+
+.no-comments {
+    font-style: italic;
+    color: var(--secondary-color);
+    text-align: center;
+    padding: 15px;
+    background-color: var(--light-color);
+    border-radius: 8px;
+}
+
+.like-count {
+    font-size: 0.95rem;
+    color: var(--secondary-color);
+}
+
+.empty-feed {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.empty-feed i {
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+}
+
+.empty-feed p {
+    margin: 10px 0;
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+}
+
+.like-form {
+    margin: 0;
+}
+
+.comment-form {
+    margin-top: 20px;
 }

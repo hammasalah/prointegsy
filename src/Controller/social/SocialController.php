@@ -99,11 +99,20 @@ class SocialController extends AbstractController
 
     #[Route('/like/{id}', name: 'app_social_like_post', methods: ['POST'])]
     public function likePost(
-        FeedPosts $post,
+        Request $request,
+        FeedPostsRepository $feedPostsRepository,
         LikesRepository $likesRepository,
         EntityManagerInterface $entityManager,
         UsersRepository $usersRepository
     ): Response {
+        $postId = $request->attributes->get('id');
+        $post = $feedPostsRepository->find($postId);
+        
+        if (!$post) {
+            $this->addFlash('error', 'Post non trouvé');
+            return $this->redirectToRoute('app_social');
+        }
+        
         $currentUser = $usersRepository->find(1); // Exemple d'utilisateur connecté
         if (!$currentUser) {
             $this->addFlash('error', 'Utilisateur non trouvé');
@@ -118,6 +127,7 @@ class SocialController extends AbstractController
             $like = new Likes();
             $like->setPostId($post);
             $like->setUserId($currentUser);
+            $like->setTimeStamp((new \DateTime())->format('Y-m-d H:i:s'));
             $entityManager->persist($like);
             $this->addFlash('success', 'Vous avez aimé ce post');
         }
@@ -128,11 +138,18 @@ class SocialController extends AbstractController
 
     #[Route('/comment/{id}', name: 'app_social_add_comment', methods: ['POST'])]
     public function addComment(
-        FeedPosts $post,
         Request $request,
+        FeedPostsRepository $feedPostsRepository,
         EntityManagerInterface $entityManager,
         UsersRepository $usersRepository
     ): Response {
+        $postId = $request->attributes->get('id');
+        $post = $feedPostsRepository->find($postId);
+        
+        if (!$post) {
+            $this->addFlash('error', 'Post non trouvé');
+            return $this->redirectToRoute('app_social');
+        }
         $currentUser = $usersRepository->find(1); // Exemple d'utilisateur connecté
         if (!$currentUser) {
             $this->addFlash('error', 'Utilisateur non trouvé');

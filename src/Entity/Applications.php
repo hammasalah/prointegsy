@@ -17,9 +17,9 @@ class Applications
     #[ORM\JoinColumn(nullable: false)]
     private ?Users $user_id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Events $enevt_id = null;
+    #[ORM\ManyToOne(targetEntity: Events::class)]
+    #[ORM\JoinColumn(name: "event_id", referencedColumnName: "id", nullable: false)]
+    private ?Events $event = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -60,14 +60,14 @@ class Applications
         return $this;
     }
 
-    public function getEnevtId(): ?Events
+    public function getEvent(): ?Events
     {
-        return $this->enevt_id;
+        return $this->event;
     }
 
-    public function setEnevtId(?Events $enevt_id): static
+    public function setEvent(?Events $event): static
     {
-        $this->enevt_id = $enevt_id;
+        $this->event = $event;
 
         return $this;
     }

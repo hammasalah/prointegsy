@@ -6,6 +6,7 @@ use App\Repository\UserIntrestsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserIntrestsRepository::class)]
+#[ORM\Table(name: "UserIntrests")]
 class UserIntrests
 {
     #[ORM\Id]
@@ -14,9 +15,11 @@ class UserIntrests
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    private ?users $user_id = null;
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
+    private ?Users $user_id = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id")]
     private ?Category $category_id = null;
 
     public function getId(): ?int
@@ -24,12 +27,12 @@ class UserIntrests
         return $this->id;
     }
 
-    public function getUserId(): ?users
+    public function getUserId(): ?Users
     {
         return $this->user_id;
     }
 
-    public function setUserId(?users $user_id): static
+    public function setUserId(?Users $user_id): static
     {
         $this->user_id = $user_id;
 

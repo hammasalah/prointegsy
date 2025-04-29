@@ -7,12 +7,13 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserGroupsRepository::class)]
+#[ORM\Table(name: "UserGroups")]
 class UserGroups
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(name: "group_id", type: "integer")]
+    private ?int $groupId = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -35,7 +36,7 @@ class UserGroups
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->groupId;
     }
 
     public function getName(): ?string
