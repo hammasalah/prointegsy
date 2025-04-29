@@ -5,10 +5,12 @@ namespace App\Controller\social;
 use App\Entity\FeedPosts;
 use App\Entity\Likes;
 use App\Entity\Comments;
+use App\Entity\Shares;
 use App\Repository\FeedPostsRepository;
 use App\Repository\LikesRepository;
 use App\Repository\CommentsRepository;
 use App\Repository\UsersRepository;
+use App\Repository\SharesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +25,7 @@ class SocialController extends AbstractController
         FeedPostsRepository $feedPostsRepository,
         LikesRepository $likesRepository,
         CommentsRepository $commentsRepository,
+        SharesRepository $sharesRepository,
         UsersRepository $usersRepository
     ): Response {
         // Récupérer tous les posts
@@ -34,7 +37,10 @@ class SocialController extends AbstractController
             $likes = $likesRepository->findBy(['postId' => $post]);
             $likeCount = count($likes);
             $userLiked = $likesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]) !== null;
-            $comments = $commentsRepository->findBy(['postId' => $post, 'isDeleted' => null], ['timeStamp' => 'DESC'], 3);
+            $comments = $commentsRepository->findBy(['postId' => $post, 'isDeleted' => 0], ['timeStamp' => 'DESC']);
+            $shares = $sharesRepository->findBy(['postId' => $post]);
+            $shareCount = count($shares);
+            $userShared = $sharesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]) !== null;
 
             $postsData[] = [
                 'post' => $post,
@@ -42,6 +48,8 @@ class SocialController extends AbstractController
                 'likeCount' => $likeCount,
                 'comments' => $comments,
                 'userLiked' => $userLiked,
+                'shareCount' => $shareCount,
+                'userShared' => $userShared,
             ];
         }
 
@@ -173,6 +181,47 @@ class SocialController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Commentaire ajouté avec succès');
+        return $this->redirectToRoute('app_social');
+    }
+    
+    #[Route('/share/{id}', name: 'app_social_share_post', methods: ['POST'])]
+    public function sharePost(
+        Request $request,
+        FeedPostsRepository $feedPostsRepository,
+        SharesRepository $sharesRepository,
+        EntityManagerInterface $entityManager,
+        UsersRepository $usersRepository
+    ): Response {
+        $postId = $request->attributes->get('id');
+        $post = $feedPostsRepository->find($postId);
+        
+        if (!$post) {
+            $this->addFlash('error', 'Post non trouvé');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        $currentUser = $usersRepository->find(1); // Exemple d'utilisateur connecté
+        if (!$currentUser) {
+            $this->addFlash('error', 'Utilisateur non trouvé');
+            return $this->redirectToRoute('app_social');
+        }
+
+        // Vérifier si l'utilisateur a déjà partagé ce post
+        $existingShare = $sharesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]);
+        if ($existingShare) {
+            $this->addFlash('info', 'Vous avez déjà partagé ce post');
+        } else {
+            $share = new Shares();
+            $share->setPostId($post);
+            $share->setUserId($currentUser);
+            $share->setCreatedAt(new \DateTime());
+            
+            $entityManager->persist($share);
+            $entityManager->flush();
+            
+            $this->addFlash('success', 'Post partagé avec succès');
+        }
+        
         return $this->redirectToRoute('app_social');
     }
 }

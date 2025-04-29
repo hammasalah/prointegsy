@@ -39,60 +39,68 @@
             </a>
         </div>
         
-        <div class="feed">
+        <div class="feed-grid">
         {% for post in posts %}
-            <article class="post-card">
-                <div class="post-header">
-                    <img src="{{ post.user.profile.profilePicture|default('/uploads/images/default-avatar.png') }}" alt="Photo de profil" class="profile-picture">
-                    <div>
-                        <h3>{{ post.user.username }}</h3>
-                        <p><i class="far fa-clock"></i> {{ post.post.timeStamp|date('d M Y à H:i') }}</p>
+            <article class="post-card-grid">
+                <div class="post-header-simple">
+                    <div class="user-info">
+                        <span class="username">{{ post.user.username }}</span>
+                        <span class="post-date">{{ post.post.timeStamp|date('d M Y H:i') }}</span>
+                    </div>
+                    <div class="post-options">
+                        <i class="fas fa-ellipsis-h"></i>
                     </div>
                 </div>
                 
-                <div class="post-content">
-                    <p>{{ post.post.content }}</p>
+                <div class="post-content-simple">
                     {% if post.post.imagePath %}
-                        <img src="{{ post.post.imagePath }}" alt="Image du post" class="post-image">
+                        <img src="{{ post.post.imagePath }}" alt="Image du post" class="post-image-grid">
+                    {% else %}
+                        <div class="post-text-content">{{ post.post.content }}</div>
                     {% endif %}
                 </div>
                 
-                <div class="post-actions">
-                    <form action="{{ path('app_social_like_post', {id: post.post.id}) }}" method="post" class="like-form">
-                        <button type="submit" class="btn btn-like {% if post.userLiked %}liked{% endif %}">
-                            <i class="{% if post.userLiked %}fas{% else %}far{% endif %} fa-heart"></i>
-                            {{ post.userLiked ? 'Je n\'aime plus' : 'J\'aime' }}
-                        </button>
-                    </form>
-                    <span class="like-count"><strong>{{ post.likeCount }}</strong> J'aime</span>
-                    <a href="#comments-{{ post.post.id }}" class="btn btn-comment">
-                        <i class="far fa-comment"></i> Commentaires ({{ post.comments|length }})
-                    </a>
-                </div>
-                
-                <div class="post-comments" id="comments-{{ post.post.id }}">
-                    <h4 class="comments-title">Commentaires</h4>
+                <div class="post-actions-simple">
+                    <div class="action-buttons">
+                        <form action="{{ path('app_social_like_post', {id: post.post.id}) }}" method="post" class="like-form">
+                            <button type="submit" class="btn-icon {% if post.userLiked %}liked{% endif %}">
+                                <i class="{% if post.userLiked %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </button>
+                        </form>
+                        <a href="#comments-{{ post.post.id }}" class="btn-icon">
+                            <i class="far fa-comment"></i>
+                        </a>
+                        <form action="{{ path('app_social_share_post', {id: post.post.id}) }}" method="post" class="share-form">
+                            <button type="submit" class="btn-icon {% if post.userShared %}shared{% endif %}">
+                                <i class="fas fa-share"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="post-stats">
+                        <div class="like-stat">{{ post.likeCount }} J'aime</div>
+                    </div>
+                    
+                    <div class="post-caption">
+                        <span class="caption-username">{{ post.user.username }}</span>
+                        <span class="caption-text">{{ post.post.content }}</span>
+                    </div>
                     
                     {% if post.comments|length > 0 %}
-                        <div class="comments-list">
-                            {% for comment in post.comments %}
-                                <div class="comment">
-                                    <div class="comment-header">
-                                        <strong>{{ comment.user.username }}</strong>
-                                        <small>{{ comment.timeStamp|date('d M Y') }}</small>
-                                    </div>
-                                    <p>{{ comment.content }}</p>
+                        <div class="comments-preview">
+                            <a href="#comments-{{ post.post.id }}" class="view-comments">Voir les {{ post.comments|length }} commentaires</a>
+                            {% for comment in post.comments|slice(0, 2) %}
+                                <div class="comment-preview">
+                                    <span class="comment-username">{{ comment.userId.username }}</span>
+                                    <span class="comment-text">{{ comment.content }}</span>
                                 </div>
                             {% endfor %}
                         </div>
-                    {% else %}
-                        <p class="no-comments">Aucun commentaire pour l'instant. Soyez le premier à commenter !</p>
                     {% endif %}
                     
-                    <form action="{{ path('app_social_add_comment', {id: post.post.id}) }}" method="post" class="comment-form">
-                        <textarea name="content" placeholder="Écrivez votre commentaire..." required></textarea>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="far fa-paper-plane"></i> Commenter
+                    <form action="{{ path('app_social_add_comment', {id: post.post.id}) }}" method="post" class="comment-form-simple">
+                        <input type="text" name="content" placeholder="Ajouter un commentaire..." required>
+                        <button type="submit" class="btn-submit-comment">
+                            <i class="far fa-paper-plane"></i>
                         </button>
                     </form>
                 </div>
