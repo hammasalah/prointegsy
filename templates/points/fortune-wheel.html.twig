@@ -801,8 +801,6 @@
             const currentMonth = now.getMonth() + 1;
             const currentYear = now.getFullYear();
     
-            // Code pour restreindre au 1er jour de chaque mois (commenté pour permettre plusieurs tours)
-            /*
             // Vérifier si l'utilisateur a déjà tourné ce mois-ci
             let hasSpunThisMonth = localStorage.getItem('hasSpunThisMonth') === 'true';
             const lastSpinMonth = localStorage.getItem('lastSpinMonth');
@@ -822,13 +820,16 @@
                 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                 nextSpinMessage.textContent = `Next spin available on the 1st of ${monthNames[nextMonth - 1]} ${nextYear}`;
             } else {
+                spinButton.disabled = false;
                 nextSpinMessage.textContent = 'Spin the wheel now!';
             }
-            */
     
-            // Activer le bouton par défaut et permettre plusieurs tours
-            spinButton.disabled = false;
-            nextSpinMessage.textContent = 'Spin the wheel now!';
+            // Afficher une alerte si l'utilisateur passe la souris sur le bouton "Spin" et que ce n'est pas le 1er du mois
+            spinButton.addEventListener('mouseover', () => {
+                if (currentDay !== 1) {
+                    alert('The wheel can only be spun on the 1st day of the month.');
+                }
+            });
     
             // Charger l'historique des gains depuis localStorage
             let spinHistory = JSON.parse(localStorage.getItem('spinHistory')) || [];
@@ -940,21 +941,16 @@
             }
     
             function spinWheel() {
-                // Code pour restreindre au 1er jour de chaque mois (commenté pour permettre plusieurs tours)
-                /*
+                // Vérifier si la roue peut être tournée
                 if (spinning || currentDay !== 1 || hasSpunThisMonth) return;
-                hasSpunThisMonth = true;
-                localStorage.setItem('hasSpunThisMonth', 'true');
-                localStorage.setItem('lastSpinMonth', `${currentMonth}-${currentYear}`);
-                */
-    
-                // Vérifier uniquement si la roue est déjà en train de tourner
-                if (spinning) return;
     
                 spinning = true;
                 spinButton.disabled = true;
+                hasSpunThisMonth = true;
+                localStorage.setItem('hasSpunThisMonth', 'true');
+                localStorage.setItem('lastSpinMonth', `${currentMonth}-${currentYear}`);
     
-                // Amélioration : Rotation sur 5 secondes, minimum 4 tours (1440 degrés), avec effet de rebond
+                // Rotation sur 5 secondes, minimum 4 tours (1440 degrés), avec effet de rebond
                 const spinDuration = 5000; // 5 secondes
                 const minSpinAngle = 1440; // 4 tours minimum
                 const randomExtraAngle = Math.random() * 360; // Angle supplémentaire aléatoire
@@ -990,7 +986,6 @@
                         requestAnimationFrame(animate);
                     } else {
                         spinning = false;
-                        spinButton.disabled = false; // Réactiver le bouton pour permettre plusieurs tours
                         const index = Math.floor(((360 - currentAngle) % 360) / (360 / segments.length));
                         const reward = segments[index].label;
     
@@ -1010,13 +1005,12 @@
                         historyTableBody.insertBefore(row, historyTableBody.firstChild);
                         if (historyTableBody.children.length > 5) historyTableBody.removeChild(historyTableBody.lastChild);
     
-                        // Code pour mettre à jour le message "Next Spin" (commenté pour permettre plusieurs tours)
-                        /*
+                        // Mettre à jour le message "Next Spin"
                         const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
                         const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
                         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                         nextSpinMessage.textContent = `Next spin available on the 1st of ${monthNames[nextMonth - 1]} ${nextYear}`;
-                        */
+                        spinButton.disabled = true;
                     }
                 }
     
