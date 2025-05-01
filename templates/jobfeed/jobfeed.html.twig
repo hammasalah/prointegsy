@@ -1,153 +1,159 @@
- {% extends 'base.html.twig' %}
+{# templates/job_feed.html.twig #}
 
 {% block title %}All Job Opportunities{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        .job-card {
-            transition: transform 0.2s;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-        }
-        .job-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .salary-badge {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-weight: 500;
-        }
-        .deadline-alert {
-            background-color: #fff3e0;
-            color: #ef6c00;
-            padding: 8px 15px;
-            border-radius: 5px;
-        }
-    </style>
+  <link rel="stylesheet" href="{{ asset('css/job_feed.css') }}">
 {% endblock %}
 
 {% block body %}
-<div class="container py-4">
-    <h1 class="text-center mb-5 display-4">All Available Jobs</h1>
-    
-    <div class="row">
+  {% set current_route = app.request.get('_route') %}
+
+  <div class="app-container">
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="{{ path('app-root') }}" class="sidebar-logo">
+          <i class="fa-briefcase"></i>
+          <span>Maysem</span>
+        </a>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a href="{{ path('app-root') }}"
+               class="sidebar-link {{ current_route == 'app-root' ? 'active' : '' }}">Home</a></li>
+        <li><a href="{{ path('app_organizer') }}"
+               class="sidebar-link {{ current_route == 'app_organizer' ? 'active' : '' }}">Dashboard</a></li>
+        <li><a href="{{ path('app_create_job') }}"
+               class="sidebar-link {{ current_route == 'app_create_job' ? 'active' : '' }}">Create Job</a></li>
+        <li><a href="{{ path('app_job_feed') }}"
+               class="sidebar-link {{ current_route == 'app_job_feed' ? 'active' : '' }}">Job Feed</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        &copy; {{ "now"|date("Y") }} Maysem Platform
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <h1 class="page-title">All Available Jobs</h1>
+      <div class="jobs-list">
         {% if jobs|length > 0 %}
-            {% for job in jobs %}
-            <div class="col-12 mb-4">
-                <div class="card job-card">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h2 class="h4 mb-0">{{ job.jobTitle }}</h2>
-                                {% if job.eventTitle %}
-                                <p class="mb-0 text-muted mt-1">
-                                    <i class="bi bi-calendar-event"></i> {{ job.eventTitle }}
-                                </p>
-                                {% endif %}
-                            </div>
-                            <span class="salary-badge">
-                                {{ job.currency }} {{ job.minSalary }} - {{ job.currency }} {{ job.maxSalary }}
-                            </span>
-                        </div>
+          {% for job in jobs %}
+            <div class="job-card">
+              <h2 class="job-title">{{ job.jobTitle }}</h2>
+              <div class="job-subtitle">
+                <i class="fa fa-file-text-o"></i> {{ job.category ?? 'symfony is the best' }}
+              </div>
+              
+              <div class="job-card-body">
+                <div class="job-left-column">
+                  <h3 class="section-title">Job Details</h3>
+                  
+                  <div class="job-detail-item">
+                    <div class="job-detail-icon">
+                      <i class="fa fa-map-marker"></i>
                     </div>
+                    <div class="job-detail-label">Location:</div>
+                    <div class="job-detail-value">{{ job.jobLocation }}</div>
+                  </div>
+                  
+                  <div class="job-detail-item">
+                    <div class="job-detail-icon">
+                      <i class="fa fa-clock-o"></i>
+                    </div>
+                    <div class="job-detail-label">Type:</div>
+                    <div class="job-detail-value">{{ job.employmentType }}</div>
+                  </div>
+                  
+                  <div class="job-detail-item">
+                    <div class="job-detail-icon">
+                      <i class="fa fa-user"></i>
+                    </div>
+                    <div class="job-detail-label">Recruiter:</div>
+                    <div class="job-detail-value">{{ job.recruiterName }}</div>
+                  </div>
+                  
+                  <div class="job-detail-item">
+                    <div class="job-detail-icon">
+                      <i class="fa fa-envelope"></i>
+                    </div>
+                    <div class="job-detail-label">Contact:</div>
+                    <div class="job-detail-value">{{ job.recruiterEmail }}</div>
+                  </div>
+                  
+                  <div class="job-description">
+                    <h3 class="job-description-title">Description</h3>
+                    <div class="job-description-text">{{ job.description ?? 'this is the first job in symfony' }}</div>
+                  </div>
+                </div>
+                
+                <div class="job-right-column">
+                  <h3 class="section-title">Key Information</h3>
+                  
+                  <div class="key-info">
+                    {% if job.applicationDeadLine %}
+                      <div class="deadline-info">
+                        <div class="deadline-icon">
+                          <i class="fa fa-exclamation-circle"></i>
+                        </div>
+                        <div class="deadline-details">
+                          <div class="deadline-label">Deadline:</div>
+                          <div class="deadline-value">{{ job.applicationDeadLine|date('m/d/Y') }}</div>
+                        </div>
+                      </div>
+                    {% endif %}
                     
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h5 class="mb-3">Job Details</h5>
-                                <div class="row mb-4">
-                                    <div class="col-6">
-                                        <p class="mb-2">
-                                            <i class="bi bi-geo-alt"></i> <strong>Location:</strong><br>
-                                            {{ job.jobLocation }}
-                                        </p>
-                                        <p class="mb-2">
-                                            <i class="bi bi-clock-history"></i> <strong>Type:</strong><br>
-                                            {{ job.employmentType }}
-                                        </p>
-                                    </div>
-                                    <div class="col-6">
-                                        <p class="mb-2">
-                                            <i class="bi bi-person"></i> <strong>Recruiter:</strong><br>
-                                            {{ job.recruiterName }}
-                                        </p>
-                                        <p class="mb-0">
-                                            <i class="bi bi-envelope"></i> <strong>Contact:</strong><br>
-                                            {{ job.recruiterEmail }}
-                                        </p>
-                                    </div>
-                                </div>
-                                
-                                <h5 class="mb-3">Description</h5>
-                                <p class="card-text">{{ job.jobDescreption }}</p>
-                            </div>
-                            
-                            <div class="col-md-4 border-start">
-                                <div class="ps-md-3">
-                                    <h5 class="mb-3">Key Information</h5>
-                                    {% if job.applicationDeadLine %}
-                                    <div class="deadline-alert mb-3">
-                                        <i class="bi bi-exclamation-triangle"></i>
-                                        Application Deadline:<br>
-                                        <strong>{{ job.applicationDeadLine }}</strong>
-                                    </div>
-                                    {% endif %}
-                                    
-                                    <div class="mb-3">
-                                        <p class="mb-1">
-                                            <i class="bi bi-calendar-plus"></i> Posted: 
-                                            {% if job.createdAt %}
-                                                {{ job.createdAt }}
-                                            {% else %}
-                                                N/A
-                                            {% endif %}
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="d-grid gap-2">
-                                        <button class="btn btn-primary btn-lg">
-                                            <i class="bi bi-send"></i> Apply Now
-                                        </button>
-                                        <button class="btn btn-outline-secondary">
-                                            <i class="bi bi-share"></i> Share Job
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <button class="apply-button" onclick="openModal({{ job.id }})">Apply Now</button>
+                    <button class="share-button">
+                      <i class="fa fa-share-alt"></i> Share Job
+                    </button>
+                  </div>
                 </div>
+              </div>
             </div>
-            {% endfor %}
+          {% endfor %}
         {% else %}
-            <div class="col-12">
-                <div class="alert alert-warning text-center py-4">
-                    <h2 class="h4 mb-3"><i class="bi bi-exclamation-circle"></i> No Jobs Available</h2>
-                    <p class="mb-0">Check back later for new opportunities!</p>
-                </div>
-            </div>
+          <div class="no-jobs">No Jobs Available</div>
         {% endif %}
+      </div>
+    </main>
+  </div>
+
+  {# Modal #}
+  <div class="modal" id="applicationModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <header class="modal-header">
+          <h2>Apply for Position</h2>
+          <button class="close-button" onclick="closeModal()">×</button>
+        </header>
+        <form id="applicationForm" method="POST" enctype="multipart/form-data">
+          <div class="modal-body">
+            <label for="cvUpload">Upload CV (PDF, max 5MB)</label>
+            <input type="file" id="cvUpload" name="cv" accept=".pdf" required>
+            <label for="coverLetter">Cover Letter</label>
+            <textarea id="coverLetter" name="coverLetter" rows="4"></textarea>
+          </div>
+          <footer class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+          </footer>
+        </form>
+      </div>
     </div>
-</div>
-{% endblock %} 
+  </div>
+{% endblock %}
 
-<h1>🔥 Job Feed Works!</h1>
 
-<ul>
-    {% for job in jobs %}
-        <li>{{ job.jobTitle }}</li>
-    {% else %}
-        <li>No jobs found.</li>
-    {% endfor %}
-</ul>
+
+{% block javascripts %}
+  <script>
+    function openModal(jobId) {
+      document.getElementById('applicationForm').action =
+        "{{ path('job_apply', {'id':'JOB_ID'}) }}".replace('JOB_ID', jobId);
+      document.getElementById('applicationModal').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('applicationModal').classList.remove('active');
+    }
+  </script>
+{% endblock %}

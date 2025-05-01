@@ -23,8 +23,7 @@ class CreateJobFormType extends AbstractType
             ->add('jobDescreption')
             ->add('recruiterName')
             ->add('recruiterEmail')
-            ->add('createdAt')
-            #->add('userId')
+            
             
         ;
     }
