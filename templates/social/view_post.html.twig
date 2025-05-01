@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect Sphere</title>
+    <title>{{ posts[0].post.content|slice(0, 50) }}... - Connect Sphere</title>
+    
+    <!-- Métadonnées Open Graph pour le partage sur les réseaux sociaux -->
+    <meta property="og:title" content="{{ posts[0].post.content|slice(0, 100) }}" />
+    <meta property="og:description" content="{{ posts[0].post.content }}" />
+    <meta property="og:url" content="{{ absolute_url(path('app_social_view_post', {id: posts[0].post.id})) }}" />
+    {% if posts[0].post.imagePath %}
+    <meta property="og:image" content="{{ absolute_url(posts[0].post.imagePath) }}" />
+    {% endif %}
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Connect Sphere" />
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/social.css') }}">
@@ -41,31 +52,28 @@
         {% endfor %}
         
         <div class="feed-header">
-            <h1>Feed</h1>
-            <a href="{{ path('app_social_add_post') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i> Add Post
-            </a>
+            <h1>Post individuel</h1>
+            <a href="{{ path('app_social') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Retour</a>
         </div>
         
-        <div class="feed-grid">
+        <div class="feed">
         {% for post in posts %}
             <article class="post-card-grid">
                 <div class="post-header-simple">
                     <div class="user-info">
-                        <span class="username">{{ post.user.username }}</span>
-                        <span class="post-date">{{ post.post.timeStamp|date('d M Y H:i') }}</span>
-                    </div>
-                    <div class="post-options">
-                        <i class="fas fa-ellipsis-h"></i>
+                        <div class="username">{{ post.user.username }}</div>
+                        <div class="post-date">{{ post.post.timeStamp|date('d/m/Y H:i') }}</div>
                     </div>
                 </div>
                 
-                <div class="post-content-simple">
-                    {% if post.post.imagePath %}
-                        <img src="{{ post.post.imagePath }}" alt="Image du post" class="post-image-grid">
-                    {% else %}
-                        <div class="post-text-content">{{ post.post.content }}</div>
-                    {% endif %}
+                {% if post.post.imagePath %}
+                <div class="post-image">
+                    <img src="{{ post.post.imagePath }}" alt="Post image">
+                </div>
+                {% endif %}
+                
+                <div class="post-text-content">
+                    {{ post.post.content }}
                 </div>
                 
                 <div class="post-actions-simple">
@@ -85,16 +93,16 @@
                                 <i class="fas fa-share-alt"></i>
                             </button>
                             <div id="share-options-{{ post.post.id }}" class="share-options">
-                                <button onclick="shareOnFacebook('{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}', 'Voir ce post', '{{ post.post.content|slice(0, 100) }}')" class="share-btn facebook">
+                                <button class="share-btn facebook" data-url="{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}" data-title="Voir ce post" data-description="{{ post.post.content|slice(0, 100) }}">
                                     <i class="fab fa-facebook-f"></i> Facebook
                                 </button>
-                                <button onclick="shareOnTwitter('{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}', '{{ post.post.content|slice(0, 100) }}')" class="share-btn twitter">
+                                <button class="share-btn twitter" data-url="{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}" data-title="{{ post.post.content|slice(0, 100) }}">
                                     <i class="fab fa-twitter"></i> Twitter
                                 </button>
-                                <button onclick="shareOnLinkedIn('{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}', 'Voir ce post', '{{ post.post.content|slice(0, 100) }}')" class="share-btn linkedin">
+                                <button class="share-btn linkedin" data-url="{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}" data-title="Voir ce post" data-description="{{ post.post.content|slice(0, 100) }}">
                                     <i class="fab fa-linkedin-in"></i> LinkedIn
                                 </button>
-                                <button onclick="shareOnWhatsApp('{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}', '{{ post.post.content|slice(0, 100) }}')" class="share-btn whatsapp">
+                                <button class="share-btn whatsapp" data-url="{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}" data-title="{{ post.post.content|slice(0, 100) }}">
                                     <i class="fab fa-whatsapp"></i> WhatsApp
                                 </button>
                             </div>
@@ -109,19 +117,19 @@
                         <span class="caption-text">{{ post.post.content }}</span>
                     </div>
                     
-                    {% if post.comments|length > 0 %}
-                        <div class="comments-preview">
-                            <a href="#comments-{{ post.post.id }}" class="view-comments">Voir les {{ post.comments|length }} commentaires</a>
-                            {% for comment in post.comments|slice(0, 2) %}
-                                <div class="comment-preview">
-                                    <span class="comment-username">{{ comment.userId.username }}</span>
-                                    <span class="comment-text">{{ comment.content }}</span>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    
-                    <form action="{{ path('app_social_add_comment', {id: post.post.id}) }}" method="post" class="comment-form-simple">
+                    <div class="comments-preview" id="comments-{{ post.post.id }}">
+                        <a href="#comments-{{ post.post.id }}" class="view-comments">Voir les commentaires ({{ post.comments|length }})</a>
+                        {% for comment in post.comments|slice(0, 3) %}
+                            <div class="comment-preview">
+                                <span class="comment-username">{{ comment.userId.username }}</span>
+                                <span class="comment-text">{{ comment.content }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="comment-form-simple">
+                    <form action="{{ path('app_social_add_comment', {id: post.post.id}) }}" method="post">
                         <input type="text" name="content" placeholder="Ajouter un commentaire..." required>
                         <button type="submit" class="btn-submit-comment">
                             <i class="far fa-paper-plane"></i>

@@ -38,9 +38,6 @@ class SocialController extends AbstractController
             $likeCount = count($likes);
             $userLiked = $likesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]) !== null;
             $comments = $commentsRepository->findBy(['postId' => $post, 'isDeleted' => 0], ['timeStamp' => 'DESC']);
-            $shares = $sharesRepository->findBy(['postId' => $post]);
-            $shareCount = count($shares);
-            $userShared = $sharesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]) !== null;
 
             $postsData[] = [
                 'post' => $post,
@@ -48,8 +45,6 @@ class SocialController extends AbstractController
                 'likeCount' => $likeCount,
                 'comments' => $comments,
                 'userLiked' => $userLiked,
-                'shareCount' => $shareCount,
-                'userShared' => $userShared,
             ];
         }
 
@@ -184,44 +179,52 @@ class SocialController extends AbstractController
         return $this->redirectToRoute('app_social');
     }
     
-    #[Route('/share/{id}', name: 'app_social_share_post', methods: ['POST'])]
-    public function sharePost(
-        Request $request,
+   
+
+    /**
+     * Affiche un post individuel (nécessaire pour le partage)
+     */
+    #[Route('/post/{id}', name: 'app_social_view_post')]
+    public function viewPost(
+        int $id,
         FeedPostsRepository $feedPostsRepository,
+        LikesRepository $likesRepository,
+        CommentsRepository $commentsRepository,
         SharesRepository $sharesRepository,
-        EntityManagerInterface $entityManager,
         UsersRepository $usersRepository
     ): Response {
-        $postId = $request->attributes->get('id');
-        $post = $feedPostsRepository->find($postId);
+        $post = $feedPostsRepository->find($id);
         
-        if (!$post) {
+        if (!$post || $post->getIsDeleted()) {
             $this->addFlash('error', 'Post non trouvé');
             return $this->redirectToRoute('app_social');
         }
         
         $currentUser = $usersRepository->find(1); // Exemple d'utilisateur connecté
-        if (!$currentUser) {
-            $this->addFlash('error', 'Utilisateur non trouvé');
-            return $this->redirectToRoute('app_social');
-        }
-
-        // Vérifier si l'utilisateur a déjà partagé ce post
-        $existingShare = $sharesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]);
-        if ($existingShare) {
-            $this->addFlash('info', 'Vous avez déjà partagé ce post');
-        } else {
-            $share = new Shares();
-            $share->setPostId($post);
-            $share->setUserId($currentUser);
-            $share->setCreatedAt(new \DateTime());
-            
-            $entityManager->persist($share);
-            $entityManager->flush();
-            
-            $this->addFlash('success', 'Post partagé avec succès');
-        }
         
-        return $this->redirectToRoute('app_social');
+        $likes = $likesRepository->findBy(['postId' => $post]);
+        $likeCount = count($likes);
+        $userLiked = $likesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]) !== null;
+        $comments = $commentsRepository->findBy(['postId' => $post, 'isDeleted' => 0], ['timeStamp' => 'DESC']);
+        $shares = $sharesRepository->findBy(['postId' => $post]);
+        $shareCount = count($shares);
+        $userShared = $sharesRepository->findOneBy(['postId' => $post, 'user_id' => $currentUser]) !== null;
+        
+        $postData = [
+            'post' => $post,
+            'user' => $post->getUserId(),
+            'likeCount' => $likeCount,
+            'comments' => $comments,
+            'userLiked' => $userLiked,
+            'shareCount' => $shareCount,
+            'userShared' => $userShared,
+        ];
+        
+        return $this->render('social/view_post.html.twig', [
+            'posts' => [$postData],
+        ]);
     }
+    
+    // La méthode de partage interne a été supprimée
+    // Seul le partage externe sur les réseaux sociaux est maintenant disponible
 }
