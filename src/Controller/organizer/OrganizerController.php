@@ -9,6 +9,7 @@ use App\Repository\UsersRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OrganizerController extends AbstractController
 {
@@ -19,14 +20,14 @@ class OrganizerController extends AbstractController
     ) {}
 
     #[Route('/organizer', name: 'app_organizer')]
-    public function index(): Response
+    public function index(SessionInterface $session): Response
     {
-        $user = $this->usersRepository->find(1);
-
+        $user = $session->get('user');
+    
         if (!$user) {
-            throw $this->createNotFoundException('User not found');
+            throw $this->createNotFoundException('User not found in session');
         }
-
+    
         return $this->render('organizer/organizer.html.twig', [
             'jobs' => $this->jobsRepository->findByUser($user),
             'events' => $this->eventsRepository->findByOrganizer($user),
