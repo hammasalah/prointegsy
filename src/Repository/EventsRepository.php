@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Events;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Users;
 
 /**
  * @extends ServiceEntityRepository<Events>
@@ -20,6 +21,19 @@ class EventsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Events::class);
     }
+
+
+    
+    public function findByOrganizer(Users $organizer): array
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.organizerId = :organizer')
+            ->setParameter('organizer', $organizer)
+            ->orderBy('e.startTime', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+}
 
 //    /**
 //     * @return Events[] Returns an array of Events objects
@@ -45,4 +59,4 @@ class EventsRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-}
+

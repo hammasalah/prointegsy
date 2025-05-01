@@ -1,19 +1,13 @@
 <?php
-
+// src/Repository/ApplicationsRepository.php
 namespace App\Repository;
 
 use App\Entity\Applications;
+use App\Entity\Jobs;
+use App\Entity\Users;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Applications>
- *
- * @method Applications|null find($id, $lockMode = null, $lockVersion = null)
- * @method Applications|null findOneBy(array $criteria, array $orderBy = null)
- * @method Applications[]    findAll()
- * @method Applications[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class ApplicationsRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,28 +15,46 @@ class ApplicationsRepository extends ServiceEntityRepository
         parent::__construct($registry, Applications::class);
     }
 
-//    /**
-//     * @return Applications[] Returns an array of Applications objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('a.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Build a new Applications entity (without persisting).
+     *
+     * @throws \LogicException if the user has already applied to this job
+     */
+    public function createApplication(?Users $user, Jobs $job): Applications
+    {
+        // 1. Prevent duplicates
+        $existing = $this->createQueryBuilder('a')
+            ->andWhere('a.userId = :user')
+            ->andWhere('a.jobId  = :job')
+            ->setParameters(new \Doctrine\Common\Collections\ArrayCollection(['user' => $user, 'job' => $job]))
+            ->getQuery()
+            ->getOneOrNullResult();
 
-//    public function findOneBySomeField($value): ?Applications
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        if ($existing) {
+            throw new \LogicException('You have already applied to this job.');
+        }
+
+        // 2. Build new Applications
+        $application = new Applications();
+        $application->setUserId($user);
+        $application->setJobId($job);          
+        $application->setStatus('pending');
+        $application->setAppliedAt((new \DateTimeImmutable())->format('Y-m-d H:i:s'));
+
+        return $application;
+    }
+
+
+
+public function findAllApplications(): array
+{
+    return $this->createQueryBuilder('a')
+        ->leftJoin('a.user_id', 'u')
+        ->leftJoin('a.job_id', 'j')
+        ->addSelect('u', 'j')
+        ->orderBy('a.appliedAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+
 }

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Jobs;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Users;
 
 /**
  * @extends ServiceEntityRepository<Jobs>
@@ -38,6 +39,16 @@ public function findAllSortedByTitle(): array
             ->getResult();
     } 
 
+    public function findByUser(Users $user): array
+    {
+        return $this->createQueryBuilder('j')
+            ->andWhere('j.userId = :user')
+            ->setParameter('user', $user)
+            ->orderBy('j.jobTitle', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+}
 
 // In JobsRepository.php
 
@@ -106,4 +117,4 @@ public function findAllSortedByTitle(): array
 
 //         return $query->getResult();
 //     }
- }
+ 

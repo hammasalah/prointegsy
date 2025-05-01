@@ -16,8 +16,8 @@ class Users
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $userId = null;
+    #[ORM\Column]
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 50, unique: true)]
     private ?string $username = null;

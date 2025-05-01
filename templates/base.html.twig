@@ -1,8 +1,10 @@
-{# templates/pages/landing.html.twig #}
+{# templates/base.html.twig #}
 {% block stylesheets %}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/root.css') }}">
+
     <style>
         .search-bar {
             padding: 10px;
@@ -27,24 +29,73 @@
 
 {% block body %}
 <header class="header">
-    <nav class="nav-container">
+    <nav class="navbar">
         <div class="logo">
-            <img src="{{ asset('images/logo.svg') }}" alt="Connect Sphere" class="logo-img">
+            <img src="{{ asset('images/logo1.PNG') }}" alt="Connect Sphere" class="logo-img">
+        </div>
+        <div class="search-location">
+            <div class="search-container">
+                <input type="text" placeholder="Search events" class="search-input">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="location-selector">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Tunis</span>
+            </div>
         </div>
         <div class="nav-links">
-            <a href="#" class="nav-link">About</a>
-            <a href="#" class="nav-link">Events</a>
-            <a href="#" class="nav-link">Speakers</a>
-            <a href="#" class="nav-link">Tickets</a>
-            <a href="#" class="nav-link">Blogs</a>
-            <a href="#" class="contact-btn nav-link">Contact</a>
-            <i class="fas fa-search"></i>
+            <a href="#" class="nav-link">Contact Sales</a>
+            <a href="#" class="nav-link">Create Events</a>
+            <a href="#" class="nav-link">Help Center</a>
+            <a href="#" class="nav-link">Find my tickets</a>
+            <a href="{{ path('app_login') }}" class="nav-link">Login</a>
+            <a href="{{ path('app_register') }}" class="nav-link">Register</a>
         </div>
     </nav>
 </header>
 
 <main>
     <section class="hero">
+        <div class="carousel">
+            <div class="slide active">
+                <img src="{{ asset('images/banner4.png') }}" alt="Event 1">
+                <div class="carousel-content">
+                    <div class="banner-label">GET INTO IT</div>
+                    <h1 class="banner-title">READY. <br> SET. FEST.</h1>
+                    <a href="#" class="cta-btn">Find A World Of Festivals</a>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="{{ asset('images/banner5.png') }}" alt="Event 2">
+                <div class="carousel-content">
+                    <div class="banner-label">GET INTO IT</div>
+                    <h1 class="banner-title">READY. <br> SET. FEST.</h1>
+                    <a href="#" class="cta-btn">Find A World Of Festivals</a>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="{{ asset('images/banner3.png') }}" alt="Event 3">
+                <div class="carousel-content">
+                    <div class="banner-label">GET INTO IT</div>
+                    <h1 class="banner-title">READY. <br> SET. FEST.</h1>
+                    <a href="#" class="cta-btn">Find A World Of Festivals</a>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="{{ asset('images/banner6.png') }}" alt="Event 4">
+                <div class="carousel-content">
+                    <div class="banner-label">GET INTO IT</div>
+                    <h1 class="banner-title">READY. <br> SET. FEST.</h1>
+                    <a href="#" class="cta-btn">Find A World Of Festivals</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-controls">
+            <button class="prev-slide"><i class="fas fa-chevron-left"></i></button>
+            <button class="next-slide"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
         <div class="hero-content">
             <div class="hero-text">
                 <p class="event-date" style="color: #F96358; font-weight: 600;">9 June 2023 | Limited Seats</p>
@@ -65,15 +116,12 @@
         </div>
     </section>
 
-    {# 🔍 BARRE DE RECHERCHE #}
     <div style="text-align: center; margin-top: 30px;">
         <input type="text" id="search-input" placeholder="Tapez : historique convert" class="search-bar">
     </div>
 
-    {# 📊 ZONE RÉSULTAT #}
     <div id="search-result"></div>
 
-    {# 📁 TEMPLATE CACHÉ DU TABLEAU #}
     <div id="conversion-history-template" style="display: none;">
         <h2 style="text-align:center; margin-top: 30px;">Historique de Conversion</h2>
         <table class="history-table">
@@ -98,54 +146,84 @@
 
     <section class="section">
         <h2 class="section-title">WHO WE ARE</h2>
-        <p class="section-subtitle">
-            We are a leading event management platform dedicated to helping you create exceptional experiences through innovative technology and expert support.
-        </p>
+        <p class="section-subtitle">We are a leading event management platform dedicated to helping you create exceptional experiences through innovative technology and expert support.</p>
         <div class="cards-grid">
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-globe"></i></div>
-                <h3>Global Network</h3>
-                <p>Connect with event professionals worldwide</p>
+            <div class="card"><div class="card-icon"><i class="fas fa-globe"></i></div><h3>Global Network</h3><p>Connect with event professionals worldwide</p></div>
+            <div class="card"><div class="card-icon"><i class="fas fa-tools"></i></div><h3>Advanced Tools</h3><p>Powerful features for event management</p></div>
+            <div class="card"><div class="card-icon"><i class="fas fa-palette"></i></div><h3>Customizable Pages</h3><p>Create unique event pages easily</p></div>
+            <div class="card"><div class="card-icon"><i class="fas fa-bullhorn"></i></div><h3>Powerful Marketing</h3><p>Reach your target audience effectively</p></div>
+        </div>
+    </section>
+
+    <section class="categories">
+        <div class="category-grid">
+            {% set categories = [
+                {'icon': 'microphone', 'name': 'Music'},
+                {'icon': 'globe', 'name': 'Nightlife'},
+                {'icon': 'theater-masks', 'name': 'Performing & Visual Arts'},
+                {'icon': 'calendar-days', 'name': 'Holidays'},
+                {'icon': 'heart', 'name': 'Dating'},
+                {'icon': 'gamepad', 'name': 'Hobbies'},
+                {'icon': 'briefcase', 'name': 'Business'},
+                {'icon': 'utensils', 'name': 'Food & Drink'}
+            ] %}
+            {% for category in categories %}
+                <div class="category-item">
+                    <div class="icon-circle">
+                        <i class="fas fa-{{ category.icon }}"></i>
+                    </div>
+                    <span>{{ category.name }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="events">
+        <h2 class="section-title">Events in Tunis</h2>
+        <div class="event-list">
+            {% set events = [
+                {'img': 'banner2.png', 'title': 'Finding Your Inner Joy MasterClass', 'date': 'Fri, May 16 • 2:30 AM GMT+2', 'price': 'Free'},
+                {'img': 'banner1.png', 'title': 'Music Beats Festival', 'date': 'Sat, May 17 • 6:00 PM GMT+2', 'price': '$20'},
+                {'img': 'banner3.png', 'title': 'Startup Innovation Conference', 'date': 'Sun, May 18 • 10:00 AM GMT+2', 'price': 'Free'},
+                {'img': 'banner1.png', 'title': 'Art & Culture Exhibition', 'date': 'Mon, May 19 • 3:00 PM GMT+2', 'price': '$15'},
+                {'img': 'banner2.png', 'title': 'Food Truck Fiesta', 'date': 'Tue, May 20 • 12:00 PM GMT+2', 'price': 'Free'},
+                {'img': 'banner3.png', 'title': 'Outdoor Cinema Night', 'date': 'Wed, May 21 • 8:00 PM GMT+2', 'price': '$10'},
+                {'img': 'banner1.png', 'title': 'Photography Workshop', 'date': 'Thu, May 22 • 1:00 PM GMT+2', 'price': 'Free'},
+                {'img': 'banner2.png', 'title': 'DJ Party Night', 'date': 'Fri, May 23 • 11:00 PM GMT+2', 'price': '$25'},
+                {'img': 'banner3.png', 'title': 'Wellness & Mindfulness Retreat', 'date': 'Sat, May 24 • 9:00 AM GMT+2', 'price': '$30'},
+                {'img': 'banner1.png', 'title': 'Local Artists Market', 'date': 'Sun, May 25 • 10:00 AM GMT+2', 'price': 'Free'}
+            ] %}
+            {% for event in events %}
+                <div class="event-card">
+                    <img src="{{ asset('images/' ~ event.img) }}" alt="{{ event.title }}">
+                    <div class="event-details">
+                        <h3>{{ event.title }}</h3>
+                        <p>{{ event.date }}</p>
+                        <span class="event-price">{{ event.price }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="interests-section">
+        <div class="interests-container">
+            <div class="interests-header">
+                <h2>Let's make it personal</h2>
+                <p>Select your interests to get event suggestions based on what you love</p>
             </div>
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-tools"></i></div>
-                <h3>Advanced Tools</h3>
-                <p>Powerful features for event management</p>
-            </div>
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-palette"></i></div>
-                <h3>Customizable Pages</h3>
-                <p>Create unique event pages easily</p>
-            </div>
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-bullhorn"></i></div>
-                <h3>Powerful Marketing</h3>
-                <p>Reach your target audience effectively</p>
+            <div class="interests-list">
+                {% set interests = [
+                    'Comedy', 'Food', 'Education', 'Pop', 'Design', 'R&B', 'Hip Hop / Rap',
+                    'Film', 'Personal health', 'Blues & Jazz', 'Travel', 'Rock', 'Yoga',
+                    'Country', 'Startups & Small Business', 'Classical', 'Mental health',
+                    'TV', 'Alternative', 'Musical'
+                ] %}
+                {% for interest in interests %}
+                    <button class="interest-tag">{{ interest }}</button>
+                {% endfor %}
             </div>
         </div>
     </section>
 </main>
-
-<footer class="footer">
-    <button class="contact-btn">Contact Us</button>
-</footer>
-{% endblock %}
-
-{% block javascripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const input = document.getElementById('search-input');
-        const resultDiv = document.getElementById('search-result');
-        const template = document.getElementById('conversion-history-template');
-
-        input.addEventListener('input', () => {
-            const value = input.value.toLowerCase();
-            if (value.includes("historique convert")) {
-                resultDiv.innerHTML = template.innerHTML;
-            } else {
-                resultDiv.innerHTML = "";
-            }
-        });
-    });
-</script>
 {% endblock %}
