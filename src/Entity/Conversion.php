@@ -1,97 +1,64 @@
 <?php
 
-namespace App\Entity;
+namespace App\Command;
 
-use App\Repository\ConversionRepository;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Conversion;
+use App\Entity\Users;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-#[ORM\Entity(repositoryClass: ConversionRepository::class)]
-class Conversion
+#[AsCommand(name: 'app:test-conversion')]
+class TestConversionCommand extends Command
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    private $entityManager;
 
-    #[ORM\ManyToOne(inversedBy: 'conversions')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Users $userId = null;
-
-    #[ORM\Column]
-    private ?int $pointsConvertis = null;
-
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $montant = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $devise = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date = null;
-
-    public function getId(): ?int
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        return $this->id;
+        parent::__construct();
+        $this->entityManager = $entityManager;
     }
 
-    public function getUserId(): ?Users
+    protected function configure(): void
     {
-        return $this->userId;
+        $this->setDescription('Test the creation of a Conversion entity.');
     }
 
-    public function setUserId(?Users $userId): static
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->userId = $userId;
+        // Créer un utilisateur de test si nécessaire
+        $user = $this->entityManager->getRepository(Users::class)->find(1);
+        if (!$user) {
+            $user = new Users();
+            $user->setUsername('testuser');
+            $user->setEmail('test@example.com');
+            $user->setPassword('testpassword');
+            $user->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $user->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $user->setPoints(1000);
+            $user->setAge(30);
+            $user->setGender('male');
+            $user->setArgent('0.00');
+            $this->entityManager->persist($user);
+        }
 
-        return $this;
+        // Créer une conversion
+        $conversion = new Conversion();
+        $conversion->setUserId($user);
+        $conversion->setPointsConvertis(500);
+        $conversion->setMontant('50.00');
+        $conversion->setDevise('TND');
+        $conversion->setDate(new \DateTime());
+
+        $this->entityManager->persist($conversion);
+        $this->entityManager->flush();
+
+        $output->writeln('Conversion created successfully! ID: ' . $conversion->getId());
+
+        return Command::SUCCESS;
     }
+}    
 
-    public function getPointsConvertis(): ?int
-    {
-        return $this->pointsConvertis;
-    }
-
-    public function setPointsConvertis(int $pointsConvertis): static
-    {
-        $this->pointsConvertis = $pointsConvertis;
-
-        return $this;
-    }
-
-    public function getMontant(): ?string
-    {
-        return $this->montant;
-    }
-
-    public function setMontant(string $montant): static
-    {
-        $this->montant = $montant;
-
-        return $this;
-    }
-
-    public function getDevise(): ?string
-    {
-        return $this->devise;
-    }
-
-    public function setDevise(string $devise): static
-    {
-        $this->devise = $devise;
-
-        return $this;
-    }
-
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): static
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-}
+// Compare this snippet from prointegsy/src/Entity/Users.php:
