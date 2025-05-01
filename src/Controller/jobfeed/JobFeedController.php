@@ -62,22 +62,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\ApplicationFormType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class JobFeedController extends AbstractController
 {
     #[Route('/job/feed', name: 'app_job_feed')]
-    public function index(JobsRepository $jobsRepository): Response
-    {
-        // fetch sorted jobs
-        $jobs = $jobsRepository->findAllSortedByTitle();
+public function index(SessionInterface $session, JobsRepository $jobsRepository): Response
+{
+    $currentUser = $session->get('user');
 
-      
+    $jobs = $jobsRepository->findAllExceptUser($currentUser);
 
-        return $this->render('jobfeed/jobfeed.html.twig', [
-            'jobs'=> $jobs,
-           
-        ]);
-    }
+    return $this->render('jobfeed/jobfeed.html.twig', [
+        'jobs'=> $jobs,
+    ]);
+}
+
+    
 
 
 

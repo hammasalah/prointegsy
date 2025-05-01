@@ -27,6 +27,15 @@ public function findAllSortedByTitle(): array
         ->getQuery()
         ->getResult();
 }
+public function findAllExceptUser($user): array
+{
+    return $this->createQueryBuilder('j')
+        ->where('j.userId != :user')  // use 'userId' here
+        ->setParameter('user', $user)
+        ->orderBy('j.jobTitle', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
 
     /**
      * @return Jobs[] //Returns all jobs with optional sorting
@@ -40,14 +49,15 @@ public function findAllSortedByTitle(): array
     } 
 
     public function findByUser(Users $user): array
-    {
-        return $this->createQueryBuilder('j')
-            ->andWhere('j.userId = :user')
-            ->setParameter('user', $user)
-            ->orderBy('j.jobTitle', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
+{
+    return $this->createQueryBuilder('j')
+        ->andWhere('j.userId = :user')
+        ->setParameter('user', $user)
+        ->orderBy('j.jobTitle', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
+
 }
 
 // In JobsRepository.php

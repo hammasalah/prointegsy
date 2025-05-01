@@ -25,14 +25,15 @@ class EventsRepository extends ServiceEntityRepository
 
     
     public function findByOrganizer(Users $organizer): array
-    {
-        return $this->createQueryBuilder('e')
-            ->andWhere('e.organizerId = :organizer')
-            ->setParameter('organizer', $organizer)
-            ->orderBy('e.startTime', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
+{
+    return $this->createQueryBuilder('e')
+        ->andWhere('e.organizerId = :organizer')
+        ->setParameter('organizer', $organizer)
+        ->orderBy('e.startTime', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
+
 }
 
 //    /**
