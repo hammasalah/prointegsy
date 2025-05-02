@@ -24,24 +24,20 @@
 #     # please note that last definitions always *replace* previous ones
 # config/services.yaml
 parameters:
-    cv_upload_dir: '%kernel.project_dir%/public/uploads/cvs'
+    cv_upload_dir: "%kernel.project_dir%/public/uploads/cvs"
+   
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
-
+        bind:
+            string $ollamaApiUrl: '%env(OLLAMA_API_URL)%'
+             #string $ollamaModel: '%env(OLLAMA_MODEL)%'
+           
     App\:
-        resource: '../src/'
+        resource: "../src/"
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
-
-
-    App\Controller\:
-        resource: '../src/Controller/'
-        tags: ['controller.service_arguments']
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+            - "../src/DependencyInjection/"
+            - "../src/Entity/"
+            - "../src/Kernel.php"
