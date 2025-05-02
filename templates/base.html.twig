@@ -224,10 +224,43 @@
                 {% endfor %}
             </div>
         </div>
-
     </section>
 </main>
 
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h4>About</h4>
+            <ul>
+                <li><a href="#">Our Story</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Press & Media</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+                <li><a href="#">Help Center</a></li>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Accessibility</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h4>Explore</h4>
+            <ul>
+                <li><a href="#">Festivals</a></li>
+                <li><a href="#">Workshops</a></li>
+                <li><a href="#">Concerts</a></li>
+            </ul>
+        </div>
+        <div class="footer-section social">
+            <h4>Follow Us</h4>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
     </div>
     <div class="footer-bottom">
         <p>&copy; 2025 FestiHub. All rights reserved.</p>
@@ -277,21 +310,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-// Add event listeners to interest tags
-document.addEventListener('DOMContentLoaded', () => {
-        const tags = document.querySelectorAll('.interest-tag');
 
-        tags.forEach(tag => {
-            tag.addEventListener('click', () => {
-                tag.classList.toggle('selected');
-            });
-        });
-    });
-
-
-
-   
 </script>
-
 
 {% endblock %}
