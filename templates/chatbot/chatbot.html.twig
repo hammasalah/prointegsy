@@ -1,20 +1,245 @@
-{% extends 'base.html.twig' %}
 
-{% block title %}Hello ChatbotController!{% endblock %}
+
+{% block title %}ConnectSphere Chatbot{% endblock %}
+
+{% block stylesheets %}
+     {# Include base styles #}
+    {# Chatbot specific styles #}
+    <style>
+        .chatbot-container {
+            max-width: 800px; margin: 2rem auto; padding: 2rem; background-color: #f8f9fa;
+            border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex;
+            flex-direction: column; height: 70vh; border: 1px solid #dee2e6;
+        }
+        .chatbot-title { text-align: center; color: #1c2b5d; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 600; }
+        #chatbot-response-area {
+            flex-grow: 1; background-color: #ffffff; border: 1px solid #ced4da; border-radius: 5px;
+            padding: 15px; overflow-y: auto; margin-bottom: 1rem; line-height: 1.6;
+            font-size: 0.95rem; color: #343a40;
+        }
+        #chatbot-response-area p { margin-bottom: 0.8em; }
+        #chatbot-response-area ul, #chatbot-response-area ol { margin-left: 1.5em; margin-bottom: 0.8em; }
+        #chatbot-response-area li { margin-bottom: 0.3em; }
+        #chatbot-response-area pre { background-color: #e9ecef; padding: 10px; border-radius: 4px; overflow-x: auto; margin-bottom: 0.8em; }
+        #chatbot-response-area code { font-family: monospace; }
+        #chatbot-response-area h1, #chatbot-response-area h2, #chatbot-response-area h3, #chatbot-response-area h4 { margin-top: 1em; margin-bottom: 0.5em; color: #1c2b5d; font-weight: 600; }
+        .chatbot-input-area { display: flex; gap: 10px; align-items: center; border-top: 1px solid #dee2e6; padding-top: 1rem; }
+        #chatbot-input {
+            flex-grow: 1; padding: 10px 15px; border: 1px solid #ced4da; border-radius: 20px;
+            font-size: 1rem; outline: none; transition: border-color 0.2s ease;
+        }
+        #chatbot-input:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
+        #chatbot-send-btn {
+            padding: 10px 20px; background-color: #1c2b5d; color: white; border: none; border-radius: 20px;
+            cursor: pointer; font-size: 1rem; font-weight: 500; transition: background-color 0.2s ease; white-space: nowrap;
+        }
+        #chatbot-send-btn:hover { background-color: #3d5472; }
+        #chatbot-send-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
+        .loading-indicator, .error-message { padding: 10px; margin-top: 5px; border-radius: 4px; text-align: center; font-style: italic; }
+        .loading-indicator { color: #6c757d; }
+        .error-message { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: none; } /* Hide error area initially */
+    </style>
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/user/PiSymfony/src/Controller/ChatbotController.php'|file_link(0) }}">src/Controller/ChatbotController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/user/PiSymfony/templates/chatbot/index.html.twig'|file_link(0) }}">templates/chatbot/index.html.twig</a></code></li>
-    </ul>
+<div class="chatbot-container">
+    <h1 class="chatbot-title">ConnectSphere Chatbot</h1>
+    <div id="chatbot-response-area">
+        <p>Hello! How can I assist you with ConnectSphere today?</p> {# Initial message #}
+    </div>
+     {# Loading indicator (hidden initially) #}
+    <div id="loading-indicator" class="loading-indicator" style="display: none;">Responding...</div>
+     {# Error message area (hidden initially) #}
+    <div id="error-message-area" class="error-message"></div>
+    {# Input area form - Ensure the ID is correct #}
+    <form id="chatbot-form" class="chatbot-input-area">
+        <input type="text" id="chatbot-input" placeholder="Ask me anything about ConnectSphere..." required autocomplete="off">
+        <button type="submit" id="chatbot-send-btn">Send</button>
+    </form>
 </div>
+{% endblock %}
+
+{# This block overrides the javascripts block in base.html.twig #}
+{% block javascripts %}
+    {# If base.html.twig had scripts you needed, use parent() here #}
+    {# {{ parent() }} #}
+
+    <script>
+        // Wait for the entire HTML document to be fully loaded and parsed
+        document.addEventListener('DOMContentLoaded', () => {
+            // Log that the script execution has started after DOM is ready
+            console.log("DOM Loaded. Finding elements...");
+
+            // Get references to the HTML elements
+            const form = document.getElementById('chatbot-form');
+            const inputField = document.getElementById('chatbot-input');
+            const sendButton = document.getElementById('chatbot-send-btn');
+            const responseArea = document.getElementById('chatbot-response-area');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const errorArea = document.getElementById('error-message-area');
+
+            // --- Check if elements were found and log results ---
+            if (!form) { console.error("ERROR: Could not find element with ID 'chatbot-form'"); }
+            else { console.log("Element 'chatbot-form' found:", form); }
+            if (!inputField) { console.error("ERROR: Could not find element with ID 'chatbot-input'"); }
+            else { console.log("Element 'chatbot-input' found:", inputField); }
+            if (!sendButton) { console.error("ERROR: Could not find element with ID 'chatbot-send-btn'"); }
+            else { console.log("Element 'chatbot-send-btn' found:", sendButton); }
+            if (!responseArea) { console.error("ERROR: Could not find element with ID 'chatbot-response-area'"); }
+            else { console.log("Element 'chatbot-response-area' found:", responseArea); }
+            if (!loadingIndicator) { console.error("ERROR: Could not find element with ID 'loading-indicator'"); }
+            else { console.log("Element 'loading-indicator' found:", loadingIndicator); }
+            if (!errorArea) { console.error("ERROR: Could not find element with ID 'error-message-area'"); }
+            else { console.log("Element 'error-message-area' found:", errorArea); }
+            // --- End element check ---
+
+
+            // Only proceed if the form element was actually found
+            if (form && inputField && sendButton && responseArea && loadingIndicator && errorArea) {
+                console.log("All required elements found. Adding submit listener to form...");
+                // Add the event listener to the form for the 'submit' event
+                form.addEventListener('submit', async (event) => {
+                    // Log immediately when the listener callback starts
+                    console.log("Submit event listener triggered!");
+
+                    event.preventDefault(); // Prevent default form submission (page reload)
+                    console.log("Default form submission prevented.");
+
+                    const userPrompt = inputField.value.trim();
+                    console.log("User prompt captured:", userPrompt);
+                    if (!userPrompt) {
+                        console.log("Prompt is empty, exiting listener.");
+                        return; // Stop if input is empty
+                    }
+
+                    // --- Update UI: Show loading, disable input ---
+                    console.log("Updating UI: Disabling button/input, showing loading.");
+                    sendButton.disabled = true;
+                    inputField.disabled = true;
+                    loadingIndicator.style.display = 'block';
+                    errorArea.style.display = 'none'; // Hide previous errors
+                    errorArea.textContent = '';
+
+                    // Clear the input field
+                    inputField.value = '';
+                    console.log("Input field cleared.");
+
+                    // Clear previous bot response before streaming new one
+                    responseArea.innerHTML = ''; // Replace content
+                    console.log("Response area cleared.");
+
+                    console.log("Preparing to send fetch request to /api/chatbot/ask...");
+
+                    try {
+                        // --- Send the user's prompt to the backend API ---
+                        const response = await fetch("{{ path('api_chatbot_ask') }}", { // Use twig path function
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/x-ndjson' // Expecting streamed JSON lines
+                            },
+                            body: JSON.stringify({ prompt: userPrompt })
+                        });
+
+                        console.log("Fetch response received. Status:", response.status, "Ok:", response.ok);
+
+                        // Check for HTTP errors (like 404, 500)
+                        if (!response.ok) {
+                            let errorMsg = `Server Error: ${response.status} ${response.statusText}`;
+                            try {
+                                const errorData = await response.json(); // Try to read error body
+                                errorMsg = errorData.error || errorMsg;
+                                console.log("Parsed error response from server:", errorData);
+                            } catch(e) {
+                                console.log("Could not parse error response as JSON.");
+                            }
+                            throw new Error(errorMsg); // Throw error to be caught below
+                        }
+
+                        // Check if the response body exists
+                        if (!response.body) {
+                            throw new Error('Response body is missing, cannot read stream.');
+                        }
+
+                        console.log("Starting to process response stream...");
+                        // --- Process the streaming response line by line ---
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder();
+                        let buffer = ''; // Buffer for incomplete lines
+
+                        // Create a div to hold the incoming bot message chunks
+                        let currentBotMessageDiv = document.createElement('div');
+                        currentBotMessageDiv.classList.add('message', 'bot'); // Optional class for styling
+                        responseArea.appendChild(currentBotMessageDiv);
+
+                        // Loop to read chunks from the stream
+                        while (true) {
+                            const { value, done } = await reader.read(); // Read a chunk
+                            if (done) { // Stream finished
+                                console.log('Response stream finished.');
+                                break; // Exit the reading loop
+                            }
+
+                            // Decode chunk and add to buffer
+                            buffer += decoder.decode(value, { stream: true });
+                            let lines = buffer.split('\n');
+                            buffer = lines.pop(); // Keep potential incomplete line in buffer
+
+                            // Process each complete line
+                            lines.forEach(line => {
+                                if (line.trim() === '') return; // Skip empty lines
+                                console.log("Processing received line:", line);
+                                try {
+                                    const data = JSON.parse(line); // Parse line as JSON
+                                    if (data.html) { // Check for HTML content
+                                        currentBotMessageDiv.innerHTML += data.html;
+                                        responseArea.scrollTop = responseArea.scrollHeight; // Scroll down
+                                    } else if (data.error) { // Check for errors from backend
+                                        console.error('Received error from backend stream:', data.error);
+                                        showError(data.error);
+                                    } else if (data.done) { // Check for explicit done signal
+                                        console.log('Received done signal from backend stream.');
+                                    }
+                                } catch (e) {
+                                    console.error('Error parsing JSON line:', e, 'Received line:', line);
+                                    // showError('Error processing response chunk.'); // Optionally show error for parse failure
+                                }
+                            });
+                        } // End while loop
+
+                    } catch (error) { // Catch errors from fetch() or stream processing
+                        console.error('Error during fetch or streaming:', error);
+                        showError(error.message || 'An unexpected error occurred.');
+                    } finally { // This block always runs
+                        console.log("Fetch process finished (finally block).");
+                        // --- Reset UI: Hide loading, enable input ---
+                        loadingIndicator.style.display = 'none';
+                        sendButton.disabled = false;
+                        inputField.disabled = false;
+                        inputField.focus(); // Set focus back to the input field
+                        console.log("UI Reset: Button/input enabled, loading hidden.");
+                    }
+                }); // End of submit event listener
+
+            } else {
+                 // Log error if required elements weren't found initially
+                 console.error("ERROR: One or more required elements were not found. Cannot initialize chatbot functionality.");
+            }
+
+
+            // Helper function to display error messages in the UI
+            function showError(message) {
+                 if(errorArea) { // Check if errorArea exists
+                    errorArea.textContent = `⚠️ ${message}`;
+                    errorArea.style.display = 'block'; // Make it visible
+                    responseArea.scrollTop = responseArea.scrollHeight; // Scroll to show error
+                    console.log("Displayed error message:", message);
+                 } else {
+                     console.error("Cannot display error because #error-message-area not found. Error was:", message);
+                     alert("An error occurred: " + message); // Fallback
+                 }
+            }
+
+        }); // End of DOMContentLoaded listener
+    </script>
 {% endblock %}

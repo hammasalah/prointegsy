@@ -1,20 +1,327 @@
+{# templates/events/events.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello EventsController!{% endblock %}
+{% block title %}Events{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {# --- CSS Leaflet & Font Awesome (si vous utilisez la carte et les icônes) --- #}
+    {# Vous n'avez pas besoin de leaflet.css si vous n'affichez pas de carte sur CETTE page #}
+    {# <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/> #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> {# Nécessaire pour les icônes #}
+    <style>
+        /* --- Styles Barre de Contrôle --- */
+        .events-controls-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; gap: 15px; }
+        .events-controls-header .page-title { font-size: 1.6rem; font-weight: 600; color: #343a40; margin: 0; flex-shrink: 0; }
+        .search-filter-form { display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 250px; }
+        .search-filter-form input[type="text"] { font-size: 0.9rem; padding: 6px 12px; border: 1px solid #ced4da; border-radius: 4px; background-color: #fff; height: 35px; min-width: 200px; flex-grow: 1; }
+        .search-filter-form input[type="text"]:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25); outline: none; }
+        .search-filter-form button[type="submit"] { background-color: #6c757d; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-size: 0.9rem; font-weight: 500; cursor: pointer; height: 35px; transition: background-color 0.2s ease; }
+        .search-filter-form button[type="submit"]:hover { background-color: #5a6268; }
+        .new-event-action { flex-shrink: 0; }
+        .new-event-action .btn-add-event-page { background-color: #1c2b5d; color: white; border: none; padding: 7px 18px; border-radius: 6px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: background-color 0.2s ease; white-space: nowrap; display: inline-block; height: 35px; line-height: calc(35px - 14px); }
+        .new-event-action .btn-add-event-page:hover { background-color: #3d5472; color: white; text-decoration: none;}
+
+        /* === Styles pour les Filtres Catégories === */
+        .category-filters-section { padding: 15px 0; margin-bottom: 25px; border-bottom: 1px solid #e0e0e0; }
+        .category-filters-list { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding-left: 0; margin: 0; }
+        .category-pill a { display: inline-block; padding: 6px 15px; border-radius: 20px; background-color: #e9ecef; color: #495057; text-decoration: none; font-size: 0.85rem; font-weight: 500; border: 1px solid #ced4da; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+        .category-pill a:hover { background-color: #ced4da; color: #1c2b5d; border-color: #adb5bd; }
+        .category-pill.active a { background-color: #1c2b5d; color: white; border-color: #1c2b5d; font-weight: 600; }
+
+        /* --- Styles Grille/Cartes --- */
+        .event-list-page { padding: 20px 25px; background-color: #f8f9fa; }
+        .event-grid-row { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; justify-content: flex-start; }
+        .event-column { flex-basis: calc(25% - 15px); min-width: 260px; display: flex; padding: 0; }
+        .event-display-card { border: 1px solid #e9ecef; border-radius: 10px; background-color: #ffffff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06); transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; height: 100%; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
+        .event-display-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+        .event-display-card .card-img-wrapper { background-color: #f8f9fa; text-align: center; padding: 10px; border-bottom: 1px solid #e9ecef; min-height: 180px; display: flex; align-items: center; justify-content: center; }
+        .event-display-card .card-img-top { max-height: 170px; width: auto; max-width: 100%; object-fit: contain; display: inline-block; border-radius: 6px; }
+        .event-display-card .card-body { padding: 1rem 1.1rem; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
+        .event-display-card .card-title { font-size: 1.1rem; font-weight: 600; color: #343a40; margin-bottom: 0.6rem; }
+        .event-display-card .event-text-details { font-size: 0.88rem; color: #495057; line-height: 1.5; margin-bottom: 1rem; flex-grow: 1; }
+        .event-display-card .event-text-details strong { color: #343a40; font-weight: 500; }
+        .event-display-card .event-text-details small { display: block; margin-top: 4px; color: #6c757d; }
+        .event-card-actions { margin-top: auto; padding-top: 1rem; display: flex; justify-content: center; gap: 10px; }
+        .btn-view-details, .btn-participate { font-size: 0.85rem; padding: 6px 16px; border-radius: 6px; border: none; transition: background-color 0.2s ease; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-decoration: none; }
+        .btn-view-details { background-color: #d54d67; color: white; }
+        .btn-view-details:hover { background-color: #b03c54; }
+        .btn-participate { background-color: #1c2b5d; color: white; }
+        .btn-participate:hover { background-color: #3d5472; }
+        .no-events-message { text-align: center; padding: 2rem; color: #6c757d; }
+        .no-events-message a { color: #0d6efd; text-decoration: underline; cursor: pointer;}
+
+        /* --- Styles Modale Détails --- */
+        .event-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1050; opacity: 0; transition: opacity 0.3s ease; }
+        .event-modal-overlay.active { display: flex; opacity: 1; }
+        .event-modal-content { background-color: #fff; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; position: relative; display: flex; flex-direction: column; transform: scale(0.9); transition: transform 0.3s ease; }
+        .event-modal-overlay.active .event-modal-content { transform: scale(1); }
+        .event-modal-body { padding: 25px 30px; text-align: center; }
+        .event-modal-image-wrapper { margin-bottom: 20px; background-color: #f8f9fa; padding: 8px; border-radius: 6px; display: inline-block; }
+        .event-modal-image { max-width: 100%; max-height: 220px; object-fit: contain; border-radius: 4px; }
+        .event-modal-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; color: #333; }
+        .event-modal-description { font-size: 1rem; color: #555; line-height: 1.6; margin-bottom: 20px; }
+        .event-modal-details { font-size: 0.9rem; color: #666; line-height: 1.6; margin-bottom: 25px; border-top: 1px solid #eee; padding-top: 20px; text-align: left; }
+        .event-modal-details strong { color: #444; font-weight: 600; display: inline-block; min-width: 80px; }
+        .event-modal-close-x { position: absolute; top: 8px; right: 12px; font-size: 1.8rem; color: #aaa; background: none; border: none; cursor: pointer; padding: 0; line-height: 1; font-weight: bold; }
+        .event-modal-close-x:hover { color: #333; }
+
+        /* Footer Modale Détails modifié */
+        .event-modal-footer {
+            padding: 15px 25px; border-top: 1px solid #eee; display: flex;
+            justify-content: space-between; /* Espace entre icônes et bouton */
+            align-items: center; gap: 10px; background-color: #f8f9fa;
+            border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+        }
+        /* Icônes de partage */
+        .share-icons a { color: #495057; font-size: 1.5rem; margin-left: 12px; text-decoration: none; transition: color 0.2s ease, transform 0.2s ease; }
+        .share-icons a:hover { transform: scale(1.1); }
+        .share-icons a.facebook-share:hover { color: #1877F2; }
+        .share-icons a.whatsapp-share:hover { color: #25D366; }
+        .share-icons a.copy-link:hover { color: #ffc107; }
+        /* Bouton Close */
+        .btn-modal-close { font-size: 0.9rem; padding: 8px 20px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease; background-color: #d54d67; color: white; }
+        .btn-modal-close:hover { background-color: #b03c54; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        /* Feedback "Link Copied" */
+         .copy-link-feedback {
+             display: none; position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+             background-color: rgba(0, 0, 0, 0.7); color: white; padding: 5px 10px;
+             border-radius: 4px; font-size: 0.8rem; white-space: nowrap; z-index: 1070; /* Au dessus de la modale */
+         }
+    </style>
+{% endblock %}
+
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="event-list-page">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    {# --- Barre du Haut & Filtres Catégories --- #}
+    <div class="events-controls-header">
+        <h1 class="page-title">Events</h1>
+        <form action="{{ path('app_events') }}" method="GET" class="search-filter-form">
+            <input type="text" id="eventSearchField" name="search" class="form-control" placeholder="Search events..." value="{{ app.request.query.get('search') }}">
+            {% if app.request.query.get('category') %}
+                 <input type="hidden" name="category" value="{{ app.request.query.get('category') }}">
+            {% endif %}
+            <button type="submit" class="btn">Search</button>
+        </form>
+        <div class="new-event-action">
+            <a href="{{ path('app_event_add_page') }}" class="btn btn-add-event-page">New Event</a>
+        </div>
+    </div>
+    <div class="category-filters-section">
+        <ul class="category-filters-list">
+            <li class="category-pill{% if not app.request.query.get('category') %} active{% endif %}">
+                <a href="{{ path('app_events', {'search': app.request.query.get('search')}) }}">All Categories</a>
+            </li>
+            {% if categories is defined and categories is not empty %}
+                {% for category in categories %}
+                    <li class="category-pill{% if app.request.query.get('category') == category.id %} active{% endif %}">
+                        <a href="{{ path('app_events', {'search': app.request.query.get('search'), 'category': category.id}) }}">{{ category.name }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/user/PiSymfony/src/Controller/EventsController.php'|file_link(0) }}">src/Controller/EventsController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/user/PiSymfony/templates/events/index.html.twig'|file_link(0) }}">templates/events/index.html.twig</a></code></li>
-    </ul>
-</div>
+    {# --- Messages Flash --- #}
+    <div id="flash-message-container" style="margin-top: 15px;">
+        {% for label, messages in app.flashes %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {% for message in messages %}{{ message|raw }}{% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# --- Grille des Événements --- #}
+    <div class="row event-grid-row">
+        {% if events is defined and events is not empty %}
+            {% for event in events %}
+                <div class="event-column">
+                    <div class="card h-100 event-display-card">
+                        {# --- Image Card --- #}
+                        {% set imageSrc = asset('images/default_event.png') %}
+                        {% if event.image is not null and event.image is not empty %}
+                            {% if event.image starts with 'data:' %} {% set imageSrc = event.image %}
+                            {% else %}
+                                {% set base64Data = event.image %} {% set mimeType = 'image/jpeg' %}
+                                {% if base64Data starts with 'iVBO' %} {% set mimeType = 'image/png' %}
+                                {% elseif base64Data starts with '/9j/' %} {% set mimeType = 'image/jpeg' %}
+                                {% elseif base64Data starts with 'R0lG' %} {% set mimeType = 'image/gif' %}
+                                {% elseif base64Data starts with 'PHN2Zy' %} {% set mimeType = 'image/svg+xml' %}
+                                {% endif %}
+                                {% set imageSrc = 'data:' ~ mimeType ~ ';base64,' ~ base64Data %}
+                            {% endif %}
+                        {% endif %}
+                        <div class="card-img-wrapper"><img src="{{ imageSrc }}" class="card-img-top" alt="{{ event.name }}"></div>
+                        {# --- Card Body --- #}
+                        <div class="card-body">
+                             <h5 class="card-title">{{ event.name }}</h5>
+                            <div class="event-text-details">
+                                {{ event.description|slice(0, 80)|striptags ~ (event.description|length > 80 ? '...' : '') }}<br>
+                                <small>
+                                    {% if event.startTime %}{{ event.startTime|date('d/m/Y') }}{% endif %}
+                                    {% if event.endTime and event.startTime|date('Y-m-d') != event.endTime|date('Y-m-d') %} - {{ event.endTime|date('d/m/Y') }}{% endif %}<br>
+                                    {{ event.location ?? 'N/A' }} | Cat: {{ event.categoryId.name ?? 'N/A' }}
+                                </small>
+                            </div>
+                            <div class="event-card-actions">
+                                <button type="button" class="btn btn-view-details view-details-btn" data-modal-target="#event-modal-{{ event.id }}">Details</button>
+                                <a href="#" class="btn btn-participate">Join</a>
+                            </div>
+                        </div>
+                    </div> {# Fin card #}
+                </div> {# Fin column #}
+
+                {# --- Modale Détails avec Partage --- #}
+                <div class="event-modal-overlay" id="event-modal-{{ event.id }}">
+                    <div class="event-modal-content">
+                         <button type="button" class="event-modal-close-x close-modal-btn">×</button>
+                        <div class="event-modal-body">
+                             <div class="event-modal-image-wrapper"><img src="{{ imageSrc }}" class="event-modal-image" alt="{{ event.name }}"></div>
+                             <h3 class="event-modal-title">{{ event.name }}</h3>
+                             <p class="event-modal-description">{{ event.description|striptags }}</p>
+                             <div class="event-modal-details">
+                                 <strong>Date:</strong> {% if event.startTime %}{{ event.startTime|date('d/m/Y H:i') }}{% else %}N/A{% endif %} - {% if event.endTime %}{{ event.endTime|date('d/m/Y H:i') }}{% else %}N/A{% endif %}<br>
+                                 <strong>Location:</strong> {{ event.location ?? 'N/A' }}<br>
+                                 <strong>Category:</strong> {{ event.categoryId.name ?? 'N/A' }}<br>
+                                 <strong>Points:</strong> {{ event.points ?? '0' }}
+                             </div>
+                        </div>
+                         {# --- Footer Modale avec Partage --- #}
+                        <div class="event-modal-footer">
+                             <div class="share-icons">
+                                 {# URL à partager (simplifiée pour l'exemple) #}
+                                 {% set event_url = url('app_events', {'search': event.name}) %}
+                                 {% set share_text = "Check out this event: " ~ event.name ~ " on ConnectSphere! " ~ event_url %}
+
+                                 {# Liens de partage #}
+                                 <a href="https://www.facebook.com/sharer/sharer.php?u={{ event_url|url_encode }}" target="_blank" rel="noopener noreferrer" title="Share on Facebook" class="facebook-share"><i class="fab fa-facebook-square"></i></a>
+                                 <a href="https://api.whatsapp.com/send?text={{ share_text|url_encode }}" target="_blank" rel="noopener noreferrer" title="Share on WhatsApp" class="whatsapp-share"><i class="fab fa-whatsapp-square"></i></a>
+                                 <a href="#" class="copy-link" data-link="{{ event_url }}" title="Copy Link"><i class="fas fa-copy"></i></a>
+                             </div>
+                             <button type="button" class="btn btn-modal-close close-modal-btn">Close</button>
+                        </div>
+                        {# --- Message Feedback "Link Copied" --- #}
+                        <div class="copy-link-feedback">Link Copied!</div>
+                    </div>
+                </div> {# --- Fin Modale Détails --- #}
+
+            {% endfor %} {# Fin boucle events #}
+        {% else %}
+             {# Message si aucun événement #}
+            <div class="col-12">
+                <div class="no-events-message">
+                   No events match your current filter. <a href="{{ path('app_events') }}">Clear filters?</a> or <a href="{{ path('app_event_add_page') }}" class="{% if app.request.attributes.get('_route') != 'app_event_add_page' %}open-add-event-trigger{% endif %}">Create a new event?</a> {# Lien JS seulement si pas déjà sur la page add #}
+                </div>
+            </div>
+        {% endif %} {# Fin if events is not empty #}
+    </div> {# Fin .row .event-grid-row #}
+
+</div> {# Fin .event-list-page #}
+{% endblock %} {# Fin block body #}
+
+
+{% block javascripts %}
+    {# --- JavaScript pour Modale Détails ET Copier Lien --- #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("JS Events List: Initializing modal listeners.");
+
+            // --- Gestion Modale Détails (Ouverture/Fermeture) ---
+            const viewDetailButtons = document.querySelectorAll('.view-details-btn');
+            viewDetailButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetModalId = this.getAttribute('data-modal-target');
+                    if (targetModalId) {
+                        const targetModal = document.querySelector(targetModalId);
+                        if (targetModal) targetModal.classList.add('active');
+                    }
+                });
+            });
+            // Fermeture via bouton 'Close' ou 'X' DANS la modale détails
+            const closeDetailButtons = document.querySelectorAll('.event-modal-overlay .close-modal-btn, .event-modal-overlay .event-modal-close-x');
+            closeDetailButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.event-modal-overlay')?.classList.remove('active');
+                });
+            });
+            // Fermeture via clic sur l'overlay détails
+            const detailModalOverlays = document.querySelectorAll('.event-modal-overlay');
+            detailModalOverlays.forEach(overlay => {
+                overlay.addEventListener('click', function(event) {
+                    if (event.target === overlay) {
+                        overlay.classList.remove('active');
+                    }
+                });
+            });
+
+            // --- Gestion Bouton "Copier Lien" ---
+            document.querySelectorAll('.copy-link').forEach(button => {
+                 button.addEventListener('click', function(event) {
+                     event.preventDefault();
+                     const linkToCopy = this.getAttribute('data-link');
+                     // Trouve l'élément feedback spécifique à CETTE modale
+                     const feedbackElement = this.closest('.event-modal-content')?.querySelector('.copy-link-feedback');
+
+                     if (linkToCopy && navigator.clipboard) {
+                         navigator.clipboard.writeText(linkToCopy).then(() => {
+                             console.log('Link copied:', linkToCopy);
+                             if(feedbackElement) {
+                                 feedbackElement.style.display = 'block';
+                                 setTimeout(() => { feedbackElement.style.display = 'none'; }, 1500);
+                             }
+                         }).catch(err => {
+                             console.error('Failed to copy link: ', err);
+                             showCopyFallback(linkToCopy, feedbackElement); // Tente le fallback
+                         });
+                     } else if (linkToCopy) {
+                          showCopyFallback(linkToCopy, feedbackElement); // API non supportée, tente le fallback
+                     }
+                 });
+            });
+
+            // --- Fonction Fallback pour Copier (si navigator.clipboard échoue) ---
+            function showCopyFallback(textToCopy, feedbackElement) {
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed"; textArea.style.left = "-9999px"; // Cache le textarea
+                document.body.appendChild(textArea);
+                textArea.focus(); textArea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        console.log('Fallback copy successful');
+                        if(feedbackElement) {
+                             feedbackElement.style.display = 'block';
+                             setTimeout(() => { feedbackElement.style.display = 'none'; }, 1500);
+                         }
+                    } else {
+                        console.error('Fallback copy command failed');
+                        alert('Could not copy link. Please copy it manually.');
+                    }
+                } catch (err) {
+                    console.error('Fallback copy exception:', err);
+                    alert('Could not copy link. Please copy it manually.');
+                }
+                document.body.removeChild(textArea);
+            }
+
+            // --- Auto-dismiss flash messages ---
+            const flashMessages = document.querySelectorAll('#flash-message-container .alert');
+             flashMessages.forEach(function(flashMessage) {
+                 setTimeout(function() {
+                     if (typeof bootstrap !== 'undefined' && bootstrap.Alert && bootstrap.Alert.getInstance(flashMessage)) {
+                         bootstrap.Alert.getInstance(flashMessage).close();
+                     } else {
+                          flashMessage.style.transition = 'opacity 0.5s ease-out'; flashMessage.style.opacity = '0';
+                          setTimeout(() => flashMessage.remove(), 500);
+                     }
+                 }, 7000);
+             });
+
+            console.log("JS Events List: All listeners initialized.");
+        }); // Fin DOMContentLoaded
+    </script>
 {% endblock %}
