@@ -42,6 +42,13 @@
         
         <div class="feed-header">
             <h1>Feed</h1>
+            <div class="search-bar">
+                <div class="search-form">
+                    <input type="text" name="search" id="searchInput" placeholder="Rechercher des utilisateurs ou des groupes..." class="search-input" autocomplete="off">
+                    <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="search-dropdown" id="searchDropdown"></div>
+            </div>
             <a href="{{ path('app_social_add_post') }}" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> Add Post
             </a>
@@ -141,7 +148,7 @@
     </div>
 </div>
 
-<!-- Ajouter le script pour les fonctionnalités de partage -->
 <script src="{{ asset('js/social-share.js') }}"></script>
+<script src="{{ asset('js/search-dropdown.js') }}"></script>
 </body>
 </html>

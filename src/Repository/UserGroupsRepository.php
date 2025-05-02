@@ -21,20 +21,24 @@ class UserGroupsRepository extends ServiceEntityRepository
         parent::__construct($registry, UserGroups::class);
     }
 
-//    /**
-//     * @return UserGroups[] Returns an array of UserGroups objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('u.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Recherche des groupes par nom ou description
+     * 
+     * @param string $searchTerm Le terme de recherche
+     * @return UserGroups[] Returns an array of UserGroups objects
+     */
+    public function searchGroups(string $searchTerm): array
+    {
+        return $this->createQueryBuilder('g')
+            ->where('g.name LIKE :searchTerm')
+            ->orWhere('g.description LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
+            ->orderBy('g.name', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
 //    public function findOneBySomeField($value): ?UserGroups
 //    {

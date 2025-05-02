@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Groupe - Connect Sphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/social.css') }}">
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2>Connect Sphere</h2>
+    </div>
+    <div class="sidebar-profile">
+        <img src="/uploads/images/default-avatar.png" alt="Profile">
+        <div>Utilisateur</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="{{ path('app_social') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
+        <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
+        <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
+        <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
+        <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+        <li><a href="#"><i class="fas fa-robot"></i> AI assistant</a></li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="container">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        <div class="feed-header">
+            <h1>Groupe: {{ group.name }}</h1>
+            <div class="search-bar">
+                <form action="{{ path('app_social_search') }}" method="get" class="search-form">
+                    <input type="text" name="search" placeholder="Rechercher des utilisateurs ou des groupes..." class="search-input">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <a href="{{ path('app_social') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Retour au Feed
+            </a>
+        </div>
+        
+        <!-- Profil du groupe -->
+        <div class="group-profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img src="/uploads/images/default-group.png" alt="{{ group.name }}">
+                </div>
+                <div class="profile-info">
+                    <h2>{{ group.name }}</h2>
+                    <p class="profile-description">{{ group.description }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Formulaire d'ajout de post pour le groupe -->
+        <div class="add-post-section">
+            <h3>Ajouter une publication au groupe</h3>
+            <form action="{{ path('app_social_group_add_post', {id: group.id}) }}" method="post" enctype="multipart/form-data" class="add-post-form">
+                <textarea name="content" placeholder="Partagez quelque chose avec le groupe..." required></textarea>
+                <div class="form-actions">
+                    <div class="file-input-wrapper">
+                        <label for="image_file" class="file-label">
+                            <i class="fas fa-image"></i> Ajouter une image
+                        </label>
+                        <input type="file" id="image_file" name="image_file" accept="image/*" class="file-input">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Publier
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Publications du groupe -->
+        <div class="group-posts-section">
+            <h2>Publications du groupe</h2>
+            
+            {% if posts|length > 0 %}
+                {% for post in posts %}
+                    <article class="post-card">
+                        <div class="post-content">
+                            <div class="post-header">
+                                <div class="post-user">
+                                    <img src="/uploads/images/default-avatar.png" alt="{{ post.user.username }}">
+                                    <div class="post-user-info">
+                                        <div class="post-username">{{ post.user.username }}</div>
+                                        <div class="post-time">{{ post.post.timeStamp|date('d/m/Y H:i') }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if post.post.mediaUrl %}
+                                <div class="post-image">
+                                    <img src="{{ post.post.mediaUrl }}" alt="Post image">
+                                </div>
+                            {% endif %}
+                            
+                            <div class="post-actions">
+                                <div class="action-buttons">
+                                    <form action="{{ path('app_social_like_post', {id: post.post.id}) }}" method="post">
+                                        <button type="submit" class="action-btn like-btn {% if post.userLiked %}liked{% endif %}">
+                                            <i class="fas fa-heart"></i> J'aime
+                                        </button>
+                                    </form>
+                                    <button class="action-btn comment-btn" onclick="document.getElementById('comment-form-{{ post.post.id }}').focus()">
+                                        <i class="fas fa-comment"></i> Commenter
+                                    </button>
+                                    <div class="share-dropdown">
+                                        <button class="action-btn share-btn">
+                                            <i class="fas fa-share"></i> Partager
+                                        </button>
+                                        <div class="share-options">
+                                            <button onclick="shareOnLinkedIn('{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}', 'Voir ce post', '{{ post.post.content|slice(0, 100) }}')" class="share-btn linkedin">
+                                                <i class="fab fa-linkedin-in"></i> LinkedIn
+                                            </button>
+                                            <button onclick="shareOnWhatsApp('{{ absolute_url(path('app_social_view_post', {id: post.post.id})) }}', '{{ post.post.content|slice(0, 100) }}')" class="share-btn whatsapp">
+                                                <i class="fab fa-whatsapp"></i> WhatsApp
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-stats">
+                                <div class="like-stat">{{ post.likeCount }} J'aime</div>
+                            </div>
+                            
+                            <div class="post-caption">
+                                <span class="caption-username">{{ post.user.username }}</span>
+                                <span class="caption-text">{{ post.post.content }}</span>
+                            </div>
+                            
+                            {% if post.comments|length > 0 %}
+                                <div class="comments-preview">
+                                    <a href="#comments-{{ post.post.id }}" class="view-comments">Voir les {{ post.comments|length }} commentaires</a>
+                                    {% for comment in post.comments|slice(0, 2) %}
+                                        <div class="comment-preview">
+                                            <span class="comment-username">{{ comment.userId.username }}</span>
+                                            <span class="comment-text">{{ comment.content }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <form action="{{ path('app_social_add_comment', {id: post.post.id}) }}" method="post" class="comment-form-simple">
+                                <input type="text" name="content" id="comment-form-{{ post.post.id }}" placeholder="Ajouter un commentaire..." required>
+                                <button type="submit" class="btn-submit-comment">
+                                    <i class="far fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty-feed">
+                    <i class="far fa-sad-tear fa-3x"></i>
+                    <p>Ce groupe n'a pas encore de publications.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{{ asset('js/social-share.js') }}"></script>
+</body>
+</html>

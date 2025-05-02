@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="defaultdb@mysql-1dcac8df-moamedsalahsaoudi123-c05d.e.aivencloud.com" uuid="f8853a1f-f75f-4159-bbaf-e1136d147d54">
+    <data-source source="LOCAL" name="defaultdb@mysql-1dcac8df-moamedsalahsaoudi123-c05d.e.aivencloud.com" uuid="4c209396-f9b2-4859-93e5-46a1c2de94bd">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>

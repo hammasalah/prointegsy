@@ -21,20 +21,24 @@ class UsersRepository extends ServiceEntityRepository
         parent::__construct($registry, Users::class);
     }
 
-//    /**
-//     * @return Users[] Returns an array of Users objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('u.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Recherche des utilisateurs par nom d'utilisateur ou email
+     * 
+     * @param string $searchTerm Le terme de recherche
+     * @return Users[] Returns an array of Users objects
+     */
+    public function searchUsers(string $searchTerm): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.username LIKE :searchTerm')
+            ->orWhere('u.email LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
+            ->orderBy('u.username', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
 //    public function findOneBySomeField($value): ?Users
 //    {

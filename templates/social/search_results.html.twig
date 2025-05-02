@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats de recherche - Connect Sphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/social.css') }}">
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2>Connect Sphere</h2>
+    </div>
+    <div class="sidebar-profile">
+        <img src="/uploads/images/default-avatar.png" alt="Profile">
+        <div>Utilisateur</div>
+    </div>
+    <ul class="sidebar-menu">
+        <li><a href="{{ path('app_social') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
+        <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
+        <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
+        <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
+        <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+        <li><a href="#"><i class="fas fa-robot"></i> AI assistant</a></li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="container">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+        
+        <div class="feed-header">
+            <h1>Résultats de recherche</h1>
+            <div class="search-bar">
+                <form action="{{ path('app_social_search') }}" method="get" class="search-form">
+                    <input type="text" name="search" placeholder="Rechercher des utilisateurs ou des groupes..." class="search-input" value="{{ results.searchTerm|default('') }}">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <a href="{{ path('app_social') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Retour au Feed
+            </a>
+        </div>
+        
+        {% if results is defined and results is not empty and (results.users is not empty or results.groups is not empty) %}
+            <div class="search-results">
+                {% if results.users is defined and results.users is not empty %}
+                    <div class="search-section">
+                        <h2>Users</h2>
+                        <div class="search-items">
+                            {% for user in results.users %}
+                                <div class="search-item">
+                                    <div class="search-item-avatar">
+                                        <img src="/uploads/images/default-avatar.png" alt="{{ user.username }}">
+                                    </div>
+                                    <div class="search-item-info">
+                                        <h3>{{ user.username }}</h3>
+                                        <p>{{ user.email }}</p>
+                                    </div>
+                                    <div class="search-item-actions">
+                                        <a href="{{ path('app_social_user_profile', {id: user.id}) }}" class="btn btn-view-profile">View Profile</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if results.groups is defined and results.groups is not empty %}
+                    <div class="search-section">
+                        <h2>Groups</h2>
+                        <div class="search-items">
+                            {% for group in results.groups %}
+                                <div class="search-item">
+                                    <div class="search-item-avatar">
+                                        <img src="{{ group.profilePicture }}" alt="{{ group.name }}">
+                                    </div>
+                                    <div class="search-item-info">
+                                        <h3>{{ group.name }}</h3>
+                                        <p>{{ group.description }}</p>
+                                    </div>
+                                    <div class="search-item-actions">
+                                        <a href="{{ path('app_social_group_profile', {id: group.id}) }}" class="btn btn-view-group">View Group</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="empty-results">
+                {% if results.searchTerm is defined and results.searchTerm is not empty %}
+                    <i class="fas fa-search fa-3x"></i>
+                    <p>Aucun résultat trouvé pour "{{ results.searchTerm }}"</p>
+                    <p>Essayez avec d'autres termes de recherche</p>
+                {% else %}
+                    <i class="fas fa-search fa-3x"></i>
+                    <p>Utilisez la barre de recherche ci-dessus pour trouver des utilisateurs et des groupes</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
