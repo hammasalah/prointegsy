@@ -66,6 +66,31 @@
                     <p class="profile-email">{{ user.email }}</p>
                 </div>
             </div>
+            <div class="profile-actions">
+                <form action="{{ path('app_social_follow_user', {id: user.id}) }}" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> 
+                        {% set followStatus = null %}
+                        {% for follow in app.user.follows|default([]) %}
+                            {% if follow.followed.id == user.id %}
+                                {% set followStatus = follow %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if followStatus is not null %}
+                            {% if followStatus.status == 'pending' %}
+                                Demande envoyée
+                            {% elseif followStatus.status == 'accepted' %}
+                                Ne plus suivre
+                            {% else %}
+                                Suivre
+                            {% endif %}
+                        {% else %}
+                            Suivre
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
         </div>
         
         <!-- Publications de l'utilisateur -->

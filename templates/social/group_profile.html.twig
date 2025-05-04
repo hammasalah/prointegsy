@@ -66,6 +66,13 @@
                     <p class="profile-description">{{ group.description }}</p>
                 </div>
             </div>
+            <div class="profile-actions">
+                <form action="{{ path('app_social_join_group', {id: group.id}) }}" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Rejoindre le groupe
+                    </button>
+                </form>
+            </div>
         </div>
         
         <!-- Formulaire d'ajout de post pour le groupe -->

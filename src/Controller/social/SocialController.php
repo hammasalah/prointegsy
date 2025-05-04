@@ -4,16 +4,20 @@ namespace App\Controller\social;
 
 use App\Entity\FeedPosts;
 use App\Entity\GroupFeedPosts;
+use App\Entity\GroupMembers;
 use App\Entity\Likes;
 use App\Entity\Comments;
 use App\Entity\Shares;
+use App\Entity\UserFollowers;
 use App\Repository\FeedPostsRepository;
 use App\Repository\GroupFeedPostsRepository;
+use App\Repository\GroupMembersRepository;
 use App\Repository\LikesRepository;
 use App\Repository\CommentsRepository;
 use App\Repository\UsersRepository;
 use App\Repository\SharesRepository;
 use App\Repository\UserGroupsRepository;
+use App\Repository\UserFollowersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,13 +28,35 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/social')]
 class SocialController extends AbstractController
 {
+    /**
+     * Ajoute des variables globales à tous les templates
+     */
+    private function addGlobalVariables(EntityManagerInterface $entityManager): array
+    {
+        // Récupérer l'utilisateur connecté (exemple)
+        $currentUser = $entityManager->getRepository(\App\Entity\Users::class)->find(1);
+        
+        // Récupérer le nombre de demandes de suivi en attente
+        $pendingRequestsCount = 0;
+        if ($currentUser) {
+            $pendingRequestsCount = $entityManager->getRepository(\App\Entity\UserFollowers::class)->count([
+                'followed' => $currentUser,
+                'status' => \App\Entity\UserFollowers::STATUS_PENDING
+            ]);
+        }
+        
+        return [
+            'pendingRequestsCount' => $pendingRequestsCount
+        ];
+    }
     #[Route('/', name: 'app_social')]
     public function index(
         FeedPostsRepository $feedPostsRepository,
         LikesRepository $likesRepository,
         CommentsRepository $commentsRepository,
         SharesRepository $sharesRepository,
-        UsersRepository $usersRepository
+        UsersRepository $usersRepository,
+        EntityManagerInterface $entityManager
     ): Response {
         // Récupérer tous les posts
         $feedPosts = $feedPostsRepository->findBy(['isDeleted' => 0], ['timeStamp' => 'DESC']);
@@ -52,9 +78,11 @@ class SocialController extends AbstractController
             ];
         }
 
-        return $this->render('social/social.html.twig', [
+        $globalVars = $this->addGlobalVariables($entityManager);
+        
+        return $this->render('social/social.html.twig', array_merge([
             'posts' => $postsData,
-        ]);
+        ], $globalVars));
     }
 
     #[Route('/add-post', name: 'app_social_add_post', methods: ['GET', 'POST'])]
@@ -441,5 +469,189 @@ class SocialController extends AbstractController
 
         $this->addFlash('success', 'Post ajouté au groupe avec succès');
         return $this->redirectToRoute('app_social_group_profile', ['id' => $id]);
+    }
+    
+    /**
+     * Permet à un utilisateur de rejoindre un groupe
+     */
+    #[Route('/group/{id}/join', name: 'app_social_join_group', methods: ['POST'])]
+    public function joinGroup(
+        int $id,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserGroupsRepository $userGroupsRepository,
+        UsersRepository $usersRepository,
+        GroupMembersRepository $groupMembersRepository
+    ): Response {
+        $group = $userGroupsRepository->find($id);
+        
+        if (!$group) {
+            $this->addFlash('error', 'Groupe non trouvé');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        $user = $usersRepository->find(1); // Exemple d'utilisateur connecté
+        if (!$user) {
+            $this->addFlash('error', 'Utilisateur non trouvé');
+            return $this->redirectToRoute('app_social_group_profile', ['id' => $id]);
+        }
+
+        // Vérifier si l'utilisateur est déjà membre du groupe
+        $existingMembership = $groupMembersRepository->findOneBy(['group' => $group, 'user_id' => $user]);
+        if ($existingMembership) {
+            $this->addFlash('info', 'Vous êtes déjà membre de ce groupe');
+            return $this->redirectToRoute('app_social_group_profile', ['id' => $id]);
+        }
+
+        // Ajouter l'utilisateur comme membre du groupe
+        $membership = new GroupMembers();
+        $membership->setGroupIt($group);
+        $membership->setUserId($user);
+        $membership->setRole('member'); // Rôle par défaut
+
+        $entityManager->persist($membership);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Vous avez rejoint le groupe avec succès');
+        return $this->redirectToRoute('app_social_group_profile', ['id' => $id]);
+    }
+    
+    /**
+     * Permet à un utilisateur d'envoyer une demande pour suivre un autre utilisateur
+     */
+    #[Route('/user/{id}/follow', name: 'app_social_follow_user', methods: ['POST'])]
+    public function followUser(
+        int $id,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UsersRepository $usersRepository,
+        UserFollowersRepository $userFollowersRepository
+    ): Response {
+        $userToFollow = $usersRepository->find($id);
+        
+        if (!$userToFollow) {
+            $this->addFlash('error', 'Utilisateur non trouvé');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        $currentUser = $usersRepository->find(1); // Exemple d'utilisateur connecté
+        if (!$currentUser) {
+            $this->addFlash('error', 'Utilisateur non connecté');
+            return $this->redirectToRoute('app_social_user_profile', ['id' => $id]);
+        }
+
+        // Vérifier si l'utilisateur se suit lui-même
+        if ($currentUser->getId() === $userToFollow->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas vous suivre vous-même');
+            return $this->redirectToRoute('app_social_user_profile', ['id' => $id]);
+        }
+
+        // Vérifier si l'utilisateur suit déjà cet utilisateur ou a une demande en cours
+        $existingFollow = $userFollowersRepository->findOneBy(['follower' => $currentUser, 'followed' => $userToFollow]);
+        if ($existingFollow) {
+            // Si déjà suivi ou demande en cours, on annule
+            $entityManager->remove($existingFollow);
+            $entityManager->flush();
+            
+            if ($existingFollow->isAccepted()) {
+                $this->addFlash('success', 'Vous ne suivez plus cet utilisateur');
+            } else if ($existingFollow->isPending()) {
+                $this->addFlash('success', 'Votre demande a été annulée');
+            }
+        } else {
+            // Sinon, on crée une demande en attente
+            $follow = new UserFollowers();
+            $follow->setFollower($currentUser);
+            $follow->setFollowed($userToFollow);
+            $follow->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
+            $follow->setStatus(UserFollowers::STATUS_PENDING);
+            
+            $entityManager->persist($follow);
+            $entityManager->flush();
+            $this->addFlash('success', 'Votre demande pour suivre cet utilisateur a été envoyée');
+        }
+
+        return $this->redirectToRoute('app_social_user_profile', ['id' => $id]);
+    }
+    
+    /**
+     * Permet à un utilisateur d'accepter ou de refuser une demande de suivi
+     */
+    #[Route('/follow-request/{id}/{action}', name: 'app_social_follow_request', methods: ['GET', 'POST'])]
+    public function handleFollowRequest(
+        int $id,
+        string $action,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserFollowersRepository $userFollowersRepository,
+        UsersRepository $usersRepository
+    ): Response {
+        $followRequest = $userFollowersRepository->find($id);
+        
+        if (!$followRequest) {
+            $this->addFlash('error', 'Demande non trouvée');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        $currentUser = $usersRepository->find(1); // Exemple d'utilisateur connecté
+        if (!$currentUser) {
+            $this->addFlash('error', 'Utilisateur non connecté');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        // Vérifier que la demande concerne bien l'utilisateur connecté
+        if ($followRequest->getFollowed()->getId() !== $currentUser->getId()) {
+            $this->addFlash('error', 'Vous n\'êtes pas autorisé à gérer cette demande');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        // Vérifier que la demande est en attente
+        if (!$followRequest->isPending()) {
+            $this->addFlash('error', 'Cette demande a déjà été traitée');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        if ($action === 'accept') {
+            $followRequest->setStatus(UserFollowers::STATUS_ACCEPTED);
+            $entityManager->flush();
+            $this->addFlash('success', 'Vous avez accepté la demande de suivi');
+        } else if ($action === 'reject') {
+            $followRequest->setStatus(UserFollowers::STATUS_REJECTED);
+            $entityManager->flush();
+            $this->addFlash('success', 'Vous avez refusé la demande de suivi');
+        } else {
+            $this->addFlash('error', 'Action non reconnue');
+        }
+        
+        return $this->redirectToRoute('app_social');
+    }
+    
+    /**
+     * Affiche les demandes de suivi en attente pour l'utilisateur connecté
+     */
+    #[Route('/follow-requests', name: 'app_social_follow_requests')]
+    public function followRequests(
+        Request $request,
+        UserFollowersRepository $userFollowersRepository,
+        UsersRepository $usersRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $currentUser = $usersRepository->find(1); // Exemple d'utilisateur connecté
+        if (!$currentUser) {
+            $this->addFlash('error', 'Utilisateur non connecté');
+            return $this->redirectToRoute('app_social');
+        }
+        
+        // Récupérer les demandes en attente
+        $pendingRequests = $userFollowersRepository->findBy([
+            'followed' => $currentUser,
+            'status' => \App\Entity\UserFollowers::STATUS_PENDING
+        ]);
+        
+        $globalVars = $this->addGlobalVariables($entityManager);
+        
+        return $this->render('social/follow_requests.html.twig', array_merge([
+            'pendingRequests' => $pendingRequests
+        ], $globalVars));
     }
 }

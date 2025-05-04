@@ -26,6 +26,11 @@
         <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
         <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
         <li><a href="#"><i class="fas fa-robot"></i> AI assistant</a></li>
+        <li><a href="{{ path('app_social_follow_requests') }}"><i class="fas fa-user-plus"></i> Demandes de suivi
+            {% if pendingRequestsCount > 0 %}
+                <span class="badge badge-pill badge-primary">{{ pendingRequestsCount }}</span>
+            {% endif %}
+        </a></li>
     </ul>
 </div>
 

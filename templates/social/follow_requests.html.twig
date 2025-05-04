@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Demandes de suivi{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/social.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 sidebar">
+                <h3>Menu</h3>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_social') }}">
+                            <i class="fas fa-home"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ path('app_social_follow_requests') }}">
+                            <i class="fas fa-user-plus"></i> Demandes de suivi
+                            {% if pendingRequestsCount > 0 %}
+                                <span class="badge badge-pill badge-primary">{{ pendingRequestsCount }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <!-- Autres liens du menu -->
+                </ul>
+            </div>
+            
+            <!-- Contenu principal -->
+            <div class="col-md-9 main-content">
+                <h2>Demandes de suivi en attente</h2>
+                
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                
+                {% if pendingRequests|length > 0 %}
+                    <div class="follow-requests">
+                        {% for request in pendingRequests %}
+                            <div class="follow-request-card">
+                                <div class="user-info">
+                                    <img src="{{ asset('images/default-avatar.png') }}" alt="Avatar" class="avatar">
+                                    <div class="user-details">
+                                        <h4>{{ request.follower.username }}</h4>
+                                        <p>Souhaite vous suivre</p>
+                                        <small>Demande envoyée le {{ request.createdAt|date('d/m/Y H:i') }}</small>
+                                    </div>
+                                </div>
+                                <div class="request-actions">
+                                    <a href="{{ path('app_social_follow_request', {'id': request.id, 'action': 'accept'}) }}" class="btn btn-success">
+                                        <i class="fas fa-check"></i> Accepter
+                                    </a>
+                                    <a href="{{ path('app_social_follow_request', {'id': request.id, 'action': 'reject'}) }}" class="btn btn-danger">
+                                        <i class="fas fa-times"></i> Refuser
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        Vous n'avez aucune demande de suivi en attente.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/social.js') }}"></script>
+{% endblock %}
