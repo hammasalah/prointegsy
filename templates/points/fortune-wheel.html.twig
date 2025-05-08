@@ -1,222 +1,643 @@
 {% extends 'base.html.twig' %}
 
-    {% block stylesheets %}
-        <!-- Inclure FontAwesome pour les icônes -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        <style>
-            /* Base Styles */
-            body, html {
-                margin: 0;
-                padding: 0;
-                font-family: 'Poppins', sans-serif;
-                background: #1A0033;
-                color: #FFFFFF;
-                overflow-x: hidden;
+{% block stylesheets %}
+    <!-- Inclure FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Base Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #1A0033;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(180deg, #220054 0%, #5B21B6 100%);
+            color: #FFFFFF;
+            padding: 20px 8px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .sidebar .logo {
+            margin-bottom: 40px;
+        }
+
+        .sidebar .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            flex-grow: 1;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+        
+        .sidebar ul li a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .sidebar ul li a:hover,
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(91, 33, 182, 0.5);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 220px;
+            width: calc(100% - 220px);
+            padding: 10px;
+            background: #1A0033;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: linear-gradient(180deg, #220054 0%, #5B21B6 100%);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 0 20px rgba(91, 33, 182, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .welcome-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(91, 33, 182, 0.5);
+        }
+
+        .welcome-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .welcome-avatar i {
+            font-size: 30px;
+            color: #A78BFA;
+            animation: neon-glow 1.5s infinite ease-in-out;
+        }
+
+        @keyframes neon-glow {
+            0% { text-shadow: 0 0 5px #A78BFA, 0 0 10px #A78BFA; }
+            50% { text-shadow: 0 0 10px #A78BFA, 0 0 20px #A78BFA; }
+            100% { text-shadow: 0 0 5px #A78BFA, 0 0 10px #A78BFA; }
+        }
+
+        .welcome-text h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            color: #D1D5DB;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+            width: 90%;
+            max-width: 1200px;
+            grid-template-areas: 
+                "wheel wheel reward"
+                "wheel wheel history"
+                "stats stats next-spin"
+                "challenges challenges leaderboard";
+        }
+
+        .wheel-section { grid-area: wheel; }
+        .reward-card { grid-area: reward; }
+        .history-card { grid-area: history; }
+        .next-spin-card { grid-area: next-spin; }
+        .stats-card { grid-area: stats; }
+        .challenges-card { grid-area: challenges; }
+        .leaderboard-card { grid-area: leaderboard; }
+
+        /* Card Styles (Glassmorphism) */
+        .wheel-section,
+        .reward-card,
+        .history-card,
+        .next-spin-card,
+        .stats-card,
+        .challenges-card,
+        .leaderboard-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wheel-section:hover,
+        .reward-card:hover,
+        .history-card:hover,
+        .next-spin-card:hover,
+        .stats-card:hover,
+        .challenges-card:hover,
+        .leaderboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Neon Borders for Cards */
+        .wheel-section { border-left: 3px solid #A78BFA; }
+        .reward-card { border-left: 3px solid #FBBF24; }
+        .history-card { border-left: 3px solid #38BDF8; }
+        .next-spin-card { border-left: 3px solid #C084FC; }
+        .stats-card { border-left: 3px solid #F87171; }
+        .challenges-card { border-left: 3px solid #34D399; }
+        .leaderboard-card { border-left: 3px solid #FFD700; }
+
+        /* Wheel Section */
+        .wheel-section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .wheel-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .wheel-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+        }
+        
+        .wheel-avatar i {
+            font-size: 20px;
+            color: #A78BFA;
+            animation: neon-glow 1.5s infinite ease-in-out;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 600px;
+            height: 640px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .triangle-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 25px solid #A78BFA;
+            z-index: 10;
+        }
+
+        canvas {
+            border-radius: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+        }
+
+        .spin-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #7C3AED, #A855F7);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spin-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(124, 58, 237, 0.7);
+        }
+
+        .spin-btn:disabled {
+            background: #6B7280;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Reward Card */
+        .reward-card {
+            text-align: center;
+        }
+
+        .reward-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FBBF24;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        .reward-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .reward-card li {
+            font-size: 14px;
+            color: #D1D5DB;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 5px;
+            background: rgba(251, 191, 36, 0.1);
+            border-radius: 5px;
+            transition: transform 0.2s ease;
+        }
+
+        .reward-card li:hover {
+            transform: scale(1.02);
+        }
+
+        .reward-card i {
+            font-size: 16px;
+            color: #FBBF24;
+            animation: sparkle 1.5s infinite ease-in-out;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* History Card */
+        .history-card {
+            position: relative;
+        }
+
+        .history-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #38BDF8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th, .history-table td {
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+            color: #D1D5DB;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-table th {
+            font-weight: 600;
+            color: #38BDF8;
+        }
+
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .history-table tbody tr:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Next Spin Card */
+        .next-spin-card {
+            text-align: center;
+        }
+
+        .next-spin-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #C084FC;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+        }
+
+        .next-spin-card p {
+            font-size: 16px;
+            color: #D1D5DB;
+            margin: 0;
+            padding: 10px;
+            background: rgba(192, 132, 252, 0.1);
+            border-radius: 5px;
+        }
+
+        /* Stats Card */
+        .stats-card {
+            text-align: center;
+        }
+
+        .stats-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #F87171;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('wheelCanvas');
+            const spinBtn = document.getElementById('spinButton');
+            const ctx = canvas.getContext('2d');
+            const historyTableBody = document.getElementById('historyTableBody');
+            const nextSpinMessage = document.getElementById('nextSpinMessage');
+            const segments = [
+                { label: '0 pts', color: '#FBBF24', icon: 'fas fa-coins', iconColor: '#FFD700', textColor: '#8B4513', boxColor: '#FFD700' },
+                { label: '100 pts', color: '#38BDF8', icon: 'fas fa-trophy', iconColor: '#87CEEB', textColor: '#003087', boxColor: '#87CEEB' },
+                { label: '50 pts', color: '#C084FC', icon: 'fas fa-gift', iconColor: '#E0B0FF', textColor: '#4B0082', boxColor: '#E0B0FF' },
+                { label: '40 pts', color: '#F59E0B', icon: 'fas fa-star', iconColor: '#FFCA28', textColor: '#8B4513', boxColor: '#FFCA28' },
+                { label: 'Bonus: 200 pts', color: '#0EA5E9', icon: 'fas fa-crown', iconColor: '#40C4FF', textColor: '#003087', boxColor: '#40C4FF' }
+            ];
+            let currentAngle = 0;
+            let spinning = false;
+
+            function drawWheel() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const segmentAngle = (2 * Math.PI) / segments.length;
+                let startAngle = -Math.PI / 2; // Point de départ en haut
+
+                for (let i = 0; i < segments.length; i++) {
+                    ctx.beginPath();
+                    ctx.fillStyle = segments[i].color;
+                    ctx.moveTo(canvas.width / 2, canvas.height / 2);
+                    ctx.arc(
+                        canvas.width / 2,
+                        canvas.height / 2,
+                        canvas.width / 2 - 10,
+                        startAngle + i * segmentAngle,
+                        startAngle + (i + 1) * segmentAngle
+                    );
+                    ctx.lineTo(canvas.width / 2, canvas.height / 2);
+                    ctx.fill();
+
+                    // Draw text
+                    ctx.save();
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const textAngle = startAngle + i * segmentAngle + segmentAngle / 2;
+                    const textRadius = canvas.width / 3;
+                    const x = canvas.width / 2 + Math.cos(textAngle) * textRadius;
+                    const y = canvas.height / 2 + Math.sin(textAngle) * textRadius;
+                    ctx.translate(x, y);
+                    ctx.rotate(textAngle + Math.PI / 2);
+                    ctx.fillText(segments[i].label, 0, 0);
+                    ctx.restore();
+                }
             }
-    
-            .dashboard-container {
-                display: flex;
-                min-height: 100vh;
+
+            let isSpinning = false;
+            let startAngle = -Math.PI / 2; // Point de départ en haut
+            let spinTimeout;
+            
+            function spinWheel() {
+                if (isSpinning) return;
+                isSpinning = true;
+                spinBtn.disabled = true;
+
+                const spinDuration = 5000; // 5 seconds
+                const startTime = Date.now();
+                const totalRotation = 360 * 8 + Math.random() * 360; // 8 full rotations + random
+
+                function animate() {
+                    const now = Date.now();
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / spinDuration, 1);
+
+                    // Easing function for smooth deceleration
+                    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+                    const currentRotation = totalRotation * easeOut(progress);
+                    startAngle = -Math.PI / 2 + (currentRotation * Math.PI) / 180;
+
+                    drawWheel();
+
+                    if (progress < 1) {
+                        spinTimeout = requestAnimationFrame(animate);
+                    } else {
+                        isSpinning = false;
+                        spinBtn.disabled = false;
+                        const finalSegment = Math.floor(((360 - (currentRotation % 360)) / (360 / segments.length)));
+                        const points = segments[finalSegment].label.includes('Bonus') ? 200 : parseInt(segments[finalSegment].label.split(' ')[0]);
+                        
+                        // Send points to server
+                        
+                        // Send points to server
+                        fetch('/points/add-fortune-points', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ points: points })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert(`Félicitations ! Vous avez gagné ${points} points !`);
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue lors de l\'attribution des points.');
+                        });
+                    }
+                }
+
+                animate();
             }
+
+            // Initial draw
+            drawWheel();
+
+            // Event listener for spin button
+            spinBtn.addEventListener('click', spinWheel);
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    <div class="sidebar">
+        <div class="logo">
+            <h1>ProIntegSy</h1>
+        </div>
+        <ul>
+            <li><a href="#" class="active"><i class="fas fa-home"></i> Accueil</a></li>
+            <li><a href="#"><i class="fas fa-trophy"></i> Points</a></li>
+            <li><a href="#"><i class="fas fa-tasks"></i> Tâches</a></li>
+            <li><a href="#"><i class="fas fa-chart-line"></i> Statistiques</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Paramètres</a></li>
+        </ul>
+    </div>
     
-            /* Sidebar */
-            .sidebar {
-                width: 220px;
-                background: linear-gradient(180deg, #220054 0%, #5B21B6 100%);
-                color: #FFFFFF;
-                padding: 20px 8px;
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                display: flex;
-                flex-direction: column;
-                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
-                border-top-right-radius: 12px;
-                border-bottom-right-radius: 12px;
-            }
-    
-            .sidebar .logo {
-                margin-bottom: 40px;
-            }
-    
-            .sidebar .logo h1 {
-                font-size: 24px;
-                font-weight: 700;
-                text-align: center;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            }
-    
-            .sidebar ul {
-                list-style: none;
-                flex-grow: 1;
-                padding: 0;
-            }
-    
-            .sidebar ul li {
-                margin: 10px 0;
-                position: relative;
-            }
-    
-            .sidebar ul li a {
-                display: flex;
-                align-items: center;
-                color: #FFFFFF;
-                text-decoration: none;
-                font-size: 16px;
-                font-weight: 500;
-                padding: 12px 15px;
-                border-radius: 8px;
-                transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            }
-    
-            .sidebar ul li a i {
-                margin-right: 10px;
-                font-size: 18px;
-            }
-    
-            .sidebar ul li a:hover,
-            .sidebar ul li a.active {
-                background: rgba(255, 255, 255, 0.2);
-                transform: scale(1.03);
-                box-shadow: 0 0 15px rgba(91, 33, 182, 0.5);
-            }
-    
-            /* Main Content */
-            .main-content {
-                margin-left: 220px;
-                width: calc(100% - 220px);
-                padding: 10px;
-                background: #1A0033;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-    
-            /* Welcome Card */
-            .welcome-card {
-                background: linear-gradient(180deg, #220054 0%, #5B21B6 100%);
-                border-radius: 12px;
-                padding: 15px 20px;
-                display: flex;
-                align-items: center;
-                gap: 30px;
-                box-shadow: 0 0 20px rgba(91, 33, 182, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-                margin-bottom: 10px;
-                width: 100%;
-                max-width: 1200px;
-            }
-    
-            .welcome-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 0 30px rgba(91, 33, 182, 0.5);
-            }
-    
-            .welcome-avatar {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 60px;
-                height: 60px;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 50%;
-                box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-            }
-    
-            .welcome-avatar i {
-                font-size: 30px;
-                color: #A78BFA;
-                animation: neon-glow 1.5s infinite ease-in-out;
-            }
-    
-            @keyframes neon-glow {
-                0% { text-shadow: 0 0 5px #A78BFA, 0 0 10px #A78BFA; }
-                50% { text-shadow: 0 0 10px #A78BFA, 0 0 20px #A78BFA; }
-                100% { text-shadow: 0 0 5px #A78BFA, 0 0 10px #A78BFA; }
-            }
-    
-            .welcome-text h2 {
-                font-size: 24px;
-                font-weight: 700;
-                color: #FFFFFF;
-                margin-bottom: 5px;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            }
-    
-            .welcome-text p {
-                font-size: 14px;
-                color: #D1D5DB;
-            }
-    
-            /* Content Grid */
-            .content-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 10px;
-                width: 90%;
-                max-width: 1200px;
-                grid-template-areas: 
-                    "wheel wheel reward"
-                    "wheel wheel history"
-                    "stats stats next-spin"
-                    "challenges challenges leaderboard";
-            }
-    
-            .wheel-section { grid-area: wheel; }
-            .reward-card { grid-area: reward; }
-            .history-card { grid-area: history; }
-            .next-spin-card { grid-area: next-spin; }
-            .stats-card { grid-area: stats; }
-            .challenges-card { grid-area: challenges; }
-            .leaderboard-card { grid-area: leaderboard; }
-    
-            /* Card Styles (Glassmorphism) */
-            .wheel-section,
-            .reward-card,
-            .history-card,
-            .next-spin-card,
-            .stats-card,
-            .challenges-card,
-            .leaderboard-card {
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border-radius: 12px;
-                padding: 20px;
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-                position: relative;
-                overflow: hidden;
-            }
-    
-            .wheel-section:hover,
-            .reward-card:hover,
-            .history-card:hover,
-            .next-spin-card:hover,
-            .stats-card:hover,
-            .challenges-card:hover,
-            .leaderboard-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-            }
-    
-            /* Neon Borders for Cards */
-            .wheel-section { border-left: 3px solid #A78BFA; }
-            .reward-card { border-left: 3px solid #FBBF24; }
-            .history-card { border-left: 3px solid #38BDF8; }
-            .next-spin-card { border-left: 3px solid #C084FC; }
-            .stats-card { border-left: 3px solid #F87171; }
-            .challenges-card { border-left: 3px solid #34D399; }
-            .leaderboard-card { border-left: 3px solid #FFD700; }
-    
-            /* Wheel Section */
-            .wheel-section {
-                padding: 40px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
+    <div class="main-content">
+        <div class="welcome-card">
+            <div class="welcome-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="welcome-text">
+                <h2>Bienvenue sur la Roue de la Fortune!</h2>
+                <p>Tentez votre chance et gagnez des points bonus.</p>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="wheel-section">
+                <div class="wheel-title">
+                    <div class="wheel-avatar">
+                        <i class="fas fa-dharmachakra"></i>
+                    </div>
+                    <h2>Roue de la Fortune</h2>
+                </div>
+                <div class="wheel-container">
+                    <div class="triangle-pointer"></div>
+                    <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                </div>
+                <button id="spinButton" class="spin-btn"><i class="fas fa-play"></i> Tourner la roue</button>
+            </div>
+            
+            <div class="reward-card">
+                <h3><i class="fas fa-gift"></i> Récompenses Possibles</h3>
+                <ul>
+                    <li><i class="fas fa-coins"></i> 0 points</li>
+                    <li><i class="fas fa-trophy"></i> 40 points</li>
+                    <li><i class="fas fa-gift"></i> 50 points</li>
+                    <li><i class="fas fa-star"></i> 100 points</li>
+                    <li><i class="fas fa-crown"></i> Bonus: 200 points</li>
+                </ul>
+            </div>
+            
+            <div class="history-card">
+                <h3><i class="fas fa-history"></i> Historique</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Historique des spins sera ajouté ici -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="next-spin-card">
+                <h3><i class="fas fa-clock"></i> Prochain Spin</h3>
+                <p id="nextSpinMessage">Vous pouvez tourner la roue maintenant!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
     
             .wheel-title {
                 font-size: 24px;
@@ -627,31 +1048,99 @@
                 }
             }
         </style>
-    {% endblock %}
-    
-    {% block body %}
-        <div class="dashboard-container">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="logo">
-                    <h1>Connect Sphere</h1>
-                </div>
-                <ul>
-                    <li><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="#"><i class="fas fa-box"></i> Events</a></li>
-                    <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
-                    <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
-                    <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
-                    <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a href="#"><i class="fas fa-share-alt"></i> Social</a></li>
-                    <li><a href="#"><i class="fas fa-robot"></i> AI Assistant</a></li>
-                    <li><a href="#" class="active"><i class="fas fa-star"></i> Points</a></li>
-                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-                </ul>
+{% endblock %}
+
+{% block body %}
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>Connect Sphere</h1>
             </div>
-    
-            <!-- Main Content -->
-            <div class="main-content">
+            <ul>
+                <li><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-box"></i> Events</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
+                <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
+                <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
+                <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a href="#"><i class="fas fa-share-alt"></i> Social</a></li>
+                <li><a href="#"><i class="fas fa-robot"></i> AI Assistant</a></li>
+                <li><a href="#" class="active"><i class="fas fa-star"></i> Points</a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <div class="welcome-avatar">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="welcome-text">
+                    <h2>Spin the Wheel!</h2>
+                    <p>Win points, bonuses, and more!</p>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Wheel Section -->
+                <div class="wheel-section">
+                    <div class="wheel-title">
+                        <div class="wheel-avatar">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h2>Roue de la Fortune</h2>
+                    </div>
+                    <div class="wheel-container">
+                        <div class="triangle-pointer"></div>
+                        <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                        <button id="spinButton" class="spin-btn">
+                            <i class="fas fa-sync-alt"></i>
+                            Tourner la Roue
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reward Card -->
+                <div class="reward-card">
+                    <h3><i class="fas fa-gift"></i> Récompenses Possibles</h3>
+                    <ul>
+                        <li><i class="fas fa-coins"></i> 0 points</li>
+                        <li><i class="fas fa-trophy"></i> 100 points</li>
+                        <li><i class="fas fa-gift"></i> 50 points</li>
+                        <li><i class="fas fa-star"></i> 40 points</li>
+                        <li><i class="fas fa-crown"></i> Bonus: 200 points</li>
+                    </ul>
+                </div>
+
+                <!-- History Card -->
+                <div class="history-card">
+                    <h3><i class="fas fa-history"></i> Historique</h3>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Récompense</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- L'historique sera rempli dynamiquement par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Next Spin Card -->
+                <div class="next-spin-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Prochain Tour</h3>
+                    <p id="nextSpinMessage">Disponible le 1er du mois prochain</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
                 <!-- Welcome Card -->
                 <div class="welcome-card">
                     <div class="welcome-avatar">
@@ -775,30 +1264,9 @@
             </div>
         </div>
     {% endblock %}
+{% endblock %}
     
-    {% block javascripts %}
-        <script>
-            const canvas = document.getElementById('wheelCanvas');
-            const ctx = canvas.getContext('2d');
-            const spinButton = document.getElementById('spinButton');
-            const historyTableBody = document.getElementById('historyTableBody');
-            const nextSpinMessage = document.getElementById('nextSpinMessage');
-    
-            const segments = [
-                { label: '0 pts', color: '#FBBF24', icon: 'fas fa-coins', iconColor: '#FFD700', textColor: '#8B4513', boxColor: '#FFD700' },
-                { label: '100 pts', color: '#38BDF8', icon: 'fas fa-trophy', iconColor: '#87CEEB', textColor: '#003087', boxColor: '#87CEEB' },
-                { label: '50 pts', color: '#C084FC', icon: 'fas fa-gift', iconColor: '#E0B0FF', textColor: '#4B0082', boxColor: '#E0B0FF' },
-                { label: '40 pts', color: '#F59E0B', icon: 'fas fa-star', iconColor: '#FFCA28', textColor: '#8B4513', boxColor: '#FFCA28' },
-                { label: 'Bonus: 200 pts', color: '#0EA5E9', icon: 'fas fa-crown', iconColor: '#40C4FF', textColor: '#003087', boxColor: '#40C4FF' }
-            ];
-    
-            let currentAngle = 0;
-            let spinning = false;
-    
-            // Récupérer la date actuelle
-            const now = new Date();
-            const currentDay = now.getDate();
-            const currentMonth = now.getMonth() + 1;
+
             const currentYear = now.getFullYear();
     
             // Vérifier si l'utilisateur a déjà tourné ce mois-ci

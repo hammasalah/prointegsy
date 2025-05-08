@@ -1,33 +1,91 @@
 <?php
-namespace App\Controller;
 
-use App\Entity\UserRewards;
-use App\Entity\User;
-use App\Entity\Reward;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+namespace App\Entity;
 
-class TestController extends AbstractController
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="visite_utilisateur")
+ */
+class VisiteUtilisateur
 {
-    #[Route('/test/user-reward', name: 'test_user_reward')]
-    public function test(EntityManagerInterface $em): Response
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $dernier_visite;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $serie;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $user_id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="visites") // Change "Users" en "User"
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
+
+    // Getters et Setters
+    public function getId(): ?int
     {
-        $user = $em->getRepository(User::class)->find(1); // Exemple
-        $reward = $em->getRepository(Reward::class)->find(1); // Exemple
+        return $this->id;
+    }
 
-        $userReward = new UserRewards();
-        $userReward->setUser($user);
-        $userReward->setReward($reward);
-        $userReward->setPointsEarned(100);
-        $userReward->setEarnedAt((new \DateTime())->format('Y-m-d H:i:s'));
+    public function getDernierVisite(): \DateTimeInterface
+    {
+        return $this->dernier_visite;
+    }
 
-        $em->persist($userReward);
-        $em->flush();
+    public function setDernierVisite(\DateTimeInterface $dernier_visite): self
+    {
+        $this->dernier_visite = $dernier_visite;
+        return $this;
+    }
 
-        return new Response('UserReward créé !');
+    public function getSerie(): int
+    {
+        return $this->serie;
+    }
+
+    public function setSerie(int $serie): self
+    {
+        $this->serie = $serie;
+        return $this;
+    }
+
+    public function getUserId(): int // Change ?int en int
+    {
+        return $this->user_id;
+    }
+
+    public function setUserId(int $user_id): self // Change ?int en int
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+
+    public function getUser(): ?Users // Change "Users" en "User"
+    {
+        return $this->user;
+    }
+
+    public function setUser(?Users $user): self // Change "Users" en "User"
+    {
+        $this->user = $user;
+        $this->user_id = $user ? $user->getId() : null; // Corrige l'incohérence ici
+        return $this;
     }
 }
-
-// Compare this snippet from prointegsy/src/Entity/Users.php:

@@ -1,64 +1,106 @@
 <?php
 
-namespace App\Command;
+namespace App\Entity;
 
-use App\Entity\Conversion;
-use App\Entity\Users;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Doctrine\ORM\Mapping as ORM;
 
-#[AsCommand(name: 'app:test-conversion')]
-class TestConversionCommand extends Command
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="conversion")
+ */
+class Conversion
 {
-    private $entityManager;
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $id;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @ORM\ManyToOne(targetEntity="User") // Change "Users" en "User" pour harmoniser
+     * @ORM\JoinColumn(name="user_id_id", referencedColumnName="id")
+     */
+    private $user;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $points_convertis;
+
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2)
+     */
+    private $montant;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $devise;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $date;
+
+    // Getters et Setters
+    public function getId(): ?int
     {
-        parent::__construct();
-        $this->entityManager = $entityManager;
+        return $this->id;
     }
 
-    protected function configure(): void
+    public function getUser(): ?Users // Change "Users" en "User"
     {
-        $this->setDescription('Test the creation of a Conversion entity.');
+        return $this->user;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function setUser(?Users $user): self // Change "Users" en "User"
     {
-        // Créer un utilisateur de test si nécessaire
-        $user = $this->entityManager->getRepository(Users::class)->find(1);
-        if (!$user) {
-            $user = new Users();
-            $user->setUsername('testuser');
-            $user->setEmail('test@example.com');
-            $user->setPassword('testpassword');
-            $user->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-            $user->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-            $user->setPoints(1000);
-            $user->setAge(30);
-            $user->setGender('male');
-            $user->setArgent('0.00');
-            $this->entityManager->persist($user);
-        }
-
-        // Créer une conversion
-        $conversion = new Conversion();
-        $conversion->setUserId($user);
-        $conversion->setPointsConvertis(500);
-        $conversion->setMontant('50.00');
-        $conversion->setDevise('TND');
-        $conversion->setDate(new \DateTime());
-
-        $this->entityManager->persist($conversion);
-        $this->entityManager->flush();
-
-        $output->writeln('Conversion created successfully! ID: ' . $conversion->getId());
-
-        return Command::SUCCESS;
+        $this->user = $user;
+        return $this;
     }
-}    
 
-// Compare this snippet from prointegsy/src/Entity/Users.php:
+    public function getPointsConvertis(): int
+    {
+        return $this->points_convertis;
+    }
+
+    public function setPointsConvertis(int $points_convertis): self
+    {
+        $this->points_convertis = $points_convertis;
+        return $this;
+    }
+
+    public function getMontant(): string
+    {
+        return $this->montant;
+    }
+
+    public function setMontant(string $montant): self
+    {
+        $this->montant = $montant;
+        return $this;
+    }
+
+    public function getDevise(): string
+    {
+        return $this->devise;
+    }
+
+    public function setDevise(string $devise): self
+    {
+        $this->devise = $devise;
+        return $this;
+    }
+
+    public function getDate(): \DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+}

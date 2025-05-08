@@ -1,63 +1,106 @@
 <?php
 
-namespace App\Command;
+namespace App\Entity;
 
-use App\Entity\HistoriquePoints;
-use App\Entity\Users;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Doctrine\ORM\Mapping as ORM;
 
-#[AsCommand(name: 'app:test-historique-points')]
-class TestHistoriquePointsCommand extends Command
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="historique_points")
+ */
+class HistoriquePoints
 {
-    private $entityManager;
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $id;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /**
+     * @ORM\ManyToOne(targetEntity="User") // Change "Users" en "User"
+     * @ORM\JoinColumn(name="user_id_id", referencedColumnName="id")
+     */
+    private $user;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $type;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $points;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $raison;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $date;
+
+    // Getters et Setters
+    public function getId(): ?int
     {
-        parent::__construct();
-        $this->entityManager = $entityManager;
+        return $this->id;
     }
 
-    protected function configure(): void
+    public function getUser(): ?Users // Change "Users" en "User"
     {
-        $this->setDescription('Test the creation of a HistoriquePoints entity.');
+        return $this->user;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function setUser(?Users $user): self // Change "Users" en "User"
     {
-        // Créer un utilisateur de test si nécessaire
-        $user = $this->entityManager->getRepository(Users::class)->find(1);
-        if (!$user) {
-            $user = new Users();
-            $user->setUsername('testuser');
-            $user->setEmail('test@example.com');
-            $user->setPassword('testpassword');
-            $user->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-            $user->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-            $user->setPoints(1000);
-            $user->setAge(30);
-            $user->setGender('male');
-            $user->setArgent('0.00');
-            $this->entityManager->persist($user);
-        }
+        $this->user = $user;
+        return $this;
+    }
 
-        // Créer une entrée dans historique_points
-        $historiquePoints = new HistoriquePoints();
-        $historiquePoints->setUserId($user);
-        $historiquePoints->setType('gain');
-        $historiquePoints->setPoints(100);
-        $historiquePoints->setRaison('Test gain');
-        $historiquePoints->setDate(new \DateTime());
+    public function getType(): string
+    {
+        return $this->type;
+    }
 
-        $this->entityManager->persist($historiquePoints);
-        $this->entityManager->flush();
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
 
-        $output->writeln('HistoriquePoints created successfully! ID: ' . $historiquePoints->getId());
+    public function getPoints(): int
+    {
+        return $this->points;
+    }
 
-        return Command::SUCCESS;
+    public function setPoints(int $points): self
+    {
+        $this->points = $points;
+        return $this;
+    }
+
+    public function getRaison(): string
+    {
+        return $this->raison;
+    }
+
+    public function setRaison(string $raison): self
+    {
+        $this->raison = $raison;
+        return $this;
+    }
+
+    public function getDate(): \DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+        return $this;
     }
 }
-    
