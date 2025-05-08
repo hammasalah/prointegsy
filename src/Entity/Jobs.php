@@ -53,8 +53,7 @@ class Jobs
     #[ORM\JoinColumn(nullable: true)]
     private ?Users $userId = null;
 
-    #[ORM\ManyToOne]
-    private ?Events $eventId = null;
+   
 
     public function getId(): ?int
     {
@@ -219,15 +218,5 @@ class Jobs
         return $this;
     }
 
-    public function getEventId(): ?Events
-    {
-        return $this->eventId;
-    }
-
-    public function setEventId(?Events $eventId): static
-    {
-        $this->eventId = $eventId;
-
-        return $this;
-    }
+   
 }

@@ -14,15 +14,13 @@ class Applications
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Users $user_id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Events $enevt_id = null;
+   
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Jobs $job_id = null;
 
     #[ORM\Column(length: 255)]
@@ -60,17 +58,7 @@ class Applications
         return $this;
     }
 
-    public function getEnevtId(): ?Events
-    {
-        return $this->enevt_id;
-    }
-
-    public function setEnevtId(?Events $enevt_id): static
-    {
-        $this->enevt_id = $enevt_id;
-
-        return $this;
-    }
+    
 
     public function getJobId(): ?Jobs
     {
