@@ -1,71 +1,52 @@
 <?php
 
-namespace App\Command;
+namespace App\Entity;
 
-use App\Entity\Participation;
-use App\Entity\Users;
-use App\Entity\Events;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use App\Repository\ParticipationRepository;
+use Doctrine\ORM\Mapping as ORM;
 
-#[AsCommand(name: 'app:test-participation')]
-class TestParticipationCommand extends Command
+#[ORM\Entity(repositoryClass: ParticipationRepository::class)]
+#[ORM\Table(name: 'participation')]
+class Participation
 {
-    private $entityManager;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id')]
+    private ?Events $event = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'participant_id', referencedColumnName: 'id')]
+    private ?Users $participant = null;
+
+    // Getters et Setters
+    public function getId(): ?int
     {
-        parent::__construct();
-        $this->entityManager = $entityManager;
+        return $this->id;
     }
 
-    protected function configure(): void
+    public function getEvent(): ?Events
     {
-        $this->setDescription('Test the creation of a Participation entity.');
+        return $this->event;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function setEvent(?Events $event): self
     {
-        // Créer un utilisateur de test si nécessaire
-        $user = $this->entityManager->getRepository(Users::class)->find(1);
-        if (!$user) {
-            $user = new Users();
-            $user->setUsername('testuser');
-            $user->setEmail('test@example.com');
-            $user->setPassword('testpassword');
-            $user->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-            $user->setUpdatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-            $user->setPoints(1000);
-            $user->setAge(30);
-            $user->setGender('male');
-            $user->setArgent('0.00');
-            $this->entityManager->persist($user);
-        }
+        $this->event = $event;
+        return $this;
+    }
 
-        // Créer un événement de test si nécessaire
-        $event = $this->entityManager->getRepository(Events::class)->find(1);
-        if (!$event) {
-            $event = new Events();
-            $event->setTitle('Test Event');
-            $event->setOrganizerId($user);
-            $this->entityManager->persist($event);
-        }
+    public function getParticipant(): ?Users
+    {
+        return $this->participant;
+    }
 
-        // Créer une participation
-        $participation = new Participation();
-        $participation->setEvent($event);
-        $participation->setParticipant($user);
-
-        $this->entityManager->persist($participation);
-        $this->entityManager->flush();
-
-        $output->writeln('Participation created successfully! ID: ' . $participation->getId());
-
-        return Command::SUCCESS;
+    public function setParticipant(?Users $participant): self
+    {
+        $this->participant = $participant;
+        return $this;
     }
 }
-
-// Compare this snippet from prointegsy/src/Entity/Users.php:

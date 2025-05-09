@@ -2,64 +2,72 @@
 
 namespace App\Entity;
 
-use App\Repository\RewardsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: RewardsRepository::class)]
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="rewards")
+ */
 class Rewards
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    private $id;
 
-    #[ORM\Column(length: 255)]
-    private ?string $action_type = null;
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $action_type;
 
-    #[ORM\Column]
-    private ?int $points = null;
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $points;
 
-    #[ORM\Column(length: 255)]
-    private ?string $description = null;
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $description;
 
+    // Getters et Setters
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getActionType(): ?string
+    public function getActionType(): string
     {
         return $this->action_type;
     }
 
-    public function setActionType(string $action_type): static
+    public function setActionType(string $action_type): self
     {
         $this->action_type = $action_type;
-
         return $this;
     }
 
-    public function getPoints(): ?int
+    public function getPoints(): int
     {
         return $this->points;
     }
 
-    public function setPoints(int $points): static
+    public function setPoints(int $points): self
     {
         $this->points = $points;
-
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 }

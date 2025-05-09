@@ -7,11 +7,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'app:create-test-user', description: 'Creates a test user in the system')]
 class CreateTestUserCommand extends Command
 {
-    protected static $defaultName = 'app:create-test-user';
-    
     private $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
