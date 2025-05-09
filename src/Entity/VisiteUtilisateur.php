@@ -33,7 +33,7 @@ class VisiteUtilisateur
     private $user_id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="visites") // Change "Users" en "User"
+     * @ORM\ManyToOne(targetEntity="Users", inversedBy="visites")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;

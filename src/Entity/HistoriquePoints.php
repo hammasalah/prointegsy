@@ -4,44 +4,30 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="historique_points")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'historique_points')]
 class HistoriquePoints
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User") // Change "Users" en "User"
-     * @ORM\JoinColumn(name="user_id_id", referencedColumnName="id")
-     */
-    private $user;
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'historiquePoints')]
+    #[ORM\JoinColumn(name: 'user_id_id', referencedColumnName: 'id')]
+    private ?Users $user = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $type;
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $type;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $points;
+    #[ORM\Column(type: 'integer')]
+    private int $points;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $raison;
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $raison;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $date;
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $date;
 
     // Getters et Setters
     public function getId(): ?int
@@ -49,12 +35,12 @@ class HistoriquePoints
         return $this->id;
     }
 
-    public function getUser(): ?Users // Change "Users" en "User"
+    public function getUser(): ?Users
     {
         return $this->user;
     }
 
-    public function setUser(?Users $user): self // Change "Users" en "User"
+    public function setUser(?Users $user): self
     {
         $this->user = $user;
         return $this;

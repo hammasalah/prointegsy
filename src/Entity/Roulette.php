@@ -3,37 +3,27 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Users;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="roulette")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'roulette')]
 class Roulette
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Users")
-     * @ORM\JoinColumn(name="user_id_id", referencedColumnName="id")
-     */
-    private $user;
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'roulettes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Users $user = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $points_gagnes;
+    #[ORM\Column(type: 'datetime')]
+    private \DateTime $createdAt;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $date;
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $result;
 
-    // Getters et Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -50,25 +40,25 @@ class Roulette
         return $this;
     }
 
-    public function getPointsGagnes(): int
+    public function getCreatedAt(): \DateTime
     {
-        return $this->points_gagnes;
+        return $this->createdAt;
     }
 
-    public function setPointsGagnes(int $points_gagnes): self
+    public function setCreatedAt(\DateTime $createdAt): self
     {
-        $this->points_gagnes = $points_gagnes;
+        $this->createdAt = $createdAt;
         return $this;
     }
 
-    public function getDate(): \DateTimeInterface
+    public function getResult(): string
     {
-        return $this->date;
+        return $this->result;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setResult(string $result): self
     {
-        $this->date = $date;
+        $this->result = $result;
         return $this;
     }
 }

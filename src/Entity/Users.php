@@ -59,6 +59,12 @@ class Users
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: VisiteUtilisateur::class)]
     private Collection $visites;
 
+    #[ORM\OneToMany(mappedBy: 'organizerId', targetEntity: Events::class)]
+    private Collection $events;
+
+    #[ORM\OneToMany(mappedBy: 'userId', targetEntity: Jobs::class)]
+    private Collection $jobs;
+
     // Initialisation des collections
     public function __construct()
     {
@@ -66,6 +72,8 @@ class Users
         $this->historiquePoints = new ArrayCollection();
         $this->conversions = new ArrayCollection();
         $this->visites = new ArrayCollection();
+        $this->events = new ArrayCollection();
+        $this->jobs = new ArrayCollection();
     }
 
     // Getters et Setters
@@ -265,6 +273,54 @@ class Users
         if ($this->visites->removeElement($visite)) {
             if ($visite->getUser() === $this) {
                 $visite->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+
+    public function addEvent(Events $event): self
+    {
+        if (!$this->events->contains($event)) {
+            $this->events[] = $event;
+            $event->setOrganizerId($this);
+        }
+        return $this;
+    }
+
+    public function removeEvent(Events $event): self
+    {
+        if ($this->events->removeElement($event)) {
+            if ($event->getOrganizerId() === $this) {
+                $event->setOrganizerId(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getJobs(): Collection
+    {
+        return $this->jobs;
+    }
+
+    public function addJob(Jobs $job): self
+    {
+        if (!$this->jobs->contains($job)) {
+            $this->jobs[] = $job;
+            $job->setUserId($this);
+        }
+        return $this;
+    }
+
+    public function removeJob(Jobs $job): self
+    {
+        if ($this->jobs->removeElement($job)) {
+            if ($job->getUserId() === $this) {
+                $job->setUserId(null);
             }
         }
         return $this;

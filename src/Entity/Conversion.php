@@ -4,44 +4,30 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="conversion")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'conversion')]
 class Conversion
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User") // Change "Users" en "User" pour harmoniser
-     * @ORM\JoinColumn(name="user_id_id", referencedColumnName="id")
-     */
-    private $user;
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'conversions')]
+    #[ORM\JoinColumn(name: 'user_id_id', referencedColumnName: 'id')]
+    private ?Users $user = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $points_convertis;
+    #[ORM\Column(type: 'integer')]
+    private int $points_convertis;
 
-    /**
-     * @ORM\Column(type="decimal", precision=10, scale=2)
-     */
-    private $montant;
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    private string $montant;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $devise;
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $devise;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $date;
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $date;
 
     // Getters et Setters
     public function getId(): ?int
@@ -49,12 +35,12 @@ class Conversion
         return $this->id;
     }
 
-    public function getUser(): ?Users // Change "Users" en "User"
+    public function getUser(): ?Users
     {
         return $this->user;
     }
 
-    public function setUser(?Users $user): self // Change "Users" en "User"
+    public function setUser(?Users $user): self
     {
         $this->user = $user;
         return $this;
