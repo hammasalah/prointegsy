@@ -4,38 +4,26 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="visite_utilisateur")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'visite_utilisateur')]
 class VisiteUtilisateur
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: 'date')]
     private $dernier_visite;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $serie;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $user_id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Users", inversedBy="visites")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     */
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'visites')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
     private $user;
 
     // Getters et Setters
@@ -77,12 +65,13 @@ class VisiteUtilisateur
         return $this;
     }
 
-    public function getUser(): ?Users // Change "Users" en "User"
+    public function getUser(): ?Users
     {
         return $this->user;
     }
 
-    public function setUser(?Users $user): self // Change "Users" en "User"
+    
+    public function setUser(?Users $user): self
     {
         $this->user = $user;
         $this->user_id = $user ? $user->getId() : null; // Corrige l'incohérence ici

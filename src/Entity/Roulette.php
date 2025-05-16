@@ -15,14 +15,17 @@ class Roulette
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'roulettes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "user_id", nullable: false)]
     private ?Users $user = null;
+    
+    #[ORM\Column(name: "user_id", type: 'integer', insertable: false, updatable: false)]
+    private ?int $user_id = null;
 
-    #[ORM\Column(type: 'datetime')]
-    private \DateTime $createdAt;
-
-    #[ORM\Column(type: 'string', length: 255)]
-    private string $result;
+    #[ORM\Column(type: 'datetime', name: "date")]
+    private \DateTime $date;
+    
+    #[ORM\Column(type: 'integer')]
+    private int $points_gagnes = 0;
 
     public function getId(): ?int
     {
@@ -40,25 +43,30 @@ class Roulette
         return $this;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getUserId(): ?int
     {
-        return $this->createdAt;
+        return $this->user_id;
+    }
+    
+    public function getDate(): \DateTime
+    {
+        return $this->date;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setDate(\DateTime $date): self
     {
-        $this->createdAt = $createdAt;
+        $this->date = $date;
         return $this;
     }
-
-    public function getResult(): string
+    
+    public function getPointsGagnes(): ?int
     {
-        return $this->result;
+        return $this->points_gagnes;
     }
-
-    public function setResult(string $result): self
+    
+    public function setPointsGagnes(int $points_gagnes): self
     {
-        $this->result = $result;
+        $this->points_gagnes = $points_gagnes;
         return $this;
     }
 }

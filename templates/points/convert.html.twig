@@ -504,23 +504,20 @@
                 <h1>Connect Sphere</h1>
             </div>
             <ul>
-                <li>
-                    <a href="#" id="dashboard-toggle" class="active"><i class="fas fa-home"></i> Dashboard</a>
-                    <ul class="submenu" id="dashboard-submenu">
-                        <li><a href="#">Convert points</a></li>
-                        <li><a href="#">Fortune wheel</a></li>
-                    </ul>
-                </li>
-                <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
-                <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
-                <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
-                <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
-                <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
-                <li><a href="#"><i class="fas fa-share-alt"></i> Social</a></li>
-                <li><a href="#"><i class="fas fa-robot"></i> AI Assistant</a></li>
-                <li><a href="#"><i class="fas fa-star"></i> Points</a></li>
-                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-            </ul>
+                                              <li><a href="{{ path('app_points') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                                                 <li><a href='/points/fortune-wheel'><i class="fas fa-box"></i><span>Fourtune wheel</span></a></li>
+                                             <li><a href="{{ path('app_convert_points') }}"><i class="fas fa-users"></i><span>Conversion </span></a></li>
+                                               <li class="menu-item logout">
+
+                                                            <li class="menu-item logout">
+                                                                <a href="{{ path('app_logout') }}">
+                                                                    <i class="fas fa-sign-out-alt"></i>
+                                                                    <span>Logout</span>
+                                                                </a>
+                                                            </li>
+
+
+                           </ul>
         </div>
 
         <!-- Main Content -->

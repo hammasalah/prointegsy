@@ -158,6 +158,10 @@
             animation: neon-pulse 1.5s infinite ease-in-out;
         }
 
+        .welcome-text {
+            flex-grow: 1;
+        }
+
         .welcome-text h2 {
             font-size: 28px;
             font-weight: 700;
@@ -171,6 +175,50 @@
             color: #D1D5DB;
         }
 
+        .score-container {
+            display: none;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .score-container.show {
+            display: block;
+        }
+
+        .score-container span {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00FFFF;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .score-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #00FFFF, #39FF14);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            animation: holographic-glow 1.5s infinite;
+        }
+
         /* Content Grid */
         .content-grid {
             display: grid;
@@ -178,7 +226,7 @@
             gap: 20px;
             width: 90%;
             max-width: 1200px;
-            grid-template-areas: 
+            grid-template-areas:
                 "wheel wheel rewards"
                 "wheel wheel history";
         }
@@ -444,6 +492,8 @@
 
             .welcome-card {
                 padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
             }
 
             .welcome-text h2 {
@@ -464,7 +514,7 @@
             }
 
             .content-grid {
-                grid-template-areas: 
+                grid-template-areas:
                     "wheel wheel wheel"
                     "rewards rewards rewards"
                     "history history history";
@@ -548,18 +598,21 @@
             <div class="logo">
                 <h1>Connect Sphere</h1>
             </div>
-            <ul>
-                <li><a href="#"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
-                <li><a href="#"><i class="fas fa-box"></i><span>Events</span></a></li>
-                <li><a href="#"><i class="fas fa-users"></i><span>Group</span></a></li>
-                <li><a href="#"><i class="fas fa-briefcase"></i><span>Job Feed</span></a></li>
-                <li><a href="#"><i class="fas fa-plus-circle"></i><span>Create Job</span></a></li>
-                <li><a href="#"><i class="fas fa-user"></i><span>Profile</span></a></li>
-                <li><a href="#"><i class="fas fa-share-alt"></i><span>Social</span></a></li>
-                <li><a href="#"><i class="fas fa-robot"></i><span>AI Assistant</span></a></li>
-                <li><a href="#" class="active"><i class="fas fa-star"></i><span>Points</span></a></li>
-                <li><a href="#"><i class="fas fa-sign-out-alt"></i><span>Log out</span></a></li>
-            </ul>
+              <ul>
+                                                <li><a href="{{ path('app_points') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                                                   <li><a href='/points/fortune-wheel'><i class="fas fa-box"></i><span>Fourtune wheel</span></a></li>
+                                               <li><a href="{{ path('app_convert_points') }}"><i class="fas fa-users"></i><span>Conversion </span></a></li>
+                                                 <li class="menu-item logout">
+
+                                                              <li class="menu-item logout">
+                                                                  <a href="{{ path('app_logout') }}">
+                                                                      <i class="fas fa-sign-out-alt"></i>
+                                                                      <span>Logout</span>
+                                                                  </a>
+                                                              </li>
+
+
+                             </ul>
         </div>
 
         <!-- Main Content -->
@@ -571,7 +624,11 @@
                 </div>
                 <div class="welcome-text">
                     <h2>Spin the Holo-Wheel!</h2>
-                    <p>Unlock cosmic rewards and boost your points! Current Points: 350</p>
+                    <p>Unlock cosmic rewards and boost your points!</p>
+                    <div class="score-container" id="scoreContainer">
+                        <span id="userScore">Current Points: 350</span>
+                    </div>
+                    <button class="score-btn" id="scoreBtn"><i class="fas fa-star"></i> Show Score</button>
                 </div>
             </div>
 
@@ -645,12 +702,25 @@
         const spinBtn = document.getElementById('spinBtn');
         const historyBody = document.getElementById('historyBody');
         const particleContainer = document.getElementById('particleContainer');
+        const scoreBtn = document.getElementById('scoreBtn');
+        const scoreContainer = document.getElementById('scoreContainer');
         let currentAngle = 0;
         let spinning = false;
+        let scoreVisible = false;
+        let userScore = 350; // Initial score
 
         // History (localStorage)
         let spinHistory = JSON.parse(localStorage.getItem('spinHistory') || '[]');
         updateHistory();
+
+        // Score Toggle
+        scoreBtn.addEventListener('click', () => {
+            scoreVisible = !scoreVisible;
+            scoreContainer.classList.toggle('show', scoreVisible);
+            scoreBtn.innerHTML = scoreVisible ?
+                '<i class="fas fa-eye-slash"></i> Hide Score' :
+                '<i class="fas fa-star"></i> Show Score';
+        });
 
         // Ensure Font Awesome is loaded before drawing
         function loadFontAndDraw() {
@@ -717,7 +787,7 @@
                 ctx.fillStyle = "#FFFFFF";
                 ctx.textShadow = "0 0 5px #000";
                 ctx.fillText(segments[i].label, r - 40, 5);
-                ctx.font = "900 24px 'Font Awesome 5 Free'"; // Specify weight and family for Font Awesome
+                ctx.font = "900 24px 'Font Awesome 5 Free'";
                 ctx.fillStyle = "#FFFFFF";
                 ctx.fillText(segments[i].icon, r - 15, 5);
                 ctx.restore();
@@ -811,6 +881,12 @@
             const segAngle = 360 / segments.length;
             const idx = Math.floor(angle / segAngle) % segments.length;
             const reward = segments[idx].label;
+
+            // Update Score
+            const pointsMatch = reward.match(/(\d+)/);
+            const points = pointsMatch ? parseInt(pointsMatch[0]) : 0;
+            userScore += points;
+            document.getElementById('userScore').textContent = `Current Points: ${userScore}`;
 
             // Trigger Particle Effect
             createParticles();

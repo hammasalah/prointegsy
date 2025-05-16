@@ -13,8 +13,8 @@ class UserIntrests
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    private ?users $user_id = null;
+    #[ORM\ManyToOne(targetEntity: Users::class)]
+    private ?Users $user_id = null;
 
     #[ORM\ManyToOne]
     private ?Category $category_id = null;
@@ -24,12 +24,12 @@ class UserIntrests
         return $this->id;
     }
 
-    public function getUserId(): ?users
+    public function getUserId(): ?Users
     {
         return $this->user_id;
     }
 
-    public function setUserId(?users $user_id): static
+    public function setUserId(?Users $user_id): static
     {
         $this->user_id = $user_id;
 

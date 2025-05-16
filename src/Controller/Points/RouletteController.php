@@ -2,81 +2,48 @@
 
 namespace App\Controller\Points;
 
-use App\Entity\User;
-use App\Entity\UserRewards;
-use App\Entity\HistoriquePoints;
+use App\Entity\Users;
+use App\Repository\HistoriquePointsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class RouletteController extends AbstractController
 {
-    #[Route('/points/fortune-wheel', name: 'points_fortune')]
-    public function fortuneWheel(Request $request)
+    #[Route('', name: 'app_root')]
+    public function index(): Response
     {
-        // Code original pour la vérification du premier jour du mois
-        // À décommenter après les tests
-        /*
-        $date = new \DateTime($request->query->get('date')); // Récupère la date passée dans l'URL
-        $isFirstDayOfMonth = $date->format('d') === '01'; // Vérifie si c'est le 1er jour du mois
-        */
-        
-        // Pour les tests : permettre l'utilisation de la roue à tout moment
-        $isFirstDayOfMonth = true;
-    
-        return $this->render('points/fortune-wheel.html.twig', [
-            'isFirstDayOfMonth' => $isFirstDayOfMonth,
+        return $this->render('base.html.twig');
+    }
+
+    #[Route('/points', name: 'app_points')]
+    public function points(): Response
+    {
+        return $this->render('points/index.html.twig');
+    }
+
+    #[Route('/points/convert', name: 'app_convert_points')]
+    public function convertPoints(): Response
+    {
+        return $this->render('points/convert.html.twig');
+    }
+
+    #[Route('/points/fortune-wheel', name: 'app_fortune_wheel')]
+    public function fortuneWheel(EntityManagerInterface $entityManager, HistoriquePointsRepository $historiqueRepo): Response
+    {
+        $user = $entityManager->getRepository(Users::class)->find(1);
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur avec l\'ID 1 non trouvé. Veuillez créer cet utilisateur en base.');
+        }
+
+        $historique = $historiqueRepo->findRecentByUser($user) ?: [];
+
+        return $this->render('points/fortune_wheel.html.twig', [
+            'user' => $user,
+            'historique' => $historique
         ]);
     }
 
-    #[Route('/points/fortune-wheel/spin', name: 'points_fortune_spin', methods: ['POST'])]
-    public function spin(Request $request, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return new JsonResponse(['error' => 'Utilisateur non connecté'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        $pointsGagnes = $data['points'] ?? 0;
-
-        if ($pointsGagnes > 0) {
-            // Mise à jour des points de l'utilisateur
-            $pointsActuels = $user->getPoints() ?? 0;
-            $user->setPoints($pointsActuels + $pointsGagnes);
-
-            // Création d'une entrée dans l'historique des points
-            $historique = new HistoriquePoints();
-            $historique->setUser($user);
-            $historique->setPoints($pointsGagnes);
-            $historique->setDate(new \DateTime());
-            $historique->setType('roulette');
-
-            // Création d'une entrée dans les récompenses utilisateur
-            $reward = new UserRewards();
-            $reward->setUserId($user->getId());
-            $reward->setPointsEarned($pointsGagnes);
-            $reward->setEventId(1); // ID pour l'événement roulette
-            $reward->setRewardId(1); // ID pour la récompense de type points
-            $reward->setErnedAt((new \DateTime())->format('Y-m-d H:i:s'));
-
-            $entityManager->persist($historique);
-            $entityManager->persist($reward);
-            $entityManager->flush();
-
-            return new JsonResponse([
-                'success' => true,
-                'points' => $pointsGagnes,
-                'totalPoints' => $user->getPoints()
-            ]);
-        }
-
-        return new JsonResponse(['error' => 'Points invalides'], Response::HTTP_BAD_REQUEST);
-    }
-    
 
 }

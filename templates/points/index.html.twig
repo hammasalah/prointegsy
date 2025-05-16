@@ -3,6 +3,8 @@
     {% block stylesheets %}
         <!-- Inclure FontAwesome pour les icônes -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
         <style>
             /* Base Styles */
             .dashboard-container {
@@ -21,7 +23,7 @@
                 padding: 20px 8px;
                 position: fixed;
                 top: 7px;
-                bottom: 5;
+                bottom: 5px;
                 display: flex;
                 flex-direction: column;
                 box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
@@ -304,6 +306,21 @@
                 transform: scale(1.1) translate(-90%, -90%);
                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             }
+            @media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
     
             .segment1 { transform: rotate(0deg) translate(-100%, -100%); background: #7C3AED; }
             .segment2 { transform: rotate(60deg) translate(-100%, -100%); background: #F472B6; }
@@ -693,16 +710,19 @@
                     <h1>Connect Sphere</h1>
                 </div>
                 <ul>
-                    <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="#"><i class="fas fa-box"></i> Events</a></li>
-                    <li><a href="#"><i class="fas fa-users"></i> Group</a></li>
-                    <li><a href="#"><i class="fas fa-briefcase"></i> Job Feed</a></li>
-                    <li><a href="#"><i class="fas fa-plus-circle"></i> Create Job</a></li>
-                    <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
-                    <li><a href="#"><i class="fas fa-share-alt"></i> Social</a></li>
-                    <li><a href="#"><i class="fas fa-robot"></i> AI Assistant</a></li>
-                    <li><a href="#"><i class="fas fa-star"></i> Points</a></li>
-                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+                                   <li><a href="{{ path('app_points') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                                      <li><a href='/points/fortune-wheel'><i class="fas fa-box"></i><span>Fourtune wheel</span></a></li>
+                                  <li><a href="{{ path('app_convert_points') }}"><i class="fas fa-users"></i><span>Conversion </span></a></li>
+                                    <li class="menu-item logout">
+
+                                                 <li class="menu-item logout">
+                                                     <a href="{{ path('app_logout') }}">
+                                                         <i class="fas fa-sign-out-alt"></i>
+                                                         <span>Logout</span>
+                                                     </a>
+                                                 </li>
+
+
                 </ul>
             </div>
     

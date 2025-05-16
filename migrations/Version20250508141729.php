@@ -20,15 +20,15 @@ final class Version20250508141729 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql(<<<'SQL'
-            ALTER TABLE Comments DROP FOREIGN KEY FK_A6E8F47C9D86650F
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C1171F7E88B
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C11A76ED395
-        SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE Comments DROP FOREIGN KEY FK_A6E8F47C9D86650F
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C1171F7E88B
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C11A76ED395
+        // SQL);
         $this->addSql(<<<'SQL'
             ALTER TABLE GroupMembers DROP FOREIGN KEY FK_B8990FC89D86650F
         SQL);

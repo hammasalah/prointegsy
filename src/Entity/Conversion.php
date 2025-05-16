@@ -14,8 +14,8 @@ class Conversion
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'conversions')]
-    #[ORM\JoinColumn(name: 'user_id_id', referencedColumnName: 'id')]
-    private ?Users $user = null;
+    #[ORM\JoinColumn(name: 'user_id_id', referencedColumnName: 'id', nullable: true)]
+    private ?Users $userId = null;
 
     #[ORM\Column(type: 'integer')]
     private int $points_convertis;
@@ -35,14 +35,14 @@ class Conversion
         return $this->id;
     }
 
-    public function getUser(): ?Users
+    public function getUserId(): ?Users
     {
-        return $this->user;
+        return $this->userId;
     }
 
-    public function setUser(?Users $user): self
+    public function setUserId(?Users $userId): self
     {
-        $this->user = $user;
+        $this->userId = $userId;
         return $this;
     }
 
