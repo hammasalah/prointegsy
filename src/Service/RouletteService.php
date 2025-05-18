@@ -21,72 +21,140 @@ class RouletteService
 
     public function canSpin(Users $user): bool
     {
-        $today = new \DateTime('today');
-        // Suppression de la restriction au premier jour du mois
-        // pour permettre l'utilisation de la roue tous les jours
+        // Utiliser la date et heure actuelles pour plus de précision
+        $now = new \DateTime();
+        $today = new \DateTime($now->format('Y-m-d') . ' 00:00:00');
         
-        $spinCount = $this->entityManager->getRepository(Roulette::class)
-            ->createQueryBuilder('r')
-            ->select('COUNT(r.id)')
-            ->where('r.user = :user')
-            ->andWhere('r.createdAt >= :startOfDay')
-            ->andWhere('r.createdAt < :endOfDay')
-            ->setParameter('user', $user)
-            ->setParameter('startOfDay', $today)
-            ->setParameter('endOfDay', (clone $today)->modify('+1 day'))
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $spinCount < self::MAX_DAILY_SPINS;
+        try {
+            // Récupérer les tours effectués aujourd'hui avec des dates précises
+            $startOfDay = clone $today;
+            $endOfDay = (clone $today)->modify('+1 day');
+            
+            // Log détaillé des paramètres de date pour déboguer
+            error_log('DEBUG - Période de recherche: ' . $startOfDay->format('Y-m-d H:i:s') . ' à ' . $endOfDay->format('Y-m-d H:i:s'));
+            error_log('DEBUG - Date actuelle: ' . $now->format('Y-m-d H:i:s'));
+            
+            // Utiliser une requête DQL avec des paramètres explicites
+            $spinCount = $this->entityManager->getRepository(Roulette::class)
+                ->createQueryBuilder('r')
+                ->select('COUNT(r.id)')
+                ->where('r.user = :user')
+                ->andWhere('r.createdAt >= :startOfDay')
+                ->andWhere('r.createdAt < :endOfDay')
+                ->setParameter('user', $user)
+                ->setParameter('startOfDay', $startOfDay, '\Doctrine\DBAL\Types\DateTimeType')
+                ->setParameter('endOfDay', $endOfDay, '\Doctrine\DBAL\Types\DateTimeType')
+                ->getQuery()
+                ->getSingleScalarResult();
+                
+            // Assurons-nous que spinCount est bien un entier
+            $spinCount = (int)$spinCount;
+            
+            // Log détaillé pour déboguer
+            error_log('DEBUG - Utilisateur ID: ' . $user->getId() . ', Nombre de tours aujourd\'hui: ' . $spinCount . ' (max: ' . self::MAX_DAILY_SPINS . ')');
+            
+            // Vérifier si l'utilisateur a au moins un tour disponible
+            $canSpin = $spinCount < self::MAX_DAILY_SPINS;
+            error_log('DEBUG - L\'utilisateur peut-il tourner la roue? ' . ($canSpin ? 'OUI' : 'NON'));
+            
+            return $canSpin;
+        } catch (\Exception $e) {
+            // En cas d'erreur, permettre à l'utilisateur de tourner la roue mais logger l'erreur
+            error_log('ERREUR - Vérification des tours: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
+            return true;
+        }
     }
 
     public function getRemainingSpins(Users $user): int
     {
-        $today = new \DateTime('today');
-        $spinCount = $this->entityManager->getRepository(Roulette::class)
-            ->createQueryBuilder('r')
-            ->select('COUNT(r.id)')
-            ->where('r.user = :user')
-            ->andWhere('r.createdAt >= :startOfDay')
-            ->andWhere('r.createdAt < :endOfDay')
-            ->setParameter('user', $user)
-            ->setParameter('startOfDay', $today)
-            ->setParameter('endOfDay', (clone $today)->modify('+1 day'))
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return max(0, self::MAX_DAILY_SPINS - $spinCount);
+        // Utiliser la date et heure actuelles pour plus de précision
+        $now = new \DateTime();
+        $today = new \DateTime($now->format('Y-m-d') . ' 00:00:00');
+        
+        try {
+            // Récupérer les tours effectués aujourd'hui avec des dates précises
+            $startOfDay = clone $today;
+            $endOfDay = (clone $today)->modify('+1 day');
+            
+            // Log détaillé des paramètres de date pour déboguer
+            error_log('DEBUG - Calcul des tours restants - Période: ' . $startOfDay->format('Y-m-d H:i:s') . ' à ' . $endOfDay->format('Y-m-d H:i:s'));
+            error_log('DEBUG - Date actuelle: ' . $now->format('Y-m-d H:i:s'));
+            
+            // Utiliser une requête DQL avec des paramètres explicites
+            $spinCount = $this->entityManager->getRepository(Roulette::class)
+                ->createQueryBuilder('r')
+                ->select('COUNT(r.id)')
+                ->where('r.user = :user')
+                ->andWhere('r.createdAt >= :startOfDay')
+                ->andWhere('r.createdAt < :endOfDay')
+                ->setParameter('user', $user)
+                ->setParameter('startOfDay', $startOfDay, '\Doctrine\DBAL\Types\DateTimeType')
+                ->setParameter('endOfDay', $endOfDay, '\Doctrine\DBAL\Types\DateTimeType')
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            // Assurons-nous que spinCount est bien un entier
+            $spinCount = (int)$spinCount;
+            
+            // Calculer les tours restants
+            $remainingSpins = max(0, self::MAX_DAILY_SPINS - $spinCount);
+            
+            // Log détaillé pour déboguer
+            error_log('DEBUG - Utilisateur ID: ' . $user->getId() . ', Tours effectués: ' . $spinCount . ', Tours restants: ' . $remainingSpins);
+            
+            return $remainingSpins;
+        } catch (\Exception $e) {
+            // En cas d'erreur, indiquer que l'utilisateur a tous ses tours disponibles mais logger l'erreur
+            error_log('ERREUR - Calcul des tours restants: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
+            return self::MAX_DAILY_SPINS;
+        }
     }
 
     public function getNextSpinDate(): \DateTime
     {
+        // Retourne le jour suivant puisque la roue peut être utilisée tous les jours
         $today = new \DateTime('today');
-        return (clone $today)->modify('first day of next month');
+        return (clone $today)->modify('+1 day');
     }
 
     public function spin(Users $user): array
     {
+        // Vérifier si l'utilisateur peut tourner la roue avec logs détaillés
+        $remainingSpins = $this->getRemainingSpins($user);
+        error_log('DEBUG - Spin demandé - Utilisateur ID: ' . $user->getId() . ', Tours restants: ' . $remainingSpins);
+        
         if (!$this->canSpin($user)) {
-            throw new \Exception('Vous ne pouvez pas tourner la roue pour le moment.');
+            error_log('ALERTE - Tentative de tour de roue refusée pour l\'utilisateur ID: ' . $user->getId() . ', Tours restants: ' . $remainingSpins);
+            throw new \Exception('Vous avez atteint le nombre maximum de tours pour aujourd\'hui');
         }
 
+        error_log('DEBUG - Tour de roue autorisé pour l\'utilisateur ID: ' . $user->getId());
         $reward = self::REWARDS[array_rand(self::REWARDS)];
+        error_log('DEBUG - Récompense tirée: ' . $reward . ' points');
         
         // Valider les données
-        $this->validateRouletteData($user, $reward);
+        $validationResult = $this->validateRouletteData($user, $reward);
+        if (!$validationResult) {
+            error_log('Validation des données échouée pour l\'utilisateur ID: ' . $user->getId());
+            throw new \Exception('Données de la roulette invalides.');
+        }
 
         // Ajouter les points
         $currentPoints = $user->getPoints() ?? 0;
         $user->setPoints($currentPoints + $reward);
+        error_log('Points mis à jour: ' . $currentPoints . ' + ' . $reward . ' = ' . $user->getPoints());
 
-        // Enregistrer le tour
+        // Enregistrer le tour avec date précise
         $rouletteSpin = new Roulette();
         $rouletteSpin->setUser($user);
         // Définir le résultat (l'entité Roulette utilise setResult)
         $rouletteSpin->setResult($reward . ' points');
         
-        // Définir la date (l'entité Roulette utilise setCreatedAt)
-        $rouletteSpin->setCreatedAt(new \DateTime());
+        // Définir la date actuelle avec précision (l'entité Roulette utilise setCreatedAt)
+        $now = new \DateTime();
+        $rouletteSpin->setCreatedAt($now);
+        error_log('DEBUG - Enregistrement du tour à la date exacte: ' . $now->format('Y-m-d H:i:s'));
+        error_log('DEBUG - Objet date créé: ' . get_class($now) . ', Timezone: ' . $now->getTimezone()->getName());
 
         // Enregistrer l'historique
         $historiquePoints = new HistoriquePoints();
@@ -94,16 +162,27 @@ class RouletteService
         $historiquePoints->setType('gain');
         $historiquePoints->setPoints($reward);
         $historiquePoints->setRaison('roulette');
-        $historiquePoints->setDate(new \DateTime());
+        $historiquePoints->setDate($now);
 
-        $this->entityManager->persist($user);
-        $this->entityManager->persist($rouletteSpin);
-        $this->entityManager->persist($historiquePoints);
-        $this->entityManager->flush();
+        try {
+            // Persister les entités avec gestion d'erreur
+            $this->entityManager->persist($user);
+            $this->entityManager->persist($rouletteSpin);
+            $this->entityManager->persist($historiquePoints);
+            $this->entityManager->flush();
+            error_log('DEBUG - Données persistées avec succès dans la base de données');
+            
+            // Recalculer les tours restants après l'enregistrement
+            $remainingSpins = $this->getRemainingSpins($user);
+            error_log('DEBUG - Tours restants après ce tour: ' . $remainingSpins);
+        } catch (\Exception $e) {
+            error_log('ERREUR - Échec de persistance des données: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
+            throw new \Exception('Erreur lors de l\'enregistrement des points. Veuillez réessayer.');
+        }
         
         return [
             'reward' => $reward,
-            'remainingSpins' => $this->getRemainingSpins($user),
+            'remainingSpins' => $remainingSpins,
             'totalPoints' => $user->getPoints(),
             'pointsWon' => $reward
         ];

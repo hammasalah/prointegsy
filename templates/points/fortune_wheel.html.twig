@@ -722,6 +722,14 @@
                 '<i class="fas fa-eye-slash"></i> Hide Score' :
                 '<i class="fas fa-star"></i> Show Score';
         });
+        
+        // Mettre à jour l'affichage du score
+        function updateScoreDisplay() {
+            userScoreElement.textContent = `Current Points: ${userScore}`;
+        }
+        
+        // Initialiser l'affichage du score
+        updateScoreDisplay();
 
         // Ensure Font Awesome is loaded before drawing
         function loadFontAndDraw() {
@@ -939,7 +947,7 @@
                    console.log('Réponse du serveur:', data);
                    if (data.success) {
                        userScore = data.totalPoints;
-                       userScoreElement.textContent = `Current Points: ${userScore}`;
+                       updateScoreDisplay(); // Utiliser la fonction pour mettre à jour l'affichage
                        createParticles();
                        alert(`✨ Félicitations! Vous avez gagné: ${data.reward} (${data.pointsWon} points)`);
                        const date = new Date().toLocaleDateString();

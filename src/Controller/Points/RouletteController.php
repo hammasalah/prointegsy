@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class RouletteController extends AbstractController
 {
@@ -40,14 +41,21 @@ class RouletteController extends AbstractController
     }
 
     #[Route('/points/fortune-wheel', name: 'app_fortune_wheel', methods: ['GET', 'POST'])]
-    public function fortuneWheel(Request $request, EntityManagerInterface $entityManager, RouletteService $rouletteService): Response
+    public function fortuneWheel(Request $request, EntityManagerInterface $entityManager, RouletteService $rouletteService, SessionInterface $session): Response
     {
         try {
-            // Utiliser directement l'utilisateur avec ID 2 sans dépendre du SecurityBundle
+            // Récupérer l'utilisateur connecté depuis la session
+            $sessionUser = $session->get('user');
+            if (!$sessionUser) {
+                return $this->redirectToRoute('app_login');
+            }
+            
+            // Récupérer l'utilisateur complet depuis la base de données avec son ID réel
             $userRepository = $entityManager->getRepository(Users::class);
-            $user = $userRepository->find(2);
+            $user = $userRepository->find($sessionUser->getId());
+            
             if (!$user) {
-                throw new \Exception('Utilisateur non trouvé avec ID 2');
+                throw new \Exception('Utilisateur non trouvé avec ID ' . $sessionUser->getId());
             }
 
             // Vérifier si l'utilisateur est une instance de la classe Users
