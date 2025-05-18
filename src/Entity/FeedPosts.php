@@ -6,26 +6,27 @@ use App\Repository\FeedPostsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FeedPostsRepository::class)]
+#[ORM\Table(name: "FeedPosts")]
 class FeedPosts
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(name: "post_id", type: "integer")]
+    private ?int $postId = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: false)]
     private ?Users $userId = null;
 
     #[ORM\Column(length: 255)]
     private ?string $content = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: "timestamp", type: "string", length: 255)]
     private ?string $timeStamp = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Users $eventId = null;
+    #[ORM\ManyToOne(targetEntity: Events::class)]
+    #[ORM\JoinColumn(name: "event_id", referencedColumnName: "id", nullable: true)]
+    private ?Events $eventId = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $isDeleted = null;
@@ -45,9 +46,18 @@ class FeedPosts
     #[ORM\Column(nullable: true)]
     private ?int $groupId = null;
 
+    public function getPostId(): ?int
+    {
+        return $this->postId;
+    }
+
+    /**
+     * Alias pour la clé primaire 'post_id'.
+     * Utilisé pour éviter les erreurs lorsque Doctrine ou Symfony cherche 'id'.
+     */
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->postId;
     }
 
     public function getUserId(): ?Users
@@ -86,12 +96,12 @@ class FeedPosts
         return $this;
     }
 
-    public function getEventId(): ?Users
+    public function getEventId(): ?Events
     {
         return $this->eventId;
     }
 
-    public function setEventId(?Users $eventId): static
+    public function setEventId(?Events $eventId): static
     {
         $this->eventId = $eventId;
 

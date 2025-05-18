@@ -6,19 +6,20 @@ use App\Repository\GroupFeedPostsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GroupFeedPostsRepository::class)]
+#[ORM\Table(name: "GroupFeedPosts")]
 class GroupFeedPosts
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(name: "post_id")]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?UserGroups $group_id = null;
+    #[ORM\ManyToOne(targetEntity: UserGroups::class)]
+    #[ORM\JoinColumn(name: "group_id", referencedColumnName: "id", nullable: false)]
+    private ?UserGroups $group = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: false)]
     private ?Users $user_id = null;
 
     #[ORM\Column(length: 255)]
@@ -40,12 +41,12 @@ class GroupFeedPosts
 
     public function getGroupId(): ?UserGroups
     {
-        return $this->group_id;
+        return $this->group;
     }
 
     public function setGroupId(?UserGroups $group_id): static
     {
-        $this->group_id = $group_id;
+        $this->group = $group_id;
 
         return $this;
     }

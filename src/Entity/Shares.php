@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SharesRepository::class)]
+#[ORM\Table(name: "Shares")]
 class Shares
 {
     #[ORM\Id]
@@ -15,9 +16,11 @@ class Shares
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    private ?FeedPosts $post_id = null;
+    #[ORM\JoinColumn(name: "post_id", referencedColumnName: "post_id", nullable: true)]
+    private ?FeedPosts $postId = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: false)]
     private ?Users $user_id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -30,12 +33,12 @@ class Shares
 
     public function getPostId(): ?FeedPosts
     {
-        return $this->post_id;
+        return $this->postId;
     }
 
-    public function setPostId(?FeedPosts $post_id): static
+    public function setPostId(?FeedPosts $postId): static
     {
-        $this->post_id = $post_id;
+        $this->postId = $postId;
 
         return $this;
     }

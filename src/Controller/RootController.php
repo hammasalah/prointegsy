@@ -28,15 +28,5 @@ class RootController extends AbstractController
         return $this->render('points/convert.html.twig');
     }
 
-    #[Route('/points/fortune-wheel', name: 'app_fortune_wheel')]
-    public function fortuneWheel(EntityManagerInterface $entityManager): Response
-    {
-        // Récupération de l'utilisateur (ID 1) comme dans RouletteController
-        $userRepository = $entityManager->getRepository(Users::class);
-        $user = $userRepository->find(1);
-        
-        return $this->render('points/fortune_wheel.html.twig', [
-            'user' => $user
-        ]);
-    }
+    // La route fortune-wheel est maintenant gérée exclusivement par RouletteController
 }

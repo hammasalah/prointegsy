@@ -704,10 +704,11 @@
         const particleContainer = document.getElementById('particleContainer');
         const scoreBtn = document.getElementById('scoreBtn');
         const scoreContainer = document.getElementById('scoreContainer');
+        const userScoreElement = document.getElementById('userScore');
         let currentAngle = 0;
         let spinning = false;
         let scoreVisible = false;
-        let userScore = 350; // Initial score
+        let userScore = {{ user.points ?? 0 }}; // Initialisation avec les points de l'utilisateur depuis le serveur
 
         // History (localStorage)
         let spinHistory = JSON.parse(localStorage.getItem('spinHistory') || '[]');
@@ -729,12 +730,10 @@
                     drawWheel();
                 }).catch(err => {
                     console.error('Font loading failed:', err);
-                    // Fallback: Draw wheel without icons if font fails to load
-                    drawWheel();
+                    drawWheel(); // Fallback: Draw wheel without icons if font fails
                 });
             } else {
-                // Fallback for browsers that don't support document.fonts
-                setTimeout(drawWheel, 500); // Delay to allow font to load
+                setTimeout(drawWheel, 500); // Fallback for browsers without document.fonts
             }
         }
 
@@ -818,9 +817,6 @@
             ctx.stroke();
         }
 
-        // Call the font loading function instead of drawing immediately
-        loadFontAndDraw();
-
         function createParticles() {
             for (let i = 0; i < 30; i++) {
                 const particle = document.createElement('div');
@@ -859,7 +855,6 @@
             function animate(now) {
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                // Ease out expo
                 const ease = 1 - Math.pow(2, -10 * progress);
                 currentAngle = startAngle + (endAngle - startAngle) * ease;
                 drawWheel((currentAngle * Math.PI / 180) % (2 * Math.PI));
@@ -875,30 +870,95 @@
             requestAnimationFrame(animate);
         }
 
-        function showResult() {
-            // Calculate Winning Segment
-            const angle = (360 - (currentAngle % 360)) % 360;
-            const segAngle = 360 / segments.length;
-            const idx = Math.floor(angle / segAngle) % segments.length;
-            const reward = segments[idx].label;
+       function showResult() {
+               const angle = (360 - (currentAngle % 360)) % 360;
+               const segAngle = 360 / segments.length;
+               const idx = Math.floor(angle / segAngle) % segments.length;
+               const reward = segments[idx].label;
 
-            // Update Score
-            const pointsMatch = reward.match(/(\d+)/);
-            const points = pointsMatch ? parseInt(pointsMatch[0]) : 0;
-            userScore += points;
-            document.getElementById('userScore').textContent = `Current Points: ${userScore}`;
-
-            // Trigger Particle Effect
-            createParticles();
-
-            // Display + History
-            alert(`✨ Congratulations! You won: ${reward}`);
-            const date = new Date().toLocaleDateString();
-            spinHistory.unshift({ date, reward: reward });
-            if (spinHistory.length > 10) spinHistory.pop();
-            localStorage.setItem('spinHistory', JSON.stringify(spinHistory));
-            updateHistory();
-        }
+               console.log('Segment sélectionné:', idx, 'Reward:', reward);
+               
+               // Préparer les données à envoyer
+               const requestData = JSON.stringify({ segmentIndex: idx });
+               console.log('Données envoyées:', requestData);
+               
+               // Utiliser l'URL absolue pour éviter les problèmes de routage
+               const url = '{{ absolute_url(path('app_fortune_wheel')) }}';
+               console.log('URL utilisée:', url);
+               
+               fetch(url, {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json',
+                       'Accept': 'application/json',
+                       'X-Requested-With': 'XMLHttpRequest'
+                   },
+                   body: requestData,
+                   credentials: 'same-origin'
+               })
+               .then(response => {
+                   console.log('Statut de la réponse:', response.status);
+                   console.log('Headers de la réponse:', [...response.headers.entries()]);
+                   
+                   // Vérifier le type de contenu
+                   const contentType = response.headers.get('content-type');
+                   console.log('Type de contenu:', contentType);
+                   
+                   // Même en cas d'erreur 500, on essaie de récupérer la réponse JSON
+                   // car notre contrôleur renvoie maintenant des erreurs formatées en JSON
+                   return response.text().then(text => {
+                       if (!text || text.trim() === '') {
+                           throw new Error('Réponse vide du serveur');
+                       }
+                       
+                       try {
+                           // Essayer de parser le texte comme JSON
+                           const data = JSON.parse(text);
+                           console.log('Données parsées avec succès:', data);
+                           
+                           // Si le serveur a renvoyé une erreur formatée en JSON
+                           if (!data.success && data.error) {
+                               throw new Error(data.message || 'Erreur lors du traitement de la requête');
+                           }
+                           
+                           return data;
+                       } catch (e) {
+                           console.error('Erreur lors du parsing JSON:', e);
+                           console.error('Contenu de la réponse:', text);
+                           
+                           // Si la réponse contient du HTML, c'est probablement une page d'erreur
+                           if (text.includes('<!DOCTYPE html>')) {
+                               throw new Error('Le serveur a renvoyé une page HTML au lieu de JSON. Veuillez réessayer.');
+                           }
+                           
+                           throw e; // Propager l'erreur originale
+                       }
+                   });
+               })
+               .then(data => {
+                   console.log('Réponse du serveur:', data);
+                   if (data.success) {
+                       userScore = data.totalPoints;
+                       userScoreElement.textContent = `Current Points: ${userScore}`;
+                       createParticles();
+                       alert(`✨ Félicitations! Vous avez gagné: ${data.reward} (${data.pointsWon} points)`);
+                       const date = new Date().toLocaleDateString();
+                       spinHistory.unshift({ date, reward: data.reward });
+                       if (spinHistory.length > 10) spinHistory.pop();
+                       localStorage.setItem('spinHistory', JSON.stringify(spinHistory));
+                       updateHistory();
+                   } else {
+                       alert('Erreur lors de l\'enregistrement des points : ' + data.message);
+                   }
+               })
+               .catch(error => {
+                   console.error('Erreur lors de la requête AJAX:', error);
+                   alert('Une erreur est survenue lors de la sauvegarde des points : ' + error.message);
+                   // Réactiver le bouton pour permettre à l'utilisateur de réessayer
+                   spinning = false;
+                   spinBtn.disabled = false;
+               });
+           }
 
         function updateHistory() {
             historyBody.innerHTML = '';
@@ -910,6 +970,9 @@
         }
 
         spinBtn.addEventListener('click', spinWheel);
+
+        // Appeler la fonction d'initialisation au chargement
+        loadFontAndDraw();
     </script>
 </body>
 </html>

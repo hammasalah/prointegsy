@@ -6,6 +6,7 @@ use App\Repository\LikesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LikesRepository::class)]
+#[ORM\Table(name: "Likes")]
 class Likes
 {
     #[ORM\Id]
@@ -14,7 +15,7 @@ class Likes
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "post_id", referencedColumnName: "post_id", nullable: false)]
     private ?FeedPosts $postId = null;
 
     #[ORM\ManyToOne]

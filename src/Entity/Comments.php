@@ -6,6 +6,7 @@ use App\Repository\CommentsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommentsRepository::class)]
+#[ORM\Table(name: "Comments")]
 class Comments
 {
     #[ORM\Id]
@@ -14,7 +15,7 @@ class Comments
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "post_id", referencedColumnName: "post_id", nullable: false)]
     private ?FeedPosts $postId = null;
 
     #[ORM\ManyToOne]

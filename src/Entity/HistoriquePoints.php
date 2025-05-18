@@ -14,20 +14,20 @@ class HistoriquePoints
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'historiquePoints')]
-    #[ORM\JoinColumn(name: 'user_id_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'user_id_id', referencedColumnName: 'id', nullable: true)] // Correction : Ajout de nullable: true pour correspondre à la table
     private ?Users $user = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private string $type;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)] // Correction : Ajout de nullable: true car la table permet NULL
+    private ?string $type = null;
 
-    #[ORM\Column(type: 'integer')]
-    private int $points;
+    #[ORM\Column(type: 'integer', nullable: true)] // Correction : Ajout de nullable: true car la table permet NULL
+    private ?int $points = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private string $raison;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)] // Correction : Ajout de nullable: true car la table permet NULL
+    private ?string $raison = null;
 
-    #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $date;
+    #[ORM\Column(type: 'datetime', nullable: true)] // Correction : Ajout de nullable: true car la table permet NULL
+    private ?\DateTimeInterface $date = null;
 
     // Getters et Setters
     public function getId(): ?int

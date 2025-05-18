@@ -20,158 +20,173 @@ final class Version20250508145550 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        // Commenté car la table Comments n'existe pas
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE Comments DROP FOREIGN KEY FK_A6E8F47C9D86650F
+        // SQL);
+        // Commenté car la table FeedPosts n'existe pas
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C1171F7E88B
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C11A76ED395
+        // SQL);
+        // Commenté car la table GroupMembers n'existe pas
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE GroupMembers DROP FOREIGN KEY FK_B8990FC89D86650F
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE GroupMembers DROP FOREIGN KEY FK_B8990FC82F68B530
+        // SQL);
+        // Commenté car la table Likes n'existe pas
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE Likes DROP FOREIGN KEY FK_880B61799D86650F
+        // SQL);
+        // Commenté car la table Shares n'existe pas
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE Shares DROP FOREIGN KEY Shares_ibfk_2
+        // SQL);
+        // Commenté car la table UserGroups n'existe pas
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE UserGroups DROP FOREIGN KEY FK_D0662852F05788E9
+        // SQL);
+        // Commenté car ces contraintes pourraient ne pas exister
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE applications DROP FOREIGN KEY FK_F7C966F09D86650F
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE conversion DROP FOREIGN KEY FK_BD9127449D86650F
+        // SQL);
+        // Commenté car ces contraintes pourraient ne pas exister
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE events DROP FOREIGN KEY FK_5387574AE78C696A
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE events DROP FOREIGN KEY FK_5387574A9777D11E
+        // SQL);
+        // Commenté car cette contrainte pourrait ne pas exister
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE historique_points DROP FOREIGN KEY FK_EEF82E759D86650F
+        // SQL);
+        // Commenté car la contrainte FK_8A1C2FB3E5F2F7B n'existe pas
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE jobs DROP FOREIGN KEY FK_8A1C2FB3E5F2F7B
+        // SQL);
+        // Commenté car la contrainte pourrait ne pas exister
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE jobs DROP FOREIGN KEY FK_A8936DC59D86650F
+        // SQL);
+        // Commenté car ces contraintes pourraient ne pas exister
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE participation_events DROP FOREIGN KEY FK_29E2D16F9D6A1065
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE participation_events DROP FOREIGN KEY FK_29E2D16F6ACE3B73
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE participation_users DROP FOREIGN KEY FK_1B5F28626ACE3B73
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE participation_users DROP FOREIGN KEY FK_1B5F286267B3B43D
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE reviews DROP FOREIGN KEY FK_6970EB0F9D86650F
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE reviews DROP FOREIGN KEY FK_6970EB0F3E5F2F7B
+        // SQL);
+        // Commenté car ces contraintes pourraient ne pas exister
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE roulette DROP FOREIGN KEY FK_D80F9D2E9D86650F
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     ALTER TABLE user_profile DROP FOREIGN KEY FK_D95AB405A76ED395
+        // SQL);
+        // Commenté car ces tables n'existent pas
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE Comments
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE FeedPosts
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE GroupFeedPosts
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE GroupMembers
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE Likes
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE Messages
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE Shares
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE UserFollowers
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE UserGroups
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE UserIntrests
+        // SQL);
+        // $this->addSql(<<<'SQL'
+        //     DROP TABLE VisiteUtilisateur
+        // SQL);
+        // Ajout de IF EXISTS pour éviter les erreurs si les tables n'existent pas
         $this->addSql(<<<'SQL'
-            ALTER TABLE Comments DROP FOREIGN KEY FK_A6E8F47C9D86650F
+            DROP TABLE IF EXISTS applications
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C1171F7E88B
+            DROP TABLE IF EXISTS category
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE FeedPosts DROP FOREIGN KEY FK_16DF8C11A76ED395
+            DROP TABLE IF EXISTS conversion
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE GroupMembers DROP FOREIGN KEY FK_B8990FC89D86650F
+            DROP TABLE IF EXISTS events
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE GroupMembers DROP FOREIGN KEY FK_B8990FC82F68B530
+            DROP TABLE IF EXISTS historique_points
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE Likes DROP FOREIGN KEY FK_880B61799D86650F
+            DROP TABLE IF EXISTS jobs
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE Shares DROP FOREIGN KEY Shares_ibfk_2
+            DROP TABLE IF EXISTS participation
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE UserGroups DROP FOREIGN KEY FK_D0662852F05788E9
+            DROP TABLE IF EXISTS participation_events
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE applications DROP FOREIGN KEY FK_F7C966F09D86650F
+            DROP TABLE IF EXISTS participation_users
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE conversion DROP FOREIGN KEY FK_BD9127449D86650F
+            DROP TABLE IF EXISTS reviews
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE events DROP FOREIGN KEY FK_5387574AE78C696A
+            DROP TABLE IF EXISTS rewards
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE events DROP FOREIGN KEY FK_5387574A9777D11E
+            DROP TABLE IF EXISTS roulette
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE historique_points DROP FOREIGN KEY FK_EEF82E759D86650F
+            DROP TABLE IF EXISTS transaction_argent
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE jobs DROP FOREIGN KEY FK_8A1C2FB3E5F2F7B
+            DROP TABLE IF EXISTS user_profile
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE jobs DROP FOREIGN KEY FK_A8936DC59D86650F
+            DROP TABLE IF EXISTS user_rewards
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE participation_events DROP FOREIGN KEY FK_29E2D16F9D6A1065
+            DROP TABLE IF EXISTS users
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE participation_events DROP FOREIGN KEY FK_29E2D16F6ACE3B73
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE participation_users DROP FOREIGN KEY FK_1B5F28626ACE3B73
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE participation_users DROP FOREIGN KEY FK_1B5F286267B3B43D
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE reviews DROP FOREIGN KEY FK_6970EB0F9D86650F
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE reviews DROP FOREIGN KEY FK_6970EB0F3E5F2F7B
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE roulette DROP FOREIGN KEY FK_D80F9D2E9D86650F
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE user_profile DROP FOREIGN KEY FK_D95AB405A76ED395
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE Comments
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE FeedPosts
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE GroupFeedPosts
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE GroupMembers
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE Likes
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE Messages
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE Shares
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE UserFollowers
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE UserGroups
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE UserIntrests
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE VisiteUtilisateur
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE applications
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE category
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE conversion
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE events
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE historique_points
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE jobs
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE participation
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE participation_events
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE participation_users
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE reviews
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE rewards
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE roulette
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE transaction_argent
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE user_profile
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE user_rewards
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE users
-        SQL);
-        $this->addSql(<<<'SQL'
-            DROP TABLE worker_raitings
+            DROP TABLE IF EXISTS worker_raitings
         SQL);
     }
 
@@ -179,10 +194,10 @@ final class Version20250508145550 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            CREATE TABLE Comments (id INT AUTO_INCREMENT NOT NULL, user_id_id INT NOT NULL, post_id INT NOT NULL, content VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_0900_ai_ci`, is_deleted INT DEFAULT NULL, time_stamp VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_0900_ai_ci`, INDEX IDX_A6E8F47C9D86650F (user_id_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_0900_ai_ci` ENGINE = InnoDB COMMENT = '' 
+            CREATE TABLE IF NOT EXISTS Comments (id INT AUTO_INCREMENT NOT NULL, user_id_id INT NOT NULL, post_id INT NOT NULL, content VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_0900_ai_ci`, is_deleted INT DEFAULT NULL, time_stamp VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_0900_ai_ci`, INDEX IDX_A6E8F47C9D86650F (user_id_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_0900_ai_ci` ENGINE = InnoDB COMMENT = '' 
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE FeedPosts (post_id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, event_id INT DEFAULT NULL, content VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, timestamp VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, is_deleted INT DEFAULT NULL, created_at VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, updated_at VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, score_popularite INT DEFAULT NULL, image_path VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, group_id INT DEFAULT NULL, INDEX IDX_16DF8C1171F7E88B (event_id), INDEX IDX_16DF8C11A76ED395 (user_id), PRIMARY KEY(post_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = '' 
+            CREATE TABLE IF NOT EXISTS FeedPosts (post_id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, event_id INT DEFAULT NULL, content VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, timestamp VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, is_deleted INT DEFAULT NULL, created_at VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, updated_at VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, score_popularite INT DEFAULT NULL, image_path VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, group_id INT DEFAULT NULL, INDEX IDX_16DF8C1171F7E88B (event_id), INDEX IDX_16DF8C11A76ED395 (user_id), PRIMARY KEY(post_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = '' 
         SQL);
         $this->addSql(<<<'SQL'
             CREATE TABLE GroupFeedPosts (post_id INT AUTO_INCREMENT NOT NULL, group_id INT NOT NULL, user_id INT NOT NULL, content VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, timestamp VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, media_url VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`, is_deleted INT DEFAULT NULL, INDEX IDX_FC4BFDD6A76ED395 (user_id), INDEX IDX_FC4BFDD6FE54D947 (group_id), PRIMARY KEY(post_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = '' 

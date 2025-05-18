@@ -15,7 +15,11 @@ class Users
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = 1;
+    private ?int $id = null;
+
+    #[ORM\OneToMany(targetEntity: VisiteUtilisateur::class, mappedBy: 'user')]
+    private Collection $visites;
+
 
     #[ORM\Column(length: 255)]
     private ?string $username = null;
@@ -53,11 +57,19 @@ class Users
     #[ORM\OneToMany(targetEntity: Jobs::class, mappedBy: 'userId', orphanRemoval: true)]
     private Collection $jobs;
 
+    #[ORM\OneToMany(targetEntity: Roulette::class, mappedBy: 'user')]
+    private Collection $roulettes;
+
+    #[ORM\OneToMany(targetEntity: HistoriquePoints::class, mappedBy: 'user')]
+    private Collection $historiquePoints;
+
     public function __construct()
     {
         $this->conversions = new ArrayCollection();
         $this->events = new ArrayCollection();
         $this->jobs = new ArrayCollection();
+        $this->roulettes = new ArrayCollection();
+        $this->historiquePoints = new ArrayCollection();
     }
 
 
@@ -165,15 +177,14 @@ class Users
         return $this;
     }
 
-    public function getArgent(): ?int
+    public function getArgent(): ?string
     {
         return $this->argent;
     }
 
-    public function setArgent(?int $argent): static
+    public function setArgent(?string $argent): static
     {
         $this->argent = $argent;
-
         return $this;
     }
 
@@ -268,7 +279,87 @@ class Users
     }
 
 
+// Ajout : Méthodes pour gérer la relation avec Roulette.
+    /**
+     * @return Collection<int, Roulette>
+     */
+    public function getRoulettes(): Collection
+    {
+        return $this->roulettes;
+    }
 
+    public function addRoulette(Roulette $roulette): static
+    {
+        if (!$this->roulettes->contains($roulette)) {
+            $this->roulettes->add($roulette);
+            $roulette->setUser($this);
+        }
+        return $this;
+    }
 
+    public function removeRoulette(Roulette $roulette): static
+    {
+        if ($this->roulettes->removeElement($roulette)) {
+            if ($roulette->getUser() === $this) {
+                $roulette->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    // Ajout : Méthodes pour gérer la relation avec HistoriquePoints.
+    /**
+     * @return Collection<int, HistoriquePoints>
+     */
+    public function getHistoriquePoints(): Collection
+    {
+        return $this->historiquePoints;
+    }
+
+    public function addHistoriquePoint(HistoriquePoints $historiquePoint): static
+    {
+        if (!$this->historiquePoints->contains($historiquePoint)) {
+            $this->historiquePoints->add($historiquePoint);
+            $historiquePoint->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeHistoriquePoint(HistoriquePoints $historiquePoint): static
+    {
+        if ($this->historiquePoints->removeElement($historiquePoint)) {
+            if ($historiquePoint->getUser() === $this) {
+                $historiquePoint->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, VisiteUtilisateur>
+     */
+    public function getVisites(): Collection
+    {
+        return $this->visites;
+    }
+
+    public function addVisite(VisiteUtilisateur $visite): static
+    {
+        if (!$this->visites->contains($visite)) {
+            $this->visites->add($visite);
+            $visite->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeVisite(VisiteUtilisateur $visite): static
+    {
+        if ($this->visites->removeElement($visite)) {
+            if ($visite->getUser() === $this) {
+                $visite->setUser(null);
+            }
+        }
+        return $this;
+    }
 
 }

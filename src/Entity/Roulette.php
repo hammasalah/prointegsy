@@ -15,18 +15,27 @@ class Roulette
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'roulettes')]
-    #[ORM\JoinColumn(name: "user_id", nullable: false)]
+    #[ORM\JoinColumn(name: "user_id", nullable: true)]
     private ?Users $user = null;
-    
-    #[ORM\Column(name: "user_id", type: 'integer', insertable: false, updatable: false)]
-    private ?int $user_id = null;
 
-    #[ORM\Column(type: 'datetime', name: "date")]
-    private \DateTime $date;
-    
-    #[ORM\Column(type: 'integer')]
-    private int $points_gagnes = 0;
+   // #[ORM\Column(name: "user_id", type: 'integer', insertable: false, updatable: false)]
+    //private ?int $user_id = null;
 
+
+
+    #[ORM\Column(type: 'datetime', name: "created_at")]
+    private \DateTimeInterface $createdAt;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $result = null;
+
+    /**
+     * Constructeur pour initialiser createdAt avec la date actuelle.
+     */
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime(); // Initialisation par défaut avec la date actuelle.
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -43,30 +52,32 @@ class Roulette
         return $this;
     }
 
-    public function getUserId(): ?int
+    //public function getUserId(): ?int
+   // {
+     //   return $this->user_id;
+    //}
+
+    public function getCreatedAt(): \DateTimeInterface
     {
-        return $this->user_id;
-    }
-    
-    public function getDate(): \DateTime
-    {
-        return $this->date;
+        return $this->createdAt;
     }
 
-    public function setDate(\DateTime $date): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
-        $this->date = $date;
+        $this->createdAt = $createdAt;
         return $this;
     }
-    
-    public function getPointsGagnes(): ?int
+
+
+    // Ajout : Ajouté les getters et setters pour le champ "result".
+    public function getResult(): ?string
     {
-        return $this->points_gagnes;
+        return $this->result;
     }
-    
-    public function setPointsGagnes(int $points_gagnes): self
+
+    public function setResult(string $result): self
     {
-        $this->points_gagnes = $points_gagnes;
+        $this->result = $result;
         return $this;
     }
 }

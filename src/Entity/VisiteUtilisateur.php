@@ -19,8 +19,7 @@ class VisiteUtilisateur
     #[ORM\Column(type: 'integer')]
     private $serie;
 
-    #[ORM\Column(type: 'integer')]
-    private $user_id;
+
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'visites')]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
@@ -54,16 +53,7 @@ class VisiteUtilisateur
         return $this;
     }
 
-    public function getUserId(): int // Change ?int en int
-    {
-        return $this->user_id;
-    }
 
-    public function setUserId(int $user_id): self // Change ?int en int
-    {
-        $this->user_id = $user_id;
-        return $this;
-    }
 
     public function getUser(): ?Users
     {
@@ -71,10 +61,5 @@ class VisiteUtilisateur
     }
 
     
-    public function setUser(?Users $user): self
-    {
-        $this->user = $user;
-        $this->user_id = $user ? $user->getId() : null; // Corrige l'incohérence ici
-        return $this;
-    }
+
 }
