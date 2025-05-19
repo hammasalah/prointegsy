@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Roulette;
+use App\Entity\Users;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -20,6 +21,18 @@ class RouletteRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Roulette::class);
     }
+
+    
+public function findByUser(Users $user): array
+{
+    return $this->createQueryBuilder('r')
+        ->andWhere('r.user = :user')
+        ->setParameter('user', $user)
+        ->orderBy('r.date', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+
 
 //    /**
 //     * @return Roulette[] Returns an array of Roulette objects

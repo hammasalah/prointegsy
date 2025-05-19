@@ -1,33 +1,65 @@
 <?php
-namespace App\Controller;
 
-use App\Entity\UserRewards;
-use App\Entity\User;
-use App\Entity\Reward;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+namespace App\Entity;
 
-class TestController extends AbstractController
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+#[ORM\Table(name: 'visite_utilisateur')]
+class VisiteUtilisateur
 {
-    #[Route('/test/user-reward', name: 'test_user_reward')]
-    public function test(EntityManagerInterface $em): Response
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private $id;
+
+    #[ORM\Column(type: 'date')]
+    private $dernier_visite;
+
+    #[ORM\Column(type: 'integer')]
+    private $serie;
+
+
+
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'visites')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    private $user;
+
+    // Getters et Setters
+    public function getId(): ?int
     {
-        $user = $em->getRepository(User::class)->find(1); // Exemple
-        $reward = $em->getRepository(Reward::class)->find(1); // Exemple
-
-        $userReward = new UserRewards();
-        $userReward->setUser($user);
-        $userReward->setReward($reward);
-        $userReward->setPointsEarned(100);
-        $userReward->setEarnedAt((new \DateTime())->format('Y-m-d H:i:s'));
-
-        $em->persist($userReward);
-        $em->flush();
-
-        return new Response('UserReward créé !');
+        return $this->id;
     }
-}
 
-// Compare this snippet from prointegsy/src/Entity/Users.php:
+    public function getDernierVisite(): \DateTimeInterface
+    {
+        return $this->dernier_visite;
+    }
+
+    public function setDernierVisite(\DateTimeInterface $dernier_visite): self
+    {
+        $this->dernier_visite = $dernier_visite;
+        return $this;
+    }
+
+    public function getSerie(): int
+    {
+        return $this->serie;
+    }
+
+    public function setSerie(int $serie): self
+    {
+        $this->serie = $serie;
+        return $this;
+    }
+
+
+
+    public function getUser(): ?Users
+    {
+        return $this->user;
+    }
+
+    
+
+}

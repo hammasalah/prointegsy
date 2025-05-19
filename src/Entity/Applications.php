@@ -17,17 +17,19 @@ class Applications
     #[ORM\JoinColumn(nullable: true)]
     private ?Users $user_id = null;
 
-   
+
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(name: 'job_id_id',          // Match the actual DB column name
+    referencedColumnName: 'id',
+    onDelete: 'CASCADE' )]
     private ?Jobs $job_id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $appliedAt = null;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $appliedAt = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $rewarded = null;
@@ -40,6 +42,13 @@ class Applications
 
     #[ORM\Column(nullable: true)]
     private ?int $coverRating = null;
+
+    public function __construct()
+    {
+        $this->appliedAt = new \DateTimeImmutable();
+        $this->status = 'pending'; // Default status;
+        $this->coverRating = 0; // Default cover rating
+    }
 
     public function getId(): ?int
     {
@@ -58,7 +67,7 @@ class Applications
         return $this;
     }
 
-    
+
 
     public function getJobId(): ?Jobs
     {
@@ -84,15 +93,14 @@ class Applications
         return $this;
     }
 
-    public function getAppliedAt(): ?string
+    public function getAppliedAt(): ?\DateTimeInterface
     {
         return $this->appliedAt;
     }
-
-    public function setAppliedAt(?string $appliedAt): static
+    
+    public function setAppliedAt(?\DateTimeInterface $appliedAt): static
     {
         $this->appliedAt = $appliedAt;
-
         return $this;
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Users;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,9 +28,5 @@ class RootController extends AbstractController
         return $this->render('points/convert.html.twig');
     }
 
-    #[Route('/points/fortune-wheel', name: 'app_fortune_wheel')]
-    public function fortuneWheel(): Response
-    {
-        return $this->render('points/fortune_wheel.html.twig');
-    }
+    // La route fortune-wheel est maintenant gérée exclusivement par RouletteController
 }

@@ -6,6 +6,9 @@ use App\Repository\UserIntrestsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserIntrestsRepository::class)]
+#[ORM\Table(name: 'user_interests')]
+
+
 class UserIntrests
 {
     #[ORM\Id]

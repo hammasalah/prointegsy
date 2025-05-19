@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserGroupsRepository::class)]
+#[ORM\Table(name: 'user_groups')]
 class UserGroups
 {
     #[ORM\Id]
@@ -20,8 +21,8 @@ class UserGroups
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $profile_picture = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $profile_picture = 'default.png';
 
     #[ORM\Column(length: 255)]
     private ?string $rules = null;
@@ -29,10 +30,21 @@ class UserGroups
     #[ORM\Column(length: 255)]
     private ?string $created_at = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Users::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Users $creator_id = null;
 
+    public function getProfilePicture(): ?string
+    {
+        return $this->profile_picture;
+    }
+
+    public function setProfilePicture(?string $profile_picture): static
+    {
+        $this->profile_picture = $profile_picture;
+
+        return $this;
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -58,18 +70,6 @@ class UserGroups
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getProfilePicture(): ?string
-    {
-        return $this->profile_picture;
-    }
-
-    public function setProfilePicture(string $profile_picture): static
-    {
-        $this->profile_picture = $profile_picture;
 
         return $this;
     }

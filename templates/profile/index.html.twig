@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+{% block title %}My Profile{% endblock %}
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+{% endblock %}
+{% block body %}
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="card-header">
+            <div class="header-content">
+                <h3>My Profile</h3>
+                <a href="{{ path('app_profile_edit') }}" class="btn btn-edit">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            </div>
+        </div>
+    <div class="card-body">
+        <div class="profile-content">
+            <div class="profile-left">
+                <div class="profile-pic"></div>
+                <h4>{{ user.username }}</h4>
+                <span class="member-since">Member since {{ user.createdAt|date('M Y') }}</span>
+            </div>
+            
+            <div class="profile-right">
+                <div class="profile-info">
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value">{{ user.email }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Age:</div>
+                        <div class="info-value">{{ user.age }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Gender:</div>
+                        <div class="info-value">{{ user.gender }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Points:</div>
+                        <div class="info-value">{{ (user.points ?? 0)|format_points }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Balance:</div>
+                        <div class="info-value">{{ user.argent ?? 0 }} €</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+</div>
+{% endblock %}
