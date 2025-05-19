@@ -39,7 +39,7 @@
                     </div>
                     <div class="info-row">
                         <div class="info-label">Points:</div>
-                        <div class="info-value">{{ user.points ?? 0 }}</div>
+                        <div class="info-value">{{ (user.points ?? 0)|format_points }}</div>
                     </div>
                     <div class="info-row">
                         <div class="info-label">Balance:</div>

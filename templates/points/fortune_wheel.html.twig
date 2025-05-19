@@ -626,7 +626,7 @@
                     <h2>Spin the Holo-Wheel!</h2>
                     <p>Unlock cosmic rewards and boost your points!</p>
                     <div class="score-container" id="scoreContainer">
-                        <span id="userScore">Current Points: 350</span>
+                        <span id="userScore">Current Points: {{ (user.points ?? 0)|format_points }}</span>
                     </div>
                     <button class="score-btn" id="scoreBtn"><i class="fas fa-star"></i> Show Score</button>
                 </div>
@@ -725,10 +725,12 @@
         
         // Mettre à jour l'affichage du score
         function updateScoreDisplay() {
-            userScoreElement.textContent = `Current Points: ${userScore}`;
+            // Formater les points de manière cohérente (comme le filtre Twig format_points)
+            const formattedScore = new Intl.NumberFormat('fr-FR').format(userScore);
+            userScoreElement.textContent = `Current Points: ${formattedScore}`;
         }
         
-        // Initialiser l'affichage du score
+        // Initialiser l'affichage du score avec les points réels de l'utilisateur
         updateScoreDisplay();
 
         // Ensure Font Awesome is loaded before drawing

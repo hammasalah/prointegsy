@@ -23,9 +23,44 @@ class RouletteController extends AbstractController
     }
 
     #[Route('/points', name: 'app_points')]
-    public function points(): Response
+    public function points(EntityManagerInterface $entityManager, SessionInterface $session): Response
     {
-        return $this->render('points/index.html.twig');
+        try {
+            // Récupérer l'utilisateur connecté depuis la session
+            $sessionUser = $session->get('user');
+            if (!$sessionUser) {
+                return $this->redirectToRoute('app_login');
+            }
+            
+            // Récupérer l'utilisateur complet depuis la base de données avec son ID réel
+            $userRepository = $entityManager->getRepository(Users::class);
+            $user = $userRepository->find($sessionUser->getId());
+            
+            if (!$user) {
+                throw new \Exception('Utilisateur non trouvé avec ID ' . $sessionUser->getId());
+            }
+            
+            // Vérifier si l'utilisateur est une instance de la classe Users
+            if (!$user instanceof Users) {
+                throw new \Exception('Utilisateur invalide : l\'objet n\'est pas une instance de Users');
+            }
+            
+            // S'assurer que les points sont correctement chargés
+            $entityManager->refresh($user);
+            
+            // Log pour déboguer
+            error_log('Points de l\'utilisateur dans points(): ' . $user->getPoints());
+
+            return $this->render('points/index.html.twig', [
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            // Log l'erreur
+            error_log('Erreur dans points(): ' . $e->getMessage());
+            
+            // Rediriger vers la page de connexion en cas d'erreur
+            return $this->redirectToRoute('app_login');
+        }
     }
 
     #[Route('/points/convert', name: 'app_convert_points')]

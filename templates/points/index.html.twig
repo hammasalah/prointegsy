@@ -757,9 +757,9 @@
                     </div>
                     <div class="stat-card">
                         <h3>Total Points</h3>
-                        <p class="stat-value">480</p>
+                        <p class="stat-value">{{ user.points|default(0)|format_points }}</p>
                         <div class="progress-bar">
-                            <div class="progress" style="width: 65%;"></div>
+                            <div class="progress" style="width: {{ (user.points|default(0) / 1000 * 100)|min(100) }}%;"></div>
                         </div>
                     </div>
                 </div>

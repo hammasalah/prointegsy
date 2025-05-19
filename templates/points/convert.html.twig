@@ -540,7 +540,7 @@
                     <div class="stat-avatar">
                         <i class="fas fa-star"></i>
                     </div>
-                    <p class="stat-value points">480</p>
+                    <p class="stat-value points">{{ user.points|default(0)|format_points }}</p>
                 </div>
                 <div class="stat-card money-card">
                     <h3>Total Money</h3>
