@@ -12,6 +12,7 @@ class OrganizerController extends AbstractController
     public function index(): Response
     {
         return $this->render('organizer/organizer.html.twig', [
+           
             'controller_name' => 'OrganizerController',
         ]);
     }

@@ -26,6 +26,23 @@ class EventsController extends AbstractController
     {
         $this->logger = $logger;
     }
+     // --- Action ADD_PAGE : Affiche la PAGE avec le formulaire d'ajout VIERGE ---
+    #[Route('/events/add', name: 'app_event_add_page', methods: ['GET'])]
+    public function addEventPage(): Response
+    {
+        $event = new Events(); // Crée une instance d'événement vide
+        // Crée le formulaire associé à cette instance vide
+        $form = $this->createForm(EventsType::class, $event, [
+             // On peut définir l'action ici, ou laisser form_start le faire dans Twig
+             'action' => $this->generateUrl('app_event_new'),
+             'method' => 'POST',
+        ]);
+
+        // Rend le template dédié à l'ajout, en passant la VUE du formulaire
+        return $this->render('events/add_event.html.twig', [
+            'create_event_form' => $form->createView(),
+        ]);
+    }
 
     // --- Action INDEX : Affiche la LISTE des événements ---
     #[Route('/events', name: 'app_events', methods: ['GET'])]
@@ -61,23 +78,7 @@ class EventsController extends AbstractController
         ]);
     }
 
-    // --- Action ADD_PAGE : Affiche la PAGE avec le formulaire d'ajout VIERGE ---
-    #[Route('/events/add', name: 'app_event_add_page', methods: ['GET'])]
-    public function addEventPage(): Response
-    {
-        $event = new Events(); // Crée une instance d'événement vide
-        // Crée le formulaire associé à cette instance vide
-        $form = $this->createForm(EventsType::class, $event, [
-             // On peut définir l'action ici, ou laisser form_start le faire dans Twig
-             'action' => $this->generateUrl('app_event_new'),
-             'method' => 'POST',
-        ]);
-
-        // Rend le template dédié à l'ajout, en passant la VUE du formulaire
-        return $this->render('events/add_event.html.twig', [
-            'create_event_form' => $form->createView(),
-        ]);
-    }
+   
 
     // --- Action NEW : TRAITE la soumission POST venant de la page d'ajout ---
     #[Route('/events/new', name: 'app_event_new', methods: ['POST'])]
