@@ -1,0 +1,595 @@
+{# templates/events/add_event.html.twig #}
+{# DOIT être la première ligne #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New Event{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+ {# Garde les styles du parent (base.html.twig) - OK si base a ce bloc #}
+    <style>
+        /* Styles spécifiques pour la page d'ajout d'événement */
+
+        /* Variables pour faciliter la cohérence des couleurs et espacements */
+        :root {
+            --primary-color: #1c2b5d;
+            --primary-hover: #3d5472;
+            --secondary-color: #d54d67;
+            --secondary-hover: #b03c54;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --border-color: #dee2e6;
+            --text-color: #343a40;
+            --text-muted: #6c757d;
+            --input-border: #ced4da;
+            --focus-color: #80bdff;
+            --focus-shadow: rgba(0, 123, 255, 0.25);
+            --error-color: #dc3545;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --label-width: 120px; /* Largeur fixe pour les labels */
+        }
+
+        .add-event-page-container {
+            max-width: 1000px;
+            margin: 2.5rem auto;
+            background-color: var(--light-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Élément décoratif */
+        .add-event-page-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            z-index: 1;
+        }
+
+        .add-event-page-container h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .add-event-page-container h1::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 120px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        /* Style du formulaire */
+        .add-event-form {
+            background-color: var(--white);
+            padding: 35px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Alignement vertical des champs - modifié */
+        .form-field-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: var(--spacing-lg);
+            align-items: flex-start;
+        }
+
+        /* Style des labels - IMPORTANT: S'assurer qu'ils sont visibles */
+        .add-event-form .form-label {
+            font-weight: 600;
+            color: var(--primary-color) !important; /* Force la couleur */
+            font-size: 0.95rem;
+            width: 100%;
+            padding-top: 0;
+            margin-bottom: 8px;
+            margin-right: 0;
+            flex-shrink: 0;
+            display: block !important; /* Force l'affichage */
+            background-color: transparent !important; /* Assure la transparence */
+        }
+
+        /* Conteneur pour les widgets de formulaire */
+        .form-widget-container {
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* Style uniformisé pour tous les inputs */
+        .add-event-form .form-control,
+        .add-event-form .form-select,
+        .add-event-form textarea.form-control,
+        .add-event-form input[type="datetime-local"] {
+            border: 2px solid var(--input-border);
+            border-radius: 6px;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            color: var(--text-color);
+            background-color: var(--white);
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 0.25rem;
+        }
+
+        .add-event-form .form-control:focus,
+        .add-event-form .form-select:focus,
+        .add-event-form textarea.form-control:focus,
+        .add-event-form input[type="datetime-local"]:focus {
+            border-color: var(--primary-color);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(28, 43, 93, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Amélioration des placeholders */
+        .add-event-form ::placeholder {
+           color: #adb5bd; 
+           opacity: 1;
+           font-style: italic;
+        }
+        .add-event-form :-ms-input-placeholder { color: #adb5bd; font-style: italic; }
+        .add-event-form ::-ms-input-placeholder { color: #adb5bd; font-style: italic; }
+
+        /* Spécifique pour Textarea Description */
+        .add-event-form textarea.form-control {
+             min-height: 140px;
+             resize: vertical;
+             line-height: 1.5;
+        }
+
+        /* Section pour les dates côte à côte - améliorée avec alignement correct */
+        .date-time-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .date-input-group {
+            position: relative;
+        }
+
+        .date-input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* Style pour le champ File Upload - amélioré */
+        .add-event-form input[type="file"] { 
+            display: none; 
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            padding: 2rem 1.5rem;
+            background-color: var(--light-bg);
+            background-image: linear-gradient(45deg, rgba(28, 43, 93, 0.03) 25%, transparent 25%, transparent 50%, rgba(28, 43, 93, 0.03) 50%, rgba(28, 43, 93, 0.03) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            border: 2px dashed var(--input-border);
+            border-radius: var(--border-radius);
+            text-align: center;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-label::before {
+            content: "📷";
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-label:hover {
+            background-color: rgba(28, 43, 93, 0.05);
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        #file-chosen-display {
+             display: block;
+             text-align: center;
+             margin-top: 10px;
+             font-size: 0.9rem;
+             color: var(--text-muted);
+             font-style: italic;
+             min-height: 1.5em;
+             padding: 5px;
+             background-color: rgba(0,0,0,0.02);
+             border-radius: 4px;
+        }
+
+        /* Style des messages d'erreur */
+        .add-event-form .form-field-row ul.list-unstyled {
+             padding-left: 0;
+             margin-top: 0.4rem;
+             margin-bottom: 30px;
+             list-style: none;
+        }
+        
+        .add-event-form .form-field-row ul.list-unstyled li {
+             color: var(--error-color);
+             font-size: 0.875em;
+             padding-left: 20px;
+             position: relative;
+        }
+
+        .add-event-form .form-field-row ul.list-unstyled li::before {
+            content: "!";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            background-color: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .add-event-form .is-invalid {
+            border-color: var(--error-color) !important;
+            background-color: rgba(220, 53, 69, 0.02);
+        }
+
+        /* NOUVEAU: Style pour les descriptions de champs et messages d'aide */
+        .add-event-form .form-text,
+        .add-event-form .help-block,
+        .add-event-form .form-help,
+        .add-event-form .help-text,
+        .add-event-form .invalid-feedback,
+        .add-event-form .form-errors {
+            display: block !important;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--text-muted) !important; /* Force la couleur */
+            background-color: transparent !important;
+        }
+
+        /* NOUVEAU: Style spécifique pour les erreurs */
+        .add-event-form .invalid-feedback,
+        .add-event-form .form-errors {
+            color: var(--error-color) !important;
+        }
+
+        /* NOUVEAU: Style pour les textes d'aide de Symfony */
+        .form-widget-container .form-help {
+            color: var(--text-muted) !important;
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
+        /* Boutons du formulaire - améliorés */
+        .form-buttons {
+            padding-top: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .btn-cancel-event, .btn-save-event {
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1.5;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-cancel-event {
+            background-color: var(--secondary-color);
+            color: white;
+            order: 1;
+        }
+
+        .btn-save-event {
+            background-color: var(--primary-color);
+            color: white;
+            order: 2;
+        }
+
+        .btn-cancel-event:hover, .btn-save-event:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-cancel-event:hover {
+            background-color: var(--secondary-hover);
+        }
+
+        .btn-save-event:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-save-event::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+            z-index: -1;
+        }
+
+        .btn-save-event:hover::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+
+        /* Animation de chargement pour le bouton pendant la soumission */
+        .btn-save-event.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .btn-save-event.loading::before {
+            content: '';
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5em;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Résponsivité */
+        @media (max-width: 768px) {
+            .add-event-page-container {
+                padding: 20px;
+                margin: 1rem auto;
+            }
+
+            .add-event-form {
+                padding: 25px 20px;
+            }
+
+            .date-time-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .btn-cancel-event, .btn-save-event {
+                padding: 10px 20px;
+                width: 100%;
+            }
+
+            .form-buttons {
+                flex-direction: column-reverse;
+            }
+        }
+    </style>
+{% endblock %}
+
+
+{% block body %}
+{# Ajouter la classe conteneur spécifique #}
+<div class="add-event-page-container">
+    <h1>Create New Event</h1>
+
+    {# Affichage des messages flash #}
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+             {% for message in messages %}
+               {{ message }}
+            {% endfor %}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    {# Ajouter la classe add-event-form #}
+    {{ form_start(create_event_form, {'action': path('app_event_new'), 'method': 'POST', 'attr': {'novalidate': 'novalidate', 'class': 'add-event-form'}}) }}
+
+        {# Erreurs globales (placées en haut si présentes) #}
+        {% if not create_event_form.vars.valid %}
+         <div class="alert alert-danger mb-4" role="alert"> {# mb-4 pour marge #}
+             {{ form_errors(create_event_form) }}
+         </div>
+        {% endif %}
+
+        {# Rendu des champs avec structure modifiée pour mise en page verticale #}
+        <div class="form-field-row">
+            {# Rendre le label explicitement #}
+            <label for="{{ create_event_form.name.vars.id }}" class="form-label">Event Name</label>
+            <div class="form-widget-container">
+                {{ form_widget(create_event_form.name, {'attr': {'placeholder': 'Please enter the name of your event', 'class': (form_errors(create_event_form.name) ? 'is-invalid' : '') }}) }}
+                {{ form_errors(create_event_form.name) }}
+                <div class="form-help">Choose a clear, descriptive name for your event</div>
+            </div>
+        </div>
+
+        <div class="form-field-row">
+             {# Rendre le label explicitement #}
+             <label for="{{ create_event_form.description.vars.id }}" class="form-label">Description</label>
+             <div class="form-widget-container">
+                 {{ form_widget(create_event_form.description, {'attr': {'placeholder': 'Describe your event', 'rows': 5, 'class': (form_errors(create_event_form.description) ? 'is-invalid' : '') }}) }}
+                 {{ form_errors(create_event_form.description) }}
+                 <div class="form-help">Provide details about what participants can expect</div>
+             </div>
+        </div>
+
+        {# Section des dates avec structure modifiée #}
+        <div class="form-field-row">
+            {# Rendre le label explicitement #}
+            <label class="form-label">Event Dates</label>
+            <div class="form-widget-container">
+                <div class="date-time-container">
+                    <div class="date-input-group">
+                        <label>Start day</label>
+                        {{ form_widget(create_event_form.startTime, {'attr': {'class': (form_errors(create_event_form.startTime) ? 'is-invalid' : '') }}) }}
+                        {{ form_errors(create_event_form.startTime) }}
+                    </div>
+                    <div class="date-input-group">
+                        <label>End day</label>
+                        {{ form_widget(create_event_form.endTime, {'attr': {'class': (form_errors(create_event_form.endTime) ? 'is-invalid' : '') }}) }}
+                        {{ form_errors(create_event_form.endTime) }}
+                    </div>
+                </div>
+                <div class="form-help">Select the start and end dates/times of your event</div>
+            </div>
+        </div>
+
+        <div class="form-field-row">
+             {# Rendre le label explicitement #}
+             <label for="{{ create_event_form.location.vars.id }}" class="form-label">Location</label>
+             <div class="form-widget-container">
+                 {{ form_widget(create_event_form.location, {'attr': {'placeholder': 'Location', 'class': (form_errors(create_event_form.location) ? 'is-invalid' : '') }}) }}
+                 {{ form_errors(create_event_form.location) }}
+                 <div class="form-help">Enter the physical or virtual location of the event</div>
+             </div>
+        </div>
+
+        <div class="form-field-row">
+             {# Rendre le label explicitement #}
+             <label for="{{ create_event_form.points.vars.id }}" class="form-label">Points</label>
+             <div class="form-widget-container">
+                 {{ form_widget(create_event_form.points, {'attr': {'placeholder': 'Points awarded', 'class': (form_errors(create_event_form.points) ? 'is-invalid' : '') }}) }}
+                 {{ form_errors(create_event_form.points) }}
+                 <div class="form-help">Number of points participants will earn</div>
+             </div>
+        </div>
+
+        <div class="form-field-row">
+             {# Rendre le label explicitement #}
+             <label for="{{ create_event_form.categoryId.vars.id }}" class="form-label">Category</label>
+             <div class="form-widget-container">
+                 {{ form_widget(create_event_form.categoryId, {'attr': {'class': (form_errors(create_event_form.categoryId) ? 'is-invalid' : '') }}) }}
+                 {{ form_errors(create_event_form.categoryId) }}
+                 <div class="form-help">Select the most appropriate category for your event</div>
+             </div>
+        </div>
+
+        {# Champ Image personnalisé #}
+        <div class="form-field-row">
+             {# Rendre le label explicitement #}
+             <label class="form-label">Event Image</label>
+             <div class="form-widget-container">
+                 <label for="{{ create_event_form.image.vars.id }}" class="file-upload-label {% if form_errors(create_event_form.image) %}is-invalid{% endif %}">
+                      Upload Image
+                 </label>
+                 {# Input caché par CSS #}
+                 {{ form_widget(create_event_form.image) }}
+                 <span id="file-chosen-display">No file chosen</span>
+                 {{ form_errors(create_event_form.image) }}
+                 <div class="form-help">Upload an image to represent your event (recommended size: 1200×630px)</div>
+             </div>
+        </div>
+
+        {# Ajouter la classe form-buttons à la div #}
+        <div class="form-buttons">
+             {# Ajouter les classes spécifiques aux boutons #}
+             <a href="{{ path('app_events') }}" class="btn btn-cancel-event">Cancel</a>
+             <button type="submit" id="save-event-btn" class="btn btn-save-event">Save Event</button>
+        </div>
+
+    {{ form_end(create_event_form) }}
+
+</div> {# Fin .add-event-page-container #}
+{% endblock %}
+
+
+{% block javascripts %}
+    {# Script pour afficher le nom du fichier sélectionné et effet de loading sur le bouton #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion de l'affichage du nom de fichier
+            const fileInput = document.getElementById('{{ create_event_form.image.vars.id }}');
+            const fileChosenDisplay = document.getElementById('file-chosen-display');
+
+            if (fileInput && fileChosenDisplay) {
+                fileInput.addEventListener('change', function(){
+                    if (this.files.length > 0) {
+                        // Prend seulement une partie du nom si trop long
+                        let fileName = this.files[0].name;
+                        if (fileName.length > 30) {
+                            fileName = fileName.substring(0, 15) + '...' + fileName.substring(fileName.length - 10);
+                        }
+                        fileChosenDisplay.textContent = fileName;
+                    } else {
+                         fileChosenDisplay.textContent = 'No file chosen';
+                    }
+                });
+            }
+
+            // Animation du bouton lors de la soumission
+            const form = document.querySelector('.add-event-form');
+            const submitBtn = document.getElementById('save-event-btn');
+            
+            if (form && submitBtn) {
+                form.addEventListener('submit', function() {
+                    submitBtn.classList.add('loading');
+                    // Le texte du bouton pourrait être changé en "Saving..."
+                    submitBtn.textContent = 'Saving...';
+                });
+            }
+        });
+    </script>
+{% endblock %}

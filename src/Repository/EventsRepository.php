@@ -1,4 +1,5 @@
 <?php
+// src/Repository/EventsRepository.php
 
 namespace App\Repository;
 
@@ -8,11 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Events>
- *
- * @method Events|null find($id, $lockMode = null, $lockVersion = null)
- * @method Events|null findOneBy(array $criteria, array $orderBy = null)
- * @method Events[]    findAll()
- * @method Events[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * // ... (PHPDoc annotations) ...
  */
 class EventsRepository extends ServiceEntityRepository
 {
@@ -21,28 +18,40 @@ class EventsRepository extends ServiceEntityRepository
         parent::__construct($registry, Events::class);
     }
 
-//    /**
-//     * @return Events[] Returns an array of Events objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('e.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Trouve les événements filtrés par terme de recherche et/ou catégorie.
+     */
+    public function findByNameDescriptionCategory(?string $searchTerm, ?int $categoryId): array
+    {
+        $queryBuilder = $this->createQueryBuilder('e')
+            // Jointure optionnelle mais recommandée si vous accédez aux données de catégorie
+            ->leftJoin('e.categoryId', 'c') // Vérifiez que 'categoryId' est le nom de la propriété dans Events.php
+            ->addSelect('c');
 
-//    public function findOneBySomeField($value): ?Events
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        // --- Filtre par Catégorie ---
+        if ($categoryId !== null && $categoryId > 0) {
+            $queryBuilder
+                // *** VÉRIFIEZ CECI *** : Assurez-vous que 'e.categoryId' est bien le nom de la
+                // propriété de relation ManyToOne vers l'entité Category dans Events.php.
+                // Si votre propriété s'appelle $category, utilisez 'e.category'.
+                // Doctrine comparera automatiquement l'ID.
+                ->andWhere('e.categoryId = :catId')
+                ->setParameter('catId', $categoryId);
+        }
+
+        // --- Filtrage par Terme de Recherche ---
+        $cleanSearchTerm = $searchTerm !== null ? trim($searchTerm) : null;
+        if (!empty($cleanSearchTerm)) {
+            $queryBuilder
+                ->andWhere('LOWER(e.name) LIKE LOWER(:term) OR LOWER(e.description) LIKE LOWER(:term)')
+                ->setParameter('term', '%' . $cleanSearchTerm . '%');
+        }
+
+        // --- Tri ---
+        $queryBuilder->orderBy('e.startTime', 'ASC')
+                     ->addOrderBy('e.name', 'ASC');
+
+        // Exécute et retourne les résultats
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

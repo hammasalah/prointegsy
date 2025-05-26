@@ -1,0 +1,124 @@
+{# templates/home/home.html.twig #}
+{% extends 'base.html.twig' %} {# Étend toujours la base #}
+
+{% block title %}Home - ConnectSphere{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }} {# Styles de base #}
+    {# CSS Leaflet (requis pour cette page) #}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    {# Styles Carte + Popups + Tuiles Forcées (requis pour cette page) #}
+    <style>
+        /* Styles Section Carte */
+        .event-map-section { padding: 2rem 1rem 2.5rem 1rem; background-color: #f0f3f7; }
+        .event-map-section h2 { font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center; color: #333; font-weight: 600; }
+        #homepage-event-map { /* ID unique pour la carte de CETTE page */
+            height: 500px !important; width: 100%; max-width: 1100px; margin: 0 auto;
+            border: 1px solid #aaaaaa !important; background-color: #ddeeff !important; position: relative;
+            z-index: 1; visibility: visible !important; display: block !important;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        #homepage-event-map img.leaflet-tile, #homepage-event-map .leaflet-tile { max-width: none !important; max-height: none !important; width: 256px !important; height: 256px !important; display: block !important; visibility: visible !important; opacity: 1 !important; border: none !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+        /* Styles Popups */
+        .leaflet-popup-content-wrapper { border-radius: 6px; }
+        .leaflet-popup-content { font-size: 0.9rem; line-height: 1.45; max-width: 300px !important; }
+        .leaflet-popup-content b { color: #1c2b5d; display: block; margin-bottom: 6px; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 4px;}
+        .leaflet-popup-content i.fas { color: #6c757d; margin-right: 6px; width: 1em; text-align: center; }
+        .leaflet-popup-content small { display: flex; align-items: center; margin-bottom: 4px; color: #555; }
+        .leaflet-popup-content p { margin-top: 10px; margin-bottom: 8px; font-size: 0.85rem; color: #333; max-height: 60px; overflow: hidden; }
+        .leaflet-popup-content a { color: #0d6efd; font-weight: 500; } .leaflet-popup-content a:hover { text-decoration: underline; }
+        .map-feedback-message { text-align: center; padding-top: 100px; color: #666; font-style: italic;}
+        .map-feedback-message.error { color: var(--danger-color, #dc3545); font-weight: bold;}
+        /* Assurez-vous que les styles pour .hero, .section, .cards-grid, .card sont disponibles (probablement via root.css chargé dans base.html.twig) */
+    </style>
+{% endblock %}
+
+{% block body %}
+    {# --- Section Hero (Copiée depuis l'ancien base.html.twig) --- #}
+    <section class="hero">
+         <div class="hero-content">
+            <div class="hero-text">
+                <p class="event-date" style="color: #F96358; font-weight: 600;">Welcome!</p> {# Texte peut-être à adapter #}
+                <h1 class="hero-title">The Ultimate Platform for Planning and Promoting Successful Events</h1>
+                <p class="hero-subtitle">Connect Sphere helps you create unforgettable experiences.</p>
+                <a href="{{ path('app_events') }}" class="cta-btn">Explore Events</a>
+            </div>
+            <div class="hero-illustration">
+                 {# <img src="{{ asset('images/hero-illustration.png') }}" alt="Hero Illustration"> #}
+            </div>
+        </div>
+         {# <div class="social-icons"> ... </div> #}
+    </section>
+
+    {# --- SECTION CARTE --- #}
+    <section class="section event-map-section">
+         <h2 class="section-title">Upcoming Event Locations</h2>
+         <div id="homepage-event-map">
+              <p class="map-feedback-message">Loading map and finding event locations...</p>
+         </div>
+    </section>
+
+    {# --- Section Who We Are (Copiée depuis l'ancien base.html.twig) --- #}
+    <section class="section">
+        <h2 class="section-title">WHO WE ARE</h2>
+        <p class="section-subtitle">A leading event management platform...</p>
+        <div class="cards-grid">
+             <div class="card"><div class="card-icon"><i class="fas fa-globe"></i></div><h3>Global Network</h3><p>...</p></div>
+             <div class="card"><div class="card-icon"><i class="fas fa-tools"></i></div><h3>Advanced Tools</h3><p>...</p></div>
+             <div class="card"><div class="card-icon"><i class="fas fa-palette"></i></div><h3>Customizable Pages</h3><p>...</p></div>
+             <div class="card"><div class="card-icon"><i class="fas fa-bullhorn"></i></div><h3>Powerful Marketing</h3><p>...</p></div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }} {# Inclut les JS globaux de base.html.twig si nécessaire #}
+    {# JS de Leaflet (requis pour cette page) #}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    {# --- Script Carte avec Géocodage et Marqueurs --- #}
+    {# Exactement le même script que celui qui fonctionnait dans base.html.twig avant #}
+    {% if eventsJsonForMap is defined and eventsJsonForMap and eventsJsonForMap != '[]' %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log("Home Page Map JS: Initializing...");
+                const mapElement = document.getElementById('homepage-event-map');
+                if (!mapElement) { console.error("Home Page Map JS Error: Container '#homepage-event-map' not found!"); return; }
+                console.log("Home Page Map JS: Map container found.");
+
+                let map;
+                setTimeout(function() { // Délai initial
+                    console.log("Home Page Map JS: Attempting map initialization...");
+                    try {
+                        map = L.map(mapElement).setView([34.5, 9.5], 7);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { /* ... */ }).addTo(map);
+                        mapElement.querySelector('.map-feedback-message')?.remove();
+                        console.log("Home Page Map JS: Map base initialized!");
+
+                        // Parse JSON
+                        let eventsData = [];
+                        const eventsJsonData = '{{ eventsJsonForMap|raw|escape('js') }}';
+                        try {
+                            eventsData = JSON.parse(eventsJsonData);
+                            if (!Array.isArray(eventsData)) throw new Error("Parsed data not array");
+                            console.log(`Home Page Map JS: Parsed ${eventsData.length} events.`);
+                        } catch (e) { console.error("Home Page Map JS: JSON Parse failed.", e); throw e; }
+
+                        // Geocode Function
+                        async function geocodeLocation(locationQuery) { /* ... code identique ... */ }
+
+                        // Process Events Function (avec création popup DOM)
+                        async function processEvents() { /* ... code identique ... */ }
+
+                        // Lancer après délai et invalidateSize
+                         setTimeout(() => {
+                              if(map) { map.invalidateSize(true); processEvents(); }
+                         }, 150);
+
+                    } catch(mapInitError) { /* ... gestion erreur init ... */ }
+                }, 100); // Fin délai initial
+            }); // Fin DOMContentLoaded
+        </script>
+    {% endif %}
+{% endblock %}

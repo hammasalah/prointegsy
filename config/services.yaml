@@ -4,12 +4,22 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # You can define other parameters here if needed, for example:
+    # app.some_config_value: 'default_value'
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+        # ADD THIS BIND SECTION:
+        # Explicitly bind scalar arguments (like strings) to configuration or env variables
+        # This tells Symfony how to inject the $ollamaApiUrl string into ChatbotController
+        bind:
+            string $ollamaApiUrl: '%env(OLLAMA_API_URL)%'
+            # You can add other bindings here if needed in the future, e.g.:
+            # string $someOtherApiKey: '%env(SOME_OTHER_API_KEY)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -19,6 +29,18 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    # Your ChatbotController will now be autowired correctly because
+    # the binding above satisfies the $ollamaApiUrl string argument.
+    # You generally don't need to define controllers explicitly here anymore
+    # unless you need to override specific settings for just one controller.
+
+    # Example of explicitly defining a controller if needed (usually not necessary with defaults):
+    # App\Controller\SomeOtherController:
+    #     arguments:
+    #         $specificArgument: 'some_value'
+    #     tags: ['controller.service_arguments']
+
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
